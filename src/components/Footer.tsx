@@ -14,7 +14,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <img src={logo} alt="SmartBiz" className="h-8 w-8 rounded-md object-contain bg-primary-foreground" />
+              <img src={logo} alt="SmartBiz" className="h-12 w-12 rounded-md object-contain bg-primary-foreground" />
               <span className="font-display font-bold text-xl">SmartBiz</span>
             </div>
             <p className="text-sm text-primary-foreground/60 mb-4">Building the growth infrastructure for African small businesses.</p>

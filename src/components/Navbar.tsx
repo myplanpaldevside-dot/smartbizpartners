@@ -23,7 +23,7 @@ const Navbar = () => {
     >
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
         <a href="#" className="flex items-center gap-2">
-          <img src={logo} alt="SmartBiz" className="h-8 w-8 rounded-md object-contain" />
+          <img src={logo} alt="SmartBiz" className="h-12 w-12 rounded-md object-contain" />
           <span className="font-display font-bold text-xl text-foreground">SmartBiz</span>
         </a>
 
