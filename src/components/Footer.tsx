@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import logo from "@/assets/smartbiz-logo.jpeg";
+import logo from "@/assets/smartbiz-logo.png";
 import { Mail, MapPin, Phone } from "lucide-react";
 
 const Footer = () => {
@@ -14,7 +14,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-3 mb-6">
-              <img src={logo} alt="SmartBiz" className="h-12 w-12 rounded-sm object-contain bg-primary-foreground" />
+              <img src={logo} alt="SmartBiz" className="h-16 w-16 object-contain bg-primary-foreground" />
               <span className="font-display font-bold text-xl tracking-tight">SMARTBIZ</span>
             </div>
             <p className="text-sm text-primary-foreground/40 leading-relaxed">
