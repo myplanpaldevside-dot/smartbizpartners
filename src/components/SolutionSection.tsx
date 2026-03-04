@@ -1,75 +1,81 @@
 import { motion } from "framer-motion";
-import { Palette, BookOpen, Cpu, Globe, PenTool, Rocket, Target, GraduationCap, FileText, Monitor, BarChart2, Users } from "lucide-react";
 
 const columns = [
   {
+    letter: "A",
     title: "Premium Execution Services",
-    desc: "Professional digital solutions at SME-friendly prices.",
+    desc: "Professional digital solutions at SME-friendly prices — from websites to growth funnels.",
+    items: ["Website Development", "Branding & Content Creation", "Growth Funnels", "Retainer Services"],
     badge: "Active",
-    items: [
-      { icon: Globe, label: "Website Development" },
-      { icon: Palette, label: "Branding & Content Creation" },
-      { icon: Rocket, label: "Growth Funnels" },
-      { icon: Target, label: "Retainer Services" },
-    ],
   },
   {
+    letter: "B",
     title: "Business Education",
-    desc: "Hands-on learning designed for African entrepreneurs.",
+    desc: "Hands-on learning designed for African entrepreneurs who want real, actionable growth.",
+    items: ["Bootcamps", "Courses", "Templates", "Masterclasses"],
     badge: "Active",
-    items: [
-      { icon: GraduationCap, label: "Bootcamps" },
-      { icon: BookOpen, label: "Courses" },
-      { icon: FileText, label: "Templates" },
-      { icon: PenTool, label: "Masterclasses" },
-    ],
   },
   {
+    letter: "C",
     title: "SmartBiz Platform",
-    desc: "The subscription engine for sustained SME growth.",
+    desc: "The subscription engine for sustained SME growth — dashboards, tools, and community.",
+    items: ["SME Dashboard", "Subscription Tools", "Growth Tracking", "Community Support"],
     badge: "Coming Soon",
-    items: [
-      { icon: Monitor, label: "SME Dashboard" },
-      { icon: Cpu, label: "Subscription Tools" },
-      { icon: BarChart2, label: "Growth Tracking" },
-      { icon: Users, label: "Community Support" },
-    ],
   },
 ];
 
 const SolutionSection = () => (
-  <section id="solution" className="py-24">
-    <div className="container mx-auto px-4">
-      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center max-w-2xl mx-auto mb-16">
-        <span className="text-sm font-semibold text-emerald uppercase tracking-wider">Our Solution</span>
-        <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-3 mb-4">A Complete Growth Ecosystem</h2>
-        <p className="text-muted-foreground">Three integrated pillars designed to move African SMEs from survival to scale.</p>
+  <section id="solution" className="py-32 px-6 md:px-12 bg-foreground text-primary-foreground">
+    <div className="max-w-7xl mx-auto">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-20"
+      >
+        <div>
+          <p className="text-xs font-semibold tracking-[0.3em] text-emerald uppercase mb-4">Our Services</p>
+          <h2 className="font-display text-5xl md:text-7xl font-bold leading-[0.95]">
+            A Complete<br />Growth Ecosystem
+          </h2>
+        </div>
+        <p className="text-sm text-primary-foreground/50 max-w-sm leading-relaxed">
+          If you're looking for clarity in growth, let's build it together.
+        </p>
       </motion.div>
 
-      <div className="grid md:grid-cols-3 gap-8">
+      <div className="space-y-0">
         {columns.map((col, ci) => (
           <motion.div
-            key={col.title}
+            key={col.letter}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: ci * 0.15 }}
-            className="bg-card rounded-2xl border border-border p-8 shadow-card hover:shadow-elevated transition-all group relative overflow-hidden"
+            transition={{ delay: ci * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="border-t border-primary-foreground/10 py-12 md:py-16 grid md:grid-cols-12 gap-8 items-start group"
           >
-            {col.badge === "Coming Soon" && (
-              <div className="absolute top-4 right-4 bg-navy text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
-                Coming Soon
+            <div className="md:col-span-1">
+              <span className="font-display text-4xl font-bold text-emerald">{col.letter}/</span>
+            </div>
+            <div className="md:col-span-5">
+              <div className="flex items-center gap-3 mb-3">
+                <h3 className="font-display font-bold text-2xl">{col.title}</h3>
+                {col.badge === "Coming Soon" && (
+                  <span className="text-[10px] font-semibold tracking-wider uppercase bg-emerald/20 text-emerald px-2 py-0.5">
+                    Soon
+                  </span>
+                )}
               </div>
-            )}
-            <h3 className="font-display font-bold text-xl text-foreground mb-2">{col.title}</h3>
-            <p className="text-sm text-muted-foreground mb-6">{col.desc}</p>
-            <div className="space-y-3">
-              {col.items.map(({ icon: Icon, label }) => (
-                <div key={label} className="flex items-center gap-3 text-sm text-foreground">
-                  <div className="w-8 h-8 rounded-lg bg-emerald/10 flex items-center justify-center shrink-0">
-                    <Icon className="h-4 w-4 text-emerald" />
-                  </div>
-                  {label}
+              <p className="text-sm text-primary-foreground/50 leading-relaxed">{col.desc}</p>
+            </div>
+            <div className="md:col-span-6 grid grid-cols-2 gap-3">
+              {col.items.map((item) => (
+                <div
+                  key={item}
+                  className="text-sm font-medium text-primary-foreground/70 group-hover:text-primary-foreground transition-colors"
+                >
+                  {item}
                 </div>
               ))}
             </div>

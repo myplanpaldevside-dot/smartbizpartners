@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import logo from "@/assets/smartbiz-logo.jpeg";
 
 const navLinks = [
-  { label: "About", href: "#problem" },
-  { label: "Solutions", href: "#solution" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Invest", href: "#investor" },
-  { label: "Contact", href: "#contact" },
+  { label: "ABOUT", href: "#problem" },
+  { label: "SOLUTIONS", href: "#solution" },
+  { label: "PRICING", href: "#pricing" },
+  { label: "INVEST", href: "#investor" },
+  { label: "CONTACT", href: "#contact" },
 ];
 
 const Navbar = () => {
@@ -19,21 +18,25 @@ const Navbar = () => {
     <motion.nav
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border"
+      transition={{ duration: 0.6 }}
+      className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md"
     >
-      <div className="container mx-auto flex items-center justify-between h-16 px-4">
-        <a href="#" className="flex items-center gap-2">
-          <img src={logo} alt="SmartBiz" className="h-12 w-12 rounded-md object-contain" />
-          <span className="font-display font-bold text-xl text-foreground">SmartBiz</span>
+      <div className="flex items-center justify-between h-20 px-6 md:px-12">
+        <a href="#" className="flex items-center gap-3">
+          <img src={logo} alt="SmartBiz" className="h-12 w-12 rounded-sm object-contain" />
+          <span className="font-display font-bold text-xl tracking-tight text-foreground">SMARTBIZ</span>
         </a>
 
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-10">
           {navLinks.map((l) => (
-            <a key={l.href} href={l.href} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <a
+              key={l.href}
+              href={l.href}
+              className="text-xs font-semibold tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors"
+            >
               {l.label}
             </a>
           ))}
-          <Button variant="hero" size="sm">Work With Us</Button>
         </div>
 
         <button className="md:hidden" onClick={() => setOpen(!open)}>
@@ -42,13 +45,21 @@ const Navbar = () => {
       </div>
 
       {open && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="md:hidden bg-background border-b border-border px-4 pb-4">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="md:hidden bg-background border-t border-border px-6 pb-6"
+        >
           {navLinks.map((l) => (
-            <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+            <a
+              key={l.href}
+              href={l.href}
+              onClick={() => setOpen(false)}
+              className="block py-3 text-sm font-semibold tracking-[0.15em] text-muted-foreground hover:text-foreground border-b border-border"
+            >
               {l.label}
             </a>
           ))}
-          <Button variant="hero" size="sm" className="mt-2 w-full">Work With Us</Button>
         </motion.div>
       )}
     </motion.nav>

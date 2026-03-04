@@ -1,34 +1,46 @@
 import { motion } from "framer-motion";
-import { Globe, Smartphone, Network, Layers } from "lucide-react";
 
 const visions = [
-  { icon: Layers, label: "Subscription Platform", desc: "Recurring revenue through digital growth tools." },
-  { icon: Globe, label: "Pan-African Expansion", desc: "Scaling across West Africa and beyond." },
-  { icon: Network, label: "SME Infrastructure", desc: "The backbone for Africa's emerging businesses." },
-  { icon: Smartphone, label: "App Ecosystem", desc: "Mobile-first tools for SMEs on the go." },
+  { label: "Subscription Platform", desc: "Recurring revenue through digital growth tools for SMEs across Africa." },
+  { label: "Pan-African Expansion", desc: "Scaling across West Africa and beyond to serve millions of entrepreneurs." },
+  { label: "SME Infrastructure", desc: "The backbone for Africa's emerging businesses — systems, tools, support." },
+  { label: "App Ecosystem", desc: "Mobile-first tools for SMEs on the go, accessible from anywhere." },
 ];
 
 const VisionSection = () => (
-  <section className="py-24 gradient-subtle">
-    <div className="container mx-auto px-4">
-      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center max-w-2xl mx-auto mb-16">
-        <span className="text-sm font-semibold text-emerald uppercase tracking-wider">Our Vision</span>
-        <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-3 mb-4">
-          The Operating System for African SMEs
+  <section className="py-32 px-6 md:px-12 bg-muted">
+    <div className="max-w-7xl mx-auto">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="mb-20"
+      >
+        <p className="text-xs font-semibold tracking-[0.3em] text-muted-foreground uppercase mb-4">Our Vision</p>
+        <h2 className="font-display text-5xl md:text-7xl font-bold text-foreground leading-[0.95] max-w-4xl">
+          The Operating System for <span className="text-gradient">African SMEs</span>
         </h2>
-        <p className="text-muted-foreground">We're building long-term infrastructure — not a one-time service. SmartBiz will become the default growth engine for SMEs across the continent.</p>
+        <p className="text-muted-foreground mt-6 max-w-xl leading-relaxed">
+          We're building long-term infrastructure — not a one-time service. SmartBiz will become the default growth engine for SMEs across the continent.
+        </p>
       </motion.div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid md:grid-cols-2 gap-0 border-t border-border">
         {visions.map((v, i) => (
-          <motion.div key={v.label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-            className="text-center bg-card rounded-2xl border border-border p-8 shadow-card hover:shadow-elevated transition-shadow"
+          <motion.div
+            key={v.label}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.1, duration: 0.6 }}
+            className="border-b border-border p-10 md:p-14 group hover:bg-background transition-colors md:odd:border-r"
           >
-            <div className="w-14 h-14 rounded-2xl gradient-hero flex items-center justify-center mx-auto mb-4">
-              <v.icon className="h-7 w-7 text-primary-foreground" />
-            </div>
-            <h3 className="font-display font-bold text-foreground mb-2">{v.label}</h3>
-            <p className="text-sm text-muted-foreground">{v.desc}</p>
+            <span className="font-display text-5xl font-bold text-emerald/15 group-hover:text-emerald/30 transition-colors">
+              0{i + 1}
+            </span>
+            <h3 className="font-display font-bold text-xl text-foreground mt-4 mb-3">{v.label}</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{v.desc}</p>
           </motion.div>
         ))}
       </div>
