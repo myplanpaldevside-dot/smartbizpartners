@@ -7,8 +7,6 @@ import SolutionSection from "@/components/SolutionSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import StatsSection from "@/components/StatsSection";
 import TractionSection from "@/components/TractionSection";
-import InvestorSection from "@/components/InvestorSection";
-import PricingSection from "@/components/PricingSection";
 import VisionSection from "@/components/VisionSection";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
@@ -26,8 +24,6 @@ const Index = () => {
       <HowItWorksSection />
       <StatsSection />
       <TractionSection />
-      <InvestorSection />
-      <PricingSection />
       <VisionSection />
       <FinalCTA />
       <Footer />
