@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import logo from "@/assets/smartbiz-logo.jpeg";
+import logo from "@/assets/smartbiz-logo.png";
 
 const navLinks = [
   { label: "ABOUT", href: "#problem" },
@@ -23,7 +23,7 @@ const Navbar = () => {
     >
       <div className="flex items-center justify-between h-20 px-6 md:px-12">
         <a href="#" className="flex items-center gap-3">
-          <img src={logo} alt="SmartBiz" className="h-12 w-12 rounded-sm object-contain" />
+          <img src={logo} alt="SmartBiz" className="h-16 w-16 object-contain" />
           <span className="font-display font-bold text-xl tracking-tight text-foreground">SMARTBIZ</span>
         </a>
 
