@@ -1,34 +1,44 @@
 import { motion } from "framer-motion";
-import { BookOpen, Hammer, Rocket } from "lucide-react";
 
 const steps = [
-  { icon: BookOpen, step: "01", title: "Learn", desc: "Build foundational knowledge through bootcamps, courses, and masterclasses." },
-  { icon: Hammer, step: "02", title: "Build", desc: "Get your website, brand, and digital presence professionally developed." },
-  { icon: Rocket, step: "03", title: "Scale", desc: "Leverage growth tools, analytics, and community to scale sustainably." },
+  { num: "01", title: "Learn", desc: "Build foundational knowledge through bootcamps, courses, and masterclasses designed for African entrepreneurs." },
+  { num: "02", title: "Build", desc: "Get your website, brand, and digital presence professionally developed by our expert team." },
+  { num: "03", title: "Scale", desc: "Leverage growth tools, analytics, and community to scale your business sustainably." },
 ];
 
 const HowItWorksSection = () => (
-  <section className="py-24 gradient-subtle">
-    <div className="container mx-auto px-4">
-      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center max-w-2xl mx-auto mb-16">
-        <span className="text-sm font-semibold text-emerald uppercase tracking-wider">How It Works</span>
-        <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-3">Three Steps to Growth</h2>
+  <section className="py-32 px-6 md:px-12">
+    <div className="max-w-7xl mx-auto">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="mb-20"
+      >
+        <p className="text-xs font-semibold tracking-[0.3em] text-muted-foreground uppercase mb-4">The Process</p>
+        <h2 className="font-display text-5xl md:text-7xl font-bold text-foreground leading-[0.95]">
+          How It <span className="text-stroke-emerald">Works</span>
+        </h2>
       </motion.div>
 
-      <div className="grid md:grid-cols-3 gap-8 relative">
-        {/* Connector line */}
-        <div className="hidden md:block absolute top-16 left-[20%] right-[20%] h-0.5 bg-border" />
-
+      <div className="grid md:grid-cols-3 gap-0">
         {steps.map((s, i) => (
-          <motion.div key={s.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}
-            className="text-center relative"
+          <motion.div
+            key={s.num}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.15, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="border border-border p-10 md:p-12 group hover:bg-foreground hover:text-primary-foreground transition-all duration-500 cursor-default"
           >
-            <div className="w-16 h-16 rounded-2xl gradient-emerald flex items-center justify-center mx-auto mb-6 shadow-glow relative z-10">
-              <s.icon className="h-7 w-7 text-primary-foreground" />
-            </div>
-            <p className="text-xs font-bold text-emerald uppercase tracking-widest mb-2">Step {s.step}</p>
-            <h3 className="font-display font-bold text-xl text-foreground mb-2">{s.title}</h3>
-            <p className="text-sm text-muted-foreground max-w-xs mx-auto">{s.desc}</p>
+            <span className="font-display text-7xl md:text-8xl font-bold text-emerald/15 group-hover:text-emerald/30 transition-colors block mb-6">
+              {s.num}
+            </span>
+            <h3 className="font-display font-bold text-3xl mb-4">{s.title}</h3>
+            <p className="text-sm text-muted-foreground group-hover:text-primary-foreground/60 transition-colors leading-relaxed">
+              {s.desc}
+            </p>
           </motion.div>
         ))}
       </div>
