@@ -30,9 +30,8 @@ const Navbar = () => {
       }`}
     >
       <div className="flex items-center justify-between h-20 px-6 md:px-12 max-w-[1800px] mx-auto">
-        <a href="#" className="flex items-center gap-3 group">
-          <img src={logo} alt="SmartBiz" className="h-14 w-14 object-contain transition-transform duration-300 group-hover:scale-105" />
-          <span className="font-display font-bold text-lg tracking-tight text-foreground">SMARTBIZ</span>
+        <a href="#" className="group">
+          <img src={logo} alt="SmartBiz" className="h-20 w-20 object-contain transition-transform duration-300 group-hover:scale-105" />
         </a>
 
         <div className="hidden md:flex items-center gap-10">

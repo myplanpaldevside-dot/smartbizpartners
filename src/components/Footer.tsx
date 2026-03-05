@@ -29,9 +29,8 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="md:col-span-1">
-            <div className="flex items-center gap-3 mb-6">
-              <img src={logo} alt="SmartBiz" className="h-14 w-14 object-contain bg-primary-foreground p-1" />
-              <span className="font-display font-bold text-xl tracking-tight">SMARTBIZ</span>
+            <div className="mb-6">
+              <img src={logo} alt="SmartBiz" className="h-20 w-20 object-contain" />
             </div>
             <p className="text-sm text-primary-foreground/40 leading-relaxed">
               Building the growth infrastructure for African small businesses.
