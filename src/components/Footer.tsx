@@ -30,7 +30,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="mb-6">
-              <img src={logo} alt="SmartBiz" className="h-20 w-20 object-contain" />
+              <img src={logo} alt="SmartBiz" className="h-20 w-20 object-contain brightness-0 invert" />
             </div>
             <p className="text-sm text-primary-foreground/40 leading-relaxed">
               Building the growth infrastructure for African small businesses.
