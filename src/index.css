@@ -115,10 +115,25 @@
   }
 }
 
-/* Marquee animation */
+/* Marquee animations */
 @keyframes marquee {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes marquee-logos {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}
+
+@keyframes marquee-logos-reverse {
+  0% { transform: translateX(-33.333%); }
+  100% { transform: translateX(0); }
 }
 
 .animate-marquee {
@@ -127,6 +142,14 @@
 
 .animate-marquee-slow {
   animation: marquee 30s linear infinite;
+}
+
+.animate-marquee-logos {
+  animation: marquee-logos 25s linear infinite;
+}
+
+.animate-marquee-logos-reverse {
+  animation: marquee-logos-reverse 30s linear infinite;
 }
 
 /* Giant text stroke */
@@ -138,4 +161,12 @@
 .text-stroke-emerald {
   -webkit-text-stroke: 2px hsl(160 84% 39%);
   color: transparent;
+}
+
+/* Smooth cursor interactions */
+.hover-lift {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
 }
