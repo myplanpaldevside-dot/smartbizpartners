@@ -1,11 +1,33 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
+import AnimatedRobot from "./AnimatedRobot";
+
+const fullText = "SMARTBIZ — a tech-enabled SME growth platform helping African small businesses scale through education, website development, and subscription-based digital growth tools.";
 
 const HeroSection = () => {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [0, 150]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+
+  const [displayedText, setDisplayedText] = useState("");
+  const [charIndex, setCharIndex] = useState(0);
+
+  useEffect(() => {
+    if (charIndex < fullText.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedText(fullText.slice(0, charIndex + 1));
+        setCharIndex(charIndex + 1);
+      }, 30);
+      return () => clearTimeout(timeout);
+    }
+  }, [charIndex]);
+
+  // Start typing after a delay
+  useEffect(() => {
+    const delay = setTimeout(() => setCharIndex(1), 1500);
+    return () => clearTimeout(delay);
+  }, []);
 
   return (
     <section ref={ref} className="relative min-h-screen flex flex-col justify-end pt-20 pb-12 px-6 md:px-12 overflow-hidden">
@@ -16,7 +38,7 @@ const HeroSection = () => {
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Description top-left */}
+      {/* Description top-left with typewriter */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -25,8 +47,34 @@ const HeroSection = () => {
         className="absolute top-28 left-6 md:left-12 max-w-sm z-10"
       >
         <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-          <span className="font-display font-bold text-foreground">SMARTBIZ</span> — a tech-enabled SME growth platform helping African small businesses scale through education, website development, and subscription-based digital growth tools.
+          {displayedText.split("SMARTBIZ").map((part, i) =>
+            i === 0 ? (
+              <span key={i}>
+                <span className="font-display font-bold text-foreground">SMARTBIZ</span>
+                {part}
+              </span>
+            ) : (
+              <span key={i}>{part}</span>
+            )
+          )}
+          {charIndex < fullText.length && (
+            <motion.span
+              animate={{ opacity: [1, 0] }}
+              transition={{ duration: 0.5, repeat: Infinity }}
+              className="inline-block w-[2px] h-4 bg-emerald ml-0.5 align-middle"
+            />
+          )}
         </p>
+      </motion.div>
+
+      {/* Animated Robot */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="absolute top-1/3 right-8 md:right-1/4 z-10"
+      >
+        <AnimatedRobot />
       </motion.div>
 
       {/* Location + time - bottom right */}
