@@ -9,6 +9,7 @@ import HowItWorksSection from "@/components/HowItWorksSection";
 import StatsSection from "@/components/StatsSection";
 import TractionSection from "@/components/TractionSection";
 import VisionSection from "@/components/VisionSection";
+import SocialConnectSection from "@/components/SocialConnectSection";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
 import AIChatbot from "@/components/AIChatbot";
@@ -35,6 +36,7 @@ const Index = () => {
       <StatsSection />
       <TractionSection />
       <VisionSection />
+      <SocialConnectSection />
       <FinalCTA />
       <Footer />
       <AIChatbot />
