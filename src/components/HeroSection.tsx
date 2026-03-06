@@ -67,15 +67,6 @@ const HeroSection = () => {
         </p>
       </motion.div>
 
-      {/* Animated Robot */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 1.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="absolute top-1/3 right-8 md:right-1/4 z-10"
-      >
-        <AnimatedRobot />
-      </motion.div>
 
       {/* Location + time - bottom right */}
       <motion.div
