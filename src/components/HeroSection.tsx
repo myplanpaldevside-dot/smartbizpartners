@@ -73,13 +73,11 @@ const HeroSection = () => {
               <span key={i}>{part}</span>
             )
           )}
-          {!typingDone && (
-            <motion.span
+          <motion.span
               animate={{ opacity: [1, 0] }}
               transition={{ duration: 0.5, repeat: Infinity }}
               className="inline-block w-[2px] h-3 sm:h-4 bg-emerald ml-0.5 align-middle"
             />
-          )}
         </p>
       </motion.div>
 
