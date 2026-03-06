@@ -166,7 +166,7 @@ const AIChatbot = () => {
                     <img src={robotGif} alt="" className="w-full h-full object-contain" style={{ filter: "hue-rotate(120deg) saturate(1.4) brightness(1.1)" }} />
                   </div>
                   <p className="text-sm font-semibold text-foreground font-display">Hi there! 👋</p>
-                  <p className="text-xs text-muted-foreground mt-1">Ask me anything about SmartBiz or tech in general.</p>
+                  <p className="text-xs text-muted-foreground mt-1">Ask me anything about SmartBiz!</p>
                 </div>
               )}
 
