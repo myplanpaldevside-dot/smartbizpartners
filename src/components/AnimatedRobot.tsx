@@ -6,7 +6,7 @@ const AnimatedRobot = () => {
     <motion.div
       animate={{ y: [0, -8, 0] }}
       transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-      className="relative w-36 h-36 md:w-52 md:h-52"
+      className="relative w-20 h-20 sm:w-28 sm:h-28 md:w-44 md:h-44"
     >
       {/* Brand-colored glow behind robot */}
       <div className="absolute inset-0 rounded-full bg-emerald/20 blur-2xl scale-110" />
