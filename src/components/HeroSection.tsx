@@ -22,7 +22,17 @@ const HeroSection = () => {
       }, 30);
       return () => clearTimeout(timeout);
     } else if (charIndex >= fullText.length) {
-      setTypingDone(true);
+      // Reset after a pause to loop the typing animation
+      const resetTimeout = setTimeout(() => {
+        setDisplayedText("");
+        setCharIndex(0);
+        // Restart after a brief pause
+        setTimeout(() => {
+          setDisplayedText(fullText.slice(0, 1));
+          setCharIndex(1);
+        }, 500);
+      }, 2000);
+      return () => clearTimeout(resetTimeout);
     }
   }, [charIndex]);
 
