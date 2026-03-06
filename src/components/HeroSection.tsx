@@ -12,7 +12,7 @@ const HeroSection = () => {
 
   const [displayedText, setDisplayedText] = useState("");
   const [charIndex, setCharIndex] = useState(0);
-  const [typingDone, setTypingDone] = useState(false);
+  const [, setTypingDone] = useState(false);
 
   useEffect(() => {
     if (charIndex > 0 && charIndex < fullText.length) {
@@ -22,7 +22,17 @@ const HeroSection = () => {
       }, 30);
       return () => clearTimeout(timeout);
     } else if (charIndex >= fullText.length) {
-      setTypingDone(true);
+      // Reset after a pause to loop the typing animation
+      const resetTimeout = setTimeout(() => {
+        setDisplayedText("");
+        setCharIndex(0);
+        // Restart after a brief pause
+        setTimeout(() => {
+          setDisplayedText(fullText.slice(0, 1));
+          setCharIndex(1);
+        }, 500);
+      }, 2000);
+      return () => clearTimeout(resetTimeout);
     }
   }, [charIndex]);
 
@@ -63,13 +73,11 @@ const HeroSection = () => {
               <span key={i}>{part}</span>
             )
           )}
-          {!typingDone && (
-            <motion.span
+          <motion.span
               animate={{ opacity: [1, 0] }}
               transition={{ duration: 0.5, repeat: Infinity }}
               className="inline-block w-[2px] h-3 sm:h-4 bg-emerald ml-0.5 align-middle"
             />
-          )}
         </p>
       </motion.div>
 
