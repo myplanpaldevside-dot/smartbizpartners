@@ -11,7 +11,7 @@ import TractionSection from "@/components/TractionSection";
 import VisionSection from "@/components/VisionSection";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
-import WhatsAppButton from "@/components/WhatsAppButton";
+import AIChatbot from "@/components/AIChatbot";
 import SplashScreen from "@/components/SplashScreen";
 
 const Index = () => {
