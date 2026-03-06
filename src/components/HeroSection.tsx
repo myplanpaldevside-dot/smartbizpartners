@@ -12,7 +12,7 @@ const HeroSection = () => {
 
   const [displayedText, setDisplayedText] = useState("");
   const [charIndex, setCharIndex] = useState(0);
-  const [typingDone, setTypingDone] = useState(false);
+  const [, setTypingDone] = useState(false);
 
   useEffect(() => {
     if (charIndex > 0 && charIndex < fullText.length) {
