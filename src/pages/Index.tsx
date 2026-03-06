@@ -37,7 +37,7 @@ const Index = () => {
       <VisionSection />
       <FinalCTA />
       <Footer />
-      <WhatsAppButton />
+      <AIChatbot />
     </div>
   );
 };
