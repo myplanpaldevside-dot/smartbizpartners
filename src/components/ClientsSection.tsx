@@ -3,12 +3,14 @@ import tmgLogo from "@/assets/clients/tmg.png";
 import edugridLogo from "@/assets/clients/edugrid.png";
 import henosisLogo from "@/assets/clients/henosis.png";
 import stemxLogo from "@/assets/clients/stemx.png";
+import boxedblissLogo from "@/assets/clients/boxedbliss.png";
 
 const clients = [
   { name: "TheMakerGuy", logo: tmgLogo },
   { name: "EduGrid Africa", logo: edugridLogo },
   { name: "Henosis", logo: henosisLogo },
   { name: "STEMx", logo: stemxLogo },
+  { name: "BoxedBliss", logo: boxedblissLogo },
 ];
 
 // Double the array for seamless infinite scroll
