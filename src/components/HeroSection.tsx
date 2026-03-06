@@ -12,25 +12,31 @@ const HeroSection = () => {
 
   const [displayedText, setDisplayedText] = useState("");
   const [charIndex, setCharIndex] = useState(0);
+  const [typingDone, setTypingDone] = useState(false);
 
   useEffect(() => {
-    if (charIndex < fullText.length) {
+    if (charIndex > 0 && charIndex < fullText.length) {
       const timeout = setTimeout(() => {
         setDisplayedText(fullText.slice(0, charIndex + 1));
         setCharIndex(charIndex + 1);
       }, 30);
       return () => clearTimeout(timeout);
+    } else if (charIndex >= fullText.length) {
+      setTypingDone(true);
     }
   }, [charIndex]);
 
   // Start typing after a delay
   useEffect(() => {
-    const delay = setTimeout(() => setCharIndex(1), 1500);
+    const delay = setTimeout(() => {
+      setDisplayedText(fullText.slice(0, 1));
+      setCharIndex(1);
+    }, 1500);
     return () => clearTimeout(delay);
   }, []);
 
   return (
-    <section ref={ref} className="relative min-h-screen flex flex-col justify-end pt-20 pb-12 px-6 md:px-12 overflow-hidden">
+    <section ref={ref} className="relative min-h-screen flex flex-col justify-end pt-20 pb-12 px-4 sm:px-6 md:px-12 overflow-hidden">
       {/* Animated background elements */}
       <motion.div
         className="absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-emerald/5 blur-[120px]"
@@ -44,9 +50,9 @@ const HeroSection = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
         style={{ y, opacity }}
-        className="absolute top-28 left-6 md:left-12 max-w-sm z-10"
+        className="absolute top-24 sm:top-28 left-4 sm:left-6 md:left-12 max-w-[85vw] sm:max-w-sm z-10"
       >
-        <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+        <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">
           {displayedText.split("SMARTBIZ").map((part, i) =>
             i === 0 ? (
               <span key={i}>
@@ -57,11 +63,11 @@ const HeroSection = () => {
               <span key={i}>{part}</span>
             )
           )}
-          {charIndex < fullText.length && (
+          {!typingDone && (
             <motion.span
               animate={{ opacity: [1, 0] }}
               transition={{ duration: 0.5, repeat: Infinity }}
-              className="inline-block w-[2px] h-4 bg-emerald ml-0.5 align-middle"
+              className="inline-block w-[2px] h-3 sm:h-4 bg-emerald ml-0.5 align-middle"
             />
           )}
         </p>
@@ -73,20 +79,20 @@ const HeroSection = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 0.8 }}
-        className="absolute bottom-12 right-6 md:right-12 text-right text-xs text-muted-foreground tracking-wide z-10"
+        className="absolute bottom-12 right-4 sm:right-6 md:right-12 text-right text-xs text-muted-foreground tracking-wide z-10"
       >
         <p className="mb-1">LAGOS, NG &nbsp;&nbsp; {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
         <p className="text-[10px] text-emerald tracking-[0.3em]">EST. 2024</p>
       </motion.div>
 
       {/* Giant brand name with stagger */}
-      <div className="relative z-10">
-        <div className="flex items-center gap-2 md:gap-4">
+      <div className="relative z-10 mt-4 sm:mt-0">
+        <div className="flex items-center gap-3 sm:gap-4 md:gap-6">
           <motion.h1
             initial={{ opacity: 0, y: 120 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="font-display font-bold text-[18vw] md:text-[15vw] leading-[0.82] tracking-tighter text-foreground"
+            className="font-display font-bold text-[16vw] sm:text-[18vw] md:text-[15vw] leading-[0.82] tracking-tighter text-foreground"
           >
             SMART
           </motion.h1>
@@ -104,7 +110,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 120 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="font-display font-bold text-[18vw] md:text-[15vw] leading-[0.82] tracking-tighter text-stroke"
+            className="font-display font-bold text-[16vw] sm:text-[18vw] md:text-[15vw] leading-[0.82] tracking-tighter text-stroke"
           >
             BIZ
           </motion.h1>
@@ -127,7 +133,7 @@ const HeroSection = () => {
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ duration: 1.5, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="h-[2px] bg-emerald mt-8 origin-left max-w-md"
+        className="h-[2px] bg-emerald mt-6 sm:mt-8 origin-left max-w-md"
       />
 
       {/* Scroll indicator */}
