@@ -67,15 +67,6 @@ const HeroSection = () => {
         </p>
       </motion.div>
 
-      {/* Animated Robot */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 1.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="absolute top-1/3 right-8 md:right-1/4 z-10"
-      >
-        <AnimatedRobot />
-      </motion.div>
 
       {/* Location + time - bottom right */}
       <motion.div
@@ -90,14 +81,24 @@ const HeroSection = () => {
 
       {/* Giant brand name with stagger */}
       <div className="relative z-10">
-        <motion.h1
-          initial={{ opacity: 0, y: 120 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="font-display font-bold text-[18vw] md:text-[15vw] leading-[0.82] tracking-tighter text-foreground"
-        >
-          SMART
-        </motion.h1>
+        <div className="flex items-center gap-2 md:gap-4">
+          <motion.h1
+            initial={{ opacity: 0, y: 120 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            className="font-display font-bold text-[18vw] md:text-[15vw] leading-[0.82] tracking-tighter text-foreground"
+          >
+            SMART
+          </motion.h1>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 1.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="shrink-0"
+          >
+            <AnimatedRobot />
+          </motion.div>
+        </div>
         <div className="flex items-end gap-4 md:gap-8">
           <motion.h1
             initial={{ opacity: 0, y: 120 }}
