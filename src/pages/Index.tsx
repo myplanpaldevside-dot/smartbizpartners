@@ -8,6 +8,7 @@ import SolutionSection from "@/components/SolutionSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import StatsSection from "@/components/StatsSection";
 import TractionSection from "@/components/TractionSection";
+import AwardsSection from "@/components/AwardsSection";
 import VisionSection from "@/components/VisionSection";
 import SocialConnectSection from "@/components/SocialConnectSection";
 import FinalCTA from "@/components/FinalCTA";
@@ -35,6 +36,7 @@ const Index = () => {
       <HowItWorksSection />
       <StatsSection />
       <TractionSection />
+      <AwardsSection />
       <VisionSection />
       <SocialConnectSection />
       <FinalCTA />
