@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://smartbizpartners.lovable.app/sitemap.xml
