@@ -7,7 +7,6 @@ const fullText = "SMARTBIZ — a tech-enabled SME growth platform helping Africa
 const HeroSection = () => {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 150]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   const [displayedText, setDisplayedText] = useState("");
@@ -42,7 +41,7 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <section ref={ref} className="relative min-h-[100svh] flex flex-col justify-end pt-20 pb-8 sm:pb-12 px-4 sm:px-6 md:px-12 overflow-hidden">
+    <section ref={ref} className="relative h-[100svh] flex flex-col justify-center px-4 sm:px-6 md:px-12 overflow-hidden">
       {/* Animated background glow */}
       <motion.div
         className="absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-emerald/5 blur-[120px]"
@@ -50,8 +49,8 @@ const HeroSection = () => {
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Content wrapper - uses flex to keep description close to heading */}
-      <div className="relative z-10 flex flex-col gap-6 sm:gap-10 mt-auto">
+      {/* All content stacked naturally */}
+      <div className="relative z-10 flex flex-col gap-4 sm:gap-6">
         {/* Description with typewriter */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -81,7 +80,7 @@ const HeroSection = () => {
 
         {/* Giant brand name */}
         <div>
-          <div className="flex items-center gap-2 sm:gap-3 md:gap-5">
+          <div className="flex items-center">
             <motion.h1
               initial={{ opacity: 0, y: 120 }}
               animate={{ opacity: 1, y: 0 }}
@@ -94,7 +93,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 1.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="shrink-0"
+              className="shrink-0 ml-4 sm:ml-6 md:ml-10"
             >
               <AnimatedRobot />
             </motion.div>
