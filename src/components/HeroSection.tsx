@@ -1,12 +1,6 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import AnimatedRobot from "./AnimatedRobot";
-import hero1 from "@/assets/hero/hero-1.jpg";
-import hero2 from "@/assets/hero/hero-2.jpg";
-import hero3 from "@/assets/hero/hero-3.jpg";
-import hero4 from "@/assets/hero/hero-4.jpg";
-
-const heroImages = [hero1, hero2, hero3, hero4];
 
 const fullText = "SMARTBIZ — a tech-enabled SME growth platform helping African small businesses scale through education, website development, and subscription-based digital growth tools.";
 
@@ -47,48 +41,8 @@ const HeroSection = () => {
     return () => clearTimeout(delay);
   }, []);
 
-  // Active image rotation
-  const [activeImage, setActiveImage] = useState(0);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveImage((prev) => (prev + 1) % heroImages.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <section ref={ref} className="relative min-h-screen flex flex-col justify-end pt-20 pb-12 px-4 sm:px-6 md:px-12 overflow-hidden">
-      {/* Stacked hero images - Anakle style */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[45%] w-[280px] h-[360px] sm:w-[350px] sm:h-[450px] md:w-[500px] md:h-[650px] z-0">
-        {heroImages.map((img, i) => {
-          const isActive = i === activeImage;
-          const offset = i - activeImage;
-          const rotation = offset * 5 + (i % 2 === 0 ? -3 : 3);
-          
-          return (
-            <motion.div
-              key={i}
-              className="absolute inset-0"
-              animate={{
-                rotate: isActive ? 0 : rotation,
-                scale: isActive ? 1 : 0.92 - Math.abs(offset) * 0.03,
-                x: isActive ? 0 : offset * 15,
-                y: isActive ? 0 : offset * -10,
-                zIndex: isActive ? 10 : 5 - Math.abs(offset),
-                opacity: Math.abs(offset) > 2 ? 0.5 : 1,
-              }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <img
-                src={img}
-                alt={`SmartBiz creative ${i + 1}`}
-                className="w-full h-full object-cover shadow-elevated"
-              />
-            </motion.div>
-          );
-        })}
-      </div>
-
       {/* Animated background glow */}
       <motion.div
         className="absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-emerald/5 blur-[120px]"
