@@ -1,6 +1,12 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import AnimatedRobot from "./AnimatedRobot";
+import hero1 from "@/assets/hero/hero-1.jpg";
+import hero2 from "@/assets/hero/hero-2.jpg";
+import hero3 from "@/assets/hero/hero-3.jpg";
+import hero4 from "@/assets/hero/hero-4.jpg";
+
+const heroImages = [hero1, hero2, hero3, hero4];
 
 const fullText = "SMARTBIZ — a tech-enabled SME growth platform helping African small businesses scale through education, website development, and subscription-based digital growth tools.";
 
@@ -12,7 +18,6 @@ const HeroSection = () => {
 
   const [displayedText, setDisplayedText] = useState("");
   const [charIndex, setCharIndex] = useState(0);
-  const [, setTypingDone] = useState(false);
 
   useEffect(() => {
     if (charIndex > 0 && charIndex < fullText.length) {
@@ -22,11 +27,9 @@ const HeroSection = () => {
       }, 30);
       return () => clearTimeout(timeout);
     } else if (charIndex >= fullText.length) {
-      // Reset after a pause to loop the typing animation
       const resetTimeout = setTimeout(() => {
         setDisplayedText("");
         setCharIndex(0);
-        // Restart after a brief pause
         setTimeout(() => {
           setDisplayedText(fullText.slice(0, 1));
           setCharIndex(1);
@@ -36,7 +39,6 @@ const HeroSection = () => {
     }
   }, [charIndex]);
 
-  // Start typing after a delay
   useEffect(() => {
     const delay = setTimeout(() => {
       setDisplayedText(fullText.slice(0, 1));
@@ -45,9 +47,49 @@ const HeroSection = () => {
     return () => clearTimeout(delay);
   }, []);
 
+  // Active image rotation
+  const [activeImage, setActiveImage] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveImage((prev) => (prev + 1) % heroImages.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section ref={ref} className="relative min-h-screen flex flex-col justify-end pt-20 pb-12 px-4 sm:px-6 md:px-12 overflow-hidden">
-      {/* Animated background elements */}
+      {/* Stacked hero images - Anakle style */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[45%] w-[280px] h-[360px] sm:w-[350px] sm:h-[450px] md:w-[500px] md:h-[650px] z-0">
+        {heroImages.map((img, i) => {
+          const isActive = i === activeImage;
+          const offset = i - activeImage;
+          const rotation = offset * 5 + (i % 2 === 0 ? -3 : 3);
+          
+          return (
+            <motion.div
+              key={i}
+              className="absolute inset-0"
+              animate={{
+                rotate: isActive ? 0 : rotation,
+                scale: isActive ? 1 : 0.92 - Math.abs(offset) * 0.03,
+                x: isActive ? 0 : offset * 15,
+                y: isActive ? 0 : offset * -10,
+                zIndex: isActive ? 10 : 5 - Math.abs(offset),
+                opacity: Math.abs(offset) > 2 ? 0.5 : 1,
+              }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <img
+                src={img}
+                alt={`SmartBiz creative ${i + 1}`}
+                className="w-full h-full object-cover shadow-elevated"
+              />
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Animated background glow */}
       <motion.div
         className="absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-emerald/5 blur-[120px]"
         animate={{ scale: [1, 1.2, 1], x: [0, 30, 0], y: [0, -20, 0] }}
@@ -60,9 +102,9 @@ const HeroSection = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
         style={{ y, opacity }}
-        className="absolute top-24 sm:top-28 left-4 sm:left-6 md:left-12 max-w-[85vw] sm:max-w-sm z-10"
+        className="absolute top-20 sm:top-24 left-4 sm:left-6 md:left-12 max-w-[70vw] sm:max-w-xs md:max-w-sm z-10"
       >
-        <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">
+        <p className="text-[11px] sm:text-xs md:text-sm text-muted-foreground leading-relaxed">
           {displayedText.split("SMARTBIZ").map((part, i) =>
             i === 0 ? (
               <span key={i}>
@@ -74,13 +116,12 @@ const HeroSection = () => {
             )
           )}
           <motion.span
-              animate={{ opacity: [1, 0] }}
-              transition={{ duration: 0.5, repeat: Infinity }}
-              className="inline-block w-[2px] h-3 sm:h-4 bg-emerald ml-0.5 align-middle"
-            />
+            animate={{ opacity: [1, 0] }}
+            transition={{ duration: 0.5, repeat: Infinity }}
+            className="inline-block w-[2px] h-3 sm:h-4 bg-emerald ml-0.5 align-middle"
+          />
         </p>
       </motion.div>
-
 
       {/* Location + time - bottom right */}
       <motion.div
@@ -95,12 +136,12 @@ const HeroSection = () => {
 
       {/* Giant brand name with stagger */}
       <div className="relative z-10 mt-4 sm:mt-0">
-        <div className="flex items-center gap-3 sm:gap-4 md:gap-6">
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-5">
           <motion.h1
             initial={{ opacity: 0, y: 120 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="font-display font-bold text-[16vw] sm:text-[18vw] md:text-[15vw] leading-[0.82] tracking-tighter text-foreground"
+            className="font-display font-bold text-[15vw] sm:text-[16vw] md:text-[14vw] leading-[0.82] tracking-tighter text-foreground"
           >
             SMART
           </motion.h1>
@@ -118,7 +159,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 120 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="font-display font-bold text-[16vw] sm:text-[18vw] md:text-[15vw] leading-[0.82] tracking-tighter text-stroke"
+            className="font-display font-bold text-[15vw] sm:text-[16vw] md:text-[14vw] leading-[0.82] tracking-tighter text-stroke"
           >
             BIZ
           </motion.h1>

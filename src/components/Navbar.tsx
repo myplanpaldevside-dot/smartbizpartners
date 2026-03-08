@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowUpRight } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import logo from "@/assets/smartbiz-logo.png";
 
 const navLinks = [
-  { label: "ABOUT", href: "#problem" },
-  { label: "SERVICES", href: "#solution" },
-  { label: "PROCESS", href: "#process" },
+  { label: "WORK", href: "#solution" },
+  { label: "ABOUT US", href: "#problem" },
+  { label: "FEED", href: "#traction" },
   { label: "CONTACT", href: "#contact" },
 ];
 
@@ -29,12 +29,12 @@ const Navbar = () => {
         scrolled ? "bg-background/95 backdrop-blur-xl border-b border-border" : "bg-transparent"
       }`}
     >
-      <div className="flex items-center justify-between h-20 px-6 md:px-12 max-w-[1800px] mx-auto">
+      <div className="flex items-center justify-between h-16 px-6 md:px-12 max-w-[1800px] mx-auto">
         <a href="#" className="group">
-          <img src={logo} alt="SmartBiz" className="h-28 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
+          <img src={logo} alt="SmartBiz" className="h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
         </a>
 
-        <div className="hidden md:flex items-center gap-10">
+        <div className="hidden md:flex items-center gap-16">
           {navLinks.map((l, i) => (
             <motion.a
               key={l.href}
@@ -42,21 +42,12 @@ const Navbar = () => {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + i * 0.1 }}
-              className="text-[11px] font-semibold tracking-[0.25em] text-muted-foreground hover:text-foreground transition-colors relative group"
+              className="text-[12px] font-bold tracking-[0.15em] text-foreground hover:text-emerald transition-colors relative group"
             >
               {l.label}
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-emerald group-hover:w-full transition-all duration-300" />
             </motion.a>
           ))}
-          <motion.a
-            href="#contact"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.7 }}
-            className="flex items-center gap-1 text-[11px] font-semibold tracking-[0.15em] bg-foreground text-primary-foreground px-5 py-2.5 hover:bg-emerald transition-colors duration-300"
-          >
-            GET STARTED <ArrowUpRight className="h-3 w-3" />
-          </motion.a>
         </div>
 
         <button className="md:hidden relative z-50" onClick={() => setOpen(!open)}>
