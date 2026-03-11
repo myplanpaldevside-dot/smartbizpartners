@@ -6,6 +6,7 @@ import logo from "@/assets/smartbiz-logo.png";
 const navLinks = [
   { label: "WORK", href: "#solution" },
   { label: "ABOUT US", href: "#problem" },
+  { label: "SMARTBOOKS", href: "/smartbooks", isRoute: true },
   { label: "FEED", href: "#traction" },
   { label: "CONTACT", href: "#contact" },
 ];
