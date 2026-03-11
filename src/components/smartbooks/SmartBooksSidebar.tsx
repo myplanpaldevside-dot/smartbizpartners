@@ -55,7 +55,7 @@ export function SmartBooksSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup defaultOpen>
+        <SidebarGroup>
           <SidebarGroupLabel className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-semibold">
             Tools
           </SidebarGroupLabel>
