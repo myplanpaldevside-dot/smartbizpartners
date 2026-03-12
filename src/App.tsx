@@ -8,10 +8,6 @@ import NotFound from "./pages/NotFound";
 import SmartBooksLayout from "./components/smartbooks/SmartBooksLayout";
 import SmartBooksDashboard from "./pages/smartbooks/Dashboard";
 import ComingSoon from "./pages/smartbooks/ComingSoon";
-import InvoiceList from "./pages/smartbooks/invoices/InvoiceList";
-import InvoiceForm from "./pages/smartbooks/invoices/InvoiceForm";
-import InvoiceDetail from "./pages/smartbooks/invoices/InvoiceDetail";
-import InvoiceEdit from "./pages/smartbooks/invoices/InvoiceEdit";
 
 const queryClient = new QueryClient();
 
@@ -25,10 +21,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/smartbooks" element={<SmartBooksLayout />}>
             <Route index element={<SmartBooksDashboard />} />
-            <Route path="invoices" element={<InvoiceList />} />
-            <Route path="invoices/new" element={<InvoiceForm />} />
-            <Route path="invoices/:id" element={<InvoiceDetail />} />
-            <Route path="invoices/:id/edit" element={<InvoiceEdit />} />
+            <Route path="invoices" element={<ComingSoon />} />
             <Route path="expenses" element={<ComingSoon />} />
             <Route path="crm" element={<ComingSoon />} />
             <Route path="inventory" element={<ComingSoon />} />
