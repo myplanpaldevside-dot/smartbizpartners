@@ -8,6 +8,10 @@ import NotFound from "./pages/NotFound";
 import SmartBooksLayout from "./components/smartbooks/SmartBooksLayout";
 import SmartBooksDashboard from "./pages/smartbooks/Dashboard";
 import ComingSoon from "./pages/smartbooks/ComingSoon";
+import InvoiceList from "./pages/smartbooks/invoices/InvoiceList";
+import InvoiceForm from "./pages/smartbooks/invoices/InvoiceForm";
+import InvoiceDetail from "./pages/smartbooks/invoices/InvoiceDetail";
+import InvoiceEdit from "./pages/smartbooks/invoices/InvoiceEdit";
 
 const queryClient = new QueryClient();
 
