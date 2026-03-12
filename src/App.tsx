@@ -25,7 +25,10 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/smartbooks" element={<SmartBooksLayout />}>
             <Route index element={<SmartBooksDashboard />} />
-            <Route path="invoices" element={<ComingSoon />} />
+            <Route path="invoices" element={<InvoiceList />} />
+            <Route path="invoices/new" element={<InvoiceForm />} />
+            <Route path="invoices/:id" element={<InvoiceDetail />} />
+            <Route path="invoices/:id/edit" element={<InvoiceEdit />} />
             <Route path="expenses" element={<ComingSoon />} />
             <Route path="crm" element={<ComingSoon />} />
             <Route path="inventory" element={<ComingSoon />} />
