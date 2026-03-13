@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import FeatureShowcase from "@/components/FeatureShowcase";
 import MarqueeSection from "@/components/MarqueeSection";
 import ClientsSection from "@/components/ClientsSection";
 import ProblemSection from "@/components/ProblemSection";
@@ -8,6 +9,7 @@ import SolutionSection from "@/components/SolutionSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import StatsSection from "@/components/StatsSection";
 import TractionSection from "@/components/TractionSection";
+import TestimonialsSection from "@/components/TestimonialsSection";
 import AwardsSection from "@/components/AwardsSection";
 import VisionSection from "@/components/VisionSection";
 import SocialConnectSection from "@/components/SocialConnectSection";
@@ -29,6 +31,7 @@ const Index = () => {
       <SplashScreen isVisible={showSplash} />
       <Navbar />
       <HeroSection />
+      <FeatureShowcase />
       <MarqueeSection />
       <ClientsSection />
       <ProblemSection />
@@ -36,6 +39,7 @@ const Index = () => {
       <HowItWorksSection />
       <StatsSection />
       <TractionSection />
+      <TestimonialsSection />
       <AwardsSection />
       <VisionSection />
       <SocialConnectSection />
