@@ -1,183 +1,161 @@
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
-import phoneMockup from "@/assets/smartbooks-phone-mockup.png";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import dashboardMockup from "@/assets/smartbooks-dashboard-mockup.png";
+import {
+  FileText,
+  Calculator,
+  Users,
+  Package,
+  FileCheck,
+  Globe,
+  BarChart3,
+  CreditCard,
+  Bell,
+  Shield,
+} from "lucide-react";
 
-const fullText = "SMARTBIZ — a tech-enabled SME growth platform helping African small businesses scale through education, website development, and subscription-based digital growth tools.";
+const rotatingWords = ["management", "invoicing", "growth", "analytics"];
+
+const featurePills = [
+  { icon: FileText, label: "Invoices & Receipts" },
+  { icon: Calculator, label: "Expense Tracking" },
+  { icon: Users, label: "Customer CRM" },
+  { icon: Package, label: "Inventory" },
+  { icon: BarChart3, label: "Analytics" },
+  { icon: CreditCard, label: "Multi-Currency" },
+  { icon: Bell, label: "Payment Reminders" },
+  { icon: Globe, label: "Business Website" },
+  { icon: FileCheck, label: "Quotes & Proposals" },
+  { icon: Shield, label: "Secure Data" },
+];
 
 const HeroSection = () => {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-
-  const [displayedText, setDisplayedText] = useState("");
-  const [charIndex, setCharIndex] = useState(0);
+  const navigate = useNavigate();
+  const [wordIndex, setWordIndex] = useState(0);
 
   useEffect(() => {
-    if (charIndex > 0 && charIndex < fullText.length) {
-      const timeout = setTimeout(() => {
-        setDisplayedText(fullText.slice(0, charIndex + 1));
-        setCharIndex(charIndex + 1);
-      }, 30);
-      return () => clearTimeout(timeout);
-    } else if (charIndex >= fullText.length) {
-      const resetTimeout = setTimeout(() => {
-        setDisplayedText("");
-        setCharIndex(0);
-        setTimeout(() => {
-          setDisplayedText(fullText.slice(0, 1));
-          setCharIndex(1);
-        }, 500);
-      }, 2000);
-      return () => clearTimeout(resetTimeout);
-    }
-  }, [charIndex]);
-
-  useEffect(() => {
-    const delay = setTimeout(() => {
-      setDisplayedText(fullText.slice(0, 1));
-      setCharIndex(1);
-    }, 1500);
-    return () => clearTimeout(delay);
+    const interval = setInterval(() => {
+      setWordIndex((prev) => (prev + 1) % rotatingWords.length);
+    }, 2500);
+    return () => clearInterval(interval);
   }, []);
 
   return (
-    <section ref={ref} className="relative min-h-[100svh] flex flex-col justify-center px-4 sm:px-6 md:px-12 overflow-hidden">
-      {/* Animated background glow */}
+    <section className="relative min-h-[100svh] flex flex-col items-center justify-center px-4 sm:px-6 md:px-12 overflow-hidden pt-20 pb-10">
+      {/* Background glow */}
       <motion.div
-        className="absolute top-1/4 right-1/4 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full bg-emerald/5 blur-[120px]"
-        animate={{ scale: [1, 1.2, 1], x: [0, 30, 0], y: [0, -20, 0] }}
+        className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-emerald/5 blur-[150px]"
+        animate={{ scale: [1, 1.2, 1] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Main content */}
-      <div className="relative z-10 flex flex-col gap-2 sm:gap-3">
-        {/* Description with typewriter - tight to logo */}
+      {/* Centered hero content */}
+      <div className="relative z-10 text-center max-w-4xl mx-auto">
+        {/* Tagline pill */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          style={{ opacity }}
-          className="max-w-[90vw] sm:max-w-xs md:max-w-sm"
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="inline-flex items-center gap-2 px-4 py-1.5 border border-emerald/30 bg-emerald/5 mb-6 sm:mb-8"
         >
-          <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground leading-relaxed">
-            {displayedText.split("SMARTBIZ").map((part, i) =>
-              i === 0 ? (
-                <span key={i}>
-                  <span className="font-display font-bold text-foreground">SMARTBIZ</span>
-                  {part}
-                </span>
-              ) : (
-                <span key={i}>{part}</span>
-              )
-            )}
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald animate-pulse" />
+          <span className="text-[10px] sm:text-xs font-semibold tracking-[0.2em] text-emerald uppercase">
+            Built for African SMEs
+          </span>
+        </motion.div>
+
+        {/* Main headline with rotating word */}
+        <motion.h1
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-[1.1] mb-4 sm:mb-6"
+        >
+          Solving your{" "}
+          <span className="relative inline-block">
             <motion.span
-              animate={{ opacity: [1, 0] }}
-              transition={{ duration: 0.5, repeat: Infinity }}
-              className="inline-block w-[2px] h-3 sm:h-4 bg-emerald ml-0.5 align-middle"
-            />
-          </p>
-        </motion.div>
+              key={wordIndex}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+              className="text-emerald"
+            >
+              {rotatingWords[wordIndex]}
+            </motion.span>
+          </span>{" "}
+          problems, one solution at a time.
+        </motion.h1>
 
-        {/* Giant brand name + phone mockup */}
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <div className="flex items-center">
-              <motion.h1
-                initial={{ opacity: 0, y: 120 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                className="font-display font-bold text-[15vw] sm:text-[14vw] md:text-[12vw] leading-[0.82] tracking-tighter text-foreground"
-              >
-                SMART
-              </motion.h1>
-            </div>
-            <div className="flex items-end gap-2 sm:gap-4 md:gap-8">
-              <motion.h1
-                initial={{ opacity: 0, y: 120 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.2, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                className="font-display font-bold text-[15vw] sm:text-[14vw] md:text-[12vw] leading-[0.82] tracking-tighter text-stroke"
-              >
-                BIZ
-              </motion.h1>
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1, duration: 0.8 }}
-                className="hidden sm:block pb-2 md:pb-4"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="h-[1px] w-8 sm:w-12 bg-emerald" />
-                  <span className="text-[10px] sm:text-xs font-semibold tracking-[0.3em] text-emerald uppercase">Growth Platform</span>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-
-          {/* Phone mockup */}
-          <motion.div
-            initial={{ opacity: 0, y: 60, scale: 0.85 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ delay: 0.8, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="hidden sm:block relative shrink-0 -mr-2 md:mr-0"
-          >
-            <div className="absolute inset-0 bg-emerald/10 blur-[60px] rounded-full scale-75" />
-            <motion.img
-              src={phoneMockup}
-              alt="SmartBooks Dashboard on mobile"
-              className="relative w-32 sm:w-44 md:w-56 lg:w-64 drop-shadow-2xl"
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            />
-          </motion.div>
-        </div>
-
-        {/* Mobile-only Growth Platform tag */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.8 }}
-          className="sm:hidden flex items-center gap-2 mt-1"
+        {/* Subtitle */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed"
         >
-          <div className="h-[1px] w-8 bg-emerald" />
-          <span className="text-[9px] font-semibold tracking-[0.3em] text-emerald uppercase">Growth Platform</span>
-        </motion.div>
+          Simplify your business operations with tools that make invoicing, sales,
+          expenses & customer management easy.
+        </motion.p>
 
-        {/* Emerald accent line */}
+        {/* CTA Button */}
         <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 1.5, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="h-[2px] bg-emerald origin-left max-w-md mt-1"
-        />
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+        >
+          <Button
+            variant="hero"
+            size="xl"
+            className="rounded-full px-12"
+            onClick={() => navigate("/smartbooks")}
+          >
+            Get Started
+          </Button>
+        </motion.div>
       </div>
 
-      {/* Bottom bar - location, scroll, time */}
+      {/* Feature pills marquee */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 0.8 }}
-        className="absolute bottom-6 sm:bottom-10 left-4 right-4 sm:left-6 sm:right-6 md:left-12 md:right-12 flex items-end justify-between z-10"
+        transition={{ delay: 1.2, duration: 0.8 }}
+        className="w-full overflow-hidden mt-12 sm:mt-16"
       >
-        {/* Location - left on mobile */}
-        <div className="text-[9px] sm:text-xs text-muted-foreground tracking-wide">
-          <p>LAGOS, NG</p>
-          <p className="text-emerald tracking-[0.3em] mt-0.5">EST. 2024</p>
+        <div className="flex whitespace-nowrap animate-marquee-slow">
+          {[...featurePills, ...featurePills, ...featurePills].map((pill, i) => (
+            <div
+              key={`pill-${i}`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 border border-border bg-card mx-2 shrink-0 hover:border-emerald/40 transition-colors"
+            >
+              <pill.icon className="h-4 w-4 text-emerald shrink-0" />
+              <span className="text-xs sm:text-sm font-medium text-foreground">{pill.label}</span>
+            </div>
+          ))}
         </div>
+      </motion.div>
 
-        {/* Scroll indicator - center */}
-        <div className="flex flex-col items-center gap-1.5">
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-[1px] h-6 sm:h-8 bg-muted-foreground/30"
+      {/* Phone mockup with dashboard */}
+      <motion.div
+        initial={{ opacity: 0, y: 80 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+        className="relative mt-10 sm:mt-16 w-full max-w-4xl mx-auto"
+      >
+        {/* Glow behind mockup */}
+        <div className="absolute inset-0 bg-emerald/10 blur-[80px] rounded-full scale-75" />
+        
+        {/* Desktop + mobile combo mockup */}
+        <div className="relative flex justify-center">
+          <motion.img
+            src={dashboardMockup}
+            alt="SmartBooks Dashboard"
+            className="relative w-48 sm:w-56 md:w-72 lg:w-80 drop-shadow-2xl"
+            animate={{ y: [0, -12, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
           />
-          <span className="text-[8px] sm:text-[9px] tracking-[0.4em] text-muted-foreground uppercase">Scroll</span>
-        </div>
-
-        {/* Time - right */}
-        <div className="text-right text-[9px] sm:text-xs text-muted-foreground tracking-wide">
-          <p>{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
         </div>
       </motion.div>
     </section>
