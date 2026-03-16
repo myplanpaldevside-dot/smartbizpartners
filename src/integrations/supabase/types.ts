@@ -14,7 +14,137 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      invoice_items: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          invoice_id: string
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          invoice_id: string
+          quantity?: number
+          unit_price?: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          invoice_id?: string
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          created_at: string
+          currency: string
+          customer_address: string | null
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string | null
+          discount_amount: number
+          due_date: string | null
+          id: string
+          invoice_number: string
+          issue_date: string
+          notes: string | null
+          status: string
+          subtotal: number
+          tax_amount: number
+          tax_rate: number
+          total: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          discount_amount?: number
+          due_date?: string | null
+          id?: string
+          invoice_number: string
+          issue_date?: string
+          notes?: string | null
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          tax_rate?: number
+          total?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          discount_amount?: number
+          due_date?: string | null
+          id?: string
+          invoice_number?: string
+          issue_date?: string
+          notes?: string | null
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          tax_rate?: number
+          total?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          business_name: string
+          created_at: string
+          email: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          business_name?: string
+          created_at?: string
+          email?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          business_name?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
