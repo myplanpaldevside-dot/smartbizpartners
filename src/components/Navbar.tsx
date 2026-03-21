@@ -7,8 +7,8 @@ import logo from "@/assets/smartbiz-logo.png";
 const navLinks = [
   { label: "WORK", href: "#solution" },
   { label: "ABOUT US", href: "#problem" },
+  { label: "PRICING", href: "#pricing" },
   { label: "SMARTBOOKS", href: "/smartbooks", isRoute: true },
-  { label: "FEED", href: "#traction" },
   { label: "CONTACT", href: "#contact" },
 ];
 
@@ -53,11 +53,11 @@ const Navbar = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + i * 0.1 }}
               className={`text-[12px] font-bold tracking-[0.15em] transition-colors relative group cursor-pointer ${
-                l.isRoute ? "text-emerald hover:text-foreground" : "text-foreground hover:text-emerald"
+                l.isRoute ? "text-primary hover:text-foreground" : "text-foreground hover:text-primary"
               }`}
             >
               {l.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-emerald group-hover:w-full transition-all duration-300" />
+              <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-primary group-hover:w-full transition-all duration-300" />
             </motion.a>
           ))}
         </div>
@@ -88,7 +88,7 @@ const Navbar = () => {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 + i * 0.08 }}
                 className={`font-display font-bold text-4xl py-4 border-b border-border transition-colors cursor-pointer ${
-                  l.isRoute ? "text-emerald hover:text-foreground" : "text-foreground hover:text-emerald"
+                  l.isRoute ? "text-primary hover:text-foreground" : "text-foreground hover:text-primary"
                 }`}
               >
                 {l.label}

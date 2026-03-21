@@ -7,9 +7,11 @@ import {
   Globe,
   LayoutDashboard,
   ArrowLeft,
+  Shield,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Sidebar,
   SidebarContent,
@@ -38,6 +40,7 @@ export function SmartBooksSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const { isAdmin } = useAuth();
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border">
@@ -49,7 +52,7 @@ export function SmartBooksSidebar() {
         {!collapsed && (
           <div className="mt-4">
             <h1 className="font-display text-xl font-bold text-foreground">SmartBooks</h1>
-            <p className="text-[10px] tracking-[0.2em] text-emerald uppercase font-semibold">Business Tools</p>
+            <p className="text-[10px] tracking-[0.2em] text-primary uppercase font-semibold">Business Tools</p>
           </div>
         )}
       </SidebarHeader>
@@ -68,7 +71,7 @@ export function SmartBooksSidebar() {
                       to={item.url}
                       end={item.url === "/smartbooks"}
                       className="hover:bg-accent/10 transition-colors"
-                      activeClassName="bg-accent/15 text-accent font-semibold"
+                      activeClassName="bg-primary/10 text-primary font-semibold"
                     >
                       <item.icon className="mr-2 h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
@@ -79,6 +82,30 @@ export function SmartBooksSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-semibold">
+              Admin
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to="/smartbooks/admin"
+                      className="hover:bg-accent/10 transition-colors"
+                      activeClassName="bg-primary/10 text-primary font-semibold"
+                    >
+                      <Shield className="mr-2 h-4 w-4" />
+                      {!collapsed && <span>Admin Panel</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="p-4">
