@@ -18,7 +18,6 @@ import {
   CheckCircle2,
   LogOut,
   Settings,
-  Pencil,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
@@ -31,48 +30,12 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
 const tools = [
-  {
-    title: "Invoices & Payments",
-    desc: "Create professional invoices, track payments, and send reminders.",
-    icon: FileText,
-    url: "/smartbooks/invoices",
-    status: "live" as const,
-  },
-  {
-    title: "Expenses & Profit",
-    desc: "Log expenses, track revenue, and see real margins.",
-    icon: Calculator,
-    url: "/smartbooks/expenses",
-    status: "coming-soon" as const,
-  },
-  {
-    title: "Customer CRM",
-    desc: "Manage contacts, log interactions, never miss a follow-up.",
-    icon: Users,
-    url: "/smartbooks/crm",
-    status: "coming-soon" as const,
-  },
-  {
-    title: "Inventory Manager",
-    desc: "Track stock levels, get alerts, see what's selling.",
-    icon: Package,
-    url: "/smartbooks/inventory",
-    status: "coming-soon" as const,
-  },
-  {
-    title: "Quotes & Proposals",
-    desc: "Generate professional quotes and convert to invoices.",
-    icon: FileCheck,
-    url: "/smartbooks/quotes",
-    status: "coming-soon" as const,
-  },
-  {
-    title: "Website Generator",
-    desc: "AI-powered website builder — online in minutes.",
-    icon: Globe,
-    url: "/smartbooks/website",
-    status: "coming-soon" as const,
-  },
+  { title: "Invoices & Payments", desc: "Create professional invoices, track payments, and send reminders.", icon: FileText, url: "/smartbooks/invoices", status: "live" as const },
+  { title: "Expenses & Profit", desc: "Log expenses, track revenue, and see real margins.", icon: Calculator, url: "/smartbooks/expenses", status: "live" as const },
+  { title: "Customer CRM", desc: "Manage contacts, log interactions, never miss a follow-up.", icon: Users, url: "/smartbooks/crm", status: "live" as const },
+  { title: "Inventory Manager", desc: "Track stock levels, get alerts, see what's selling.", icon: Package, url: "/smartbooks/inventory", status: "live" as const },
+  { title: "Quotes & Proposals", desc: "Generate professional quotes and convert to invoices.", icon: FileCheck, url: "/smartbooks/quotes", status: "coming-soon" as const },
+  { title: "Website Generator", desc: "AI-powered website builder — online in minutes.", icon: Globe, url: "/smartbooks/website", status: "coming-soon" as const },
 ];
 
 export default function SmartBooksDashboard() {
@@ -84,9 +47,7 @@ export default function SmartBooksDashboard() {
   const [saving, setSaving] = useState(false);
   const [invoiceStats, setInvoiceStats] = useState({ count: 0, revenue: 0, pending: 0, customers: 0 });
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
+  useEffect(() => { fetchStats(); }, []);
 
   const fetchStats = async () => {
     const { data } = await supabase.from("invoices").select("*");
@@ -137,17 +98,12 @@ export default function SmartBooksDashboard() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {/* Welcome header with business name */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="h-4 w-4 text-emerald" />
-              <p className="text-[10px] font-bold tracking-[0.3em] text-emerald uppercase">Dashboard</p>
+              <Sparkles className="h-4 w-4 text-primary" />
+              <p className="text-[10px] font-bold tracking-[0.3em] text-primary uppercase">Dashboard</p>
             </div>
             <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
               {businessName}
@@ -155,6 +111,11 @@ export default function SmartBooksDashboard() {
             <p className="text-sm text-muted-foreground mt-1">
               Welcome back! Here's your business overview.
             </p>
+            {profile?.trial_ends_at && profile?.subscription_status === "trialing" && (
+              <p className="text-xs text-primary mt-1 font-medium">
+                Free trial ends {new Date(profile.trial_ends_at).toLocaleDateString()}
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={openSettings} title="Settings">
@@ -167,7 +128,6 @@ export default function SmartBooksDashboard() {
         </div>
       </motion.div>
 
-      {/* Quick stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {quickStats.map((stat, i) => (
           <motion.div
@@ -175,59 +135,45 @@ export default function SmartBooksDashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 + i * 0.05, duration: 0.5 }}
-            className="border border-border bg-card p-4 sm:p-5 hover:border-emerald/30 transition-colors group"
+            className="border border-border bg-card p-4 sm:p-5 rounded-lg hover:border-primary/30 transition-colors group"
           >
             <div className="flex items-center justify-between mb-3">
-              <stat.icon className="h-4 w-4 text-muted-foreground group-hover:text-emerald transition-colors" />
-              <CheckCircle2 className="h-3 w-3 text-emerald/40" />
+              <stat.icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <CheckCircle2 className="h-3 w-3 text-secondary/40" />
             </div>
             <p className="font-display text-xl sm:text-2xl font-bold text-foreground">{stat.value}</p>
             <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">{stat.label}</p>
-            <p className="text-[9px] text-emerald/70 mt-1 font-medium">{stat.sub}</p>
+            <p className="text-[9px] text-primary/70 mt-1 font-medium">{stat.sub}</p>
           </motion.div>
         ))}
       </div>
 
-      {/* Tools section */}
       <div>
         <h2 className="font-display text-lg font-bold text-foreground mb-4">Your Tools</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {tools.map((tool, i) => (
-            <motion.div
-              key={tool.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + i * 0.05, duration: 0.5 }}
-            >
+            <motion.div key={tool.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.05, duration: 0.5 }}>
               <Link
                 to={tool.url}
-                className={`group block p-5 sm:p-6 border border-border bg-card hover:border-emerald/40 transition-all duration-300 hover:shadow-elevated relative overflow-hidden ${
-                  tool.status === "live" ? "ring-1 ring-emerald/20" : ""
+                className={`group block p-5 sm:p-6 border border-border bg-card rounded-lg hover:border-primary/40 transition-all duration-300 hover:shadow-elevated relative overflow-hidden ${
+                  tool.status === "live" ? "ring-1 ring-primary/10" : ""
                 }`}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-9 h-9 flex items-center justify-center bg-emerald/10 text-emerald">
+                    <div className="w-9 h-9 flex items-center justify-center bg-primary/10 text-primary rounded-lg">
                       <tool.icon className="h-4 w-4" />
                     </div>
                     {tool.status === "live" ? (
-                      <span className="text-[9px] font-bold tracking-wider uppercase bg-emerald/15 text-emerald px-2 py-0.5">
-                        Live
-                      </span>
+                      <span className="text-[9px] font-bold tracking-wider uppercase bg-secondary/15 text-secondary px-2 py-0.5 rounded-full">Live</span>
                     ) : (
-                      <span className="text-[9px] font-semibold tracking-wider uppercase text-muted-foreground/60 px-2 py-0.5 border border-border">
-                        Soon
-                      </span>
+                      <span className="text-[9px] font-semibold tracking-wider uppercase text-muted-foreground/60 px-2 py-0.5 border border-border rounded-full">Soon</span>
                     )}
                   </div>
-                  <h3 className="font-display font-bold text-sm sm:text-base mb-1 group-hover:text-emerald transition-colors">
-                    {tool.title}
-                  </h3>
-                  <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed mb-3">
-                    {tool.desc}
-                  </p>
-                  <div className="flex items-center text-[10px] font-semibold tracking-wider uppercase text-muted-foreground group-hover:text-emerald transition-colors">
+                  <h3 className="font-display font-bold text-sm sm:text-base mb-1 group-hover:text-primary transition-colors">{tool.title}</h3>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed mb-3">{tool.desc}</p>
+                  <div className="flex items-center text-[10px] font-semibold tracking-wider uppercase text-muted-foreground group-hover:text-primary transition-colors">
                     <span>{tool.status === "live" ? "Open" : "Preview"}</span>
                     <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
                   </div>
@@ -238,16 +184,6 @@ export default function SmartBooksDashboard() {
         </div>
       </div>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="text-center text-[10px] tracking-[0.3em] text-muted-foreground uppercase pt-4"
-      >
-        Powered by SmartBiz Partners
-      </motion.p>
-
-      {/* Settings Dialog */}
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -255,26 +191,20 @@ export default function SmartBooksDashboard() {
           </DialogHeader>
           <div className="space-y-4 mt-4">
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Business Name
-              </Label>
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Business Name</Label>
               <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Phone Number
-              </Label>
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Phone Number</Label>
               <Input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Email
-              </Label>
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email</Label>
               <Input value={profile?.email || ""} disabled className="opacity-60" />
             </div>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1" onClick={() => setShowSettings(false)}>Cancel</Button>
-              <Button variant="hero" className="flex-1" onClick={handleSaveSettings} disabled={saving}>
+              <Button className="flex-1 bg-primary text-primary-foreground" onClick={handleSaveSettings} disabled={saving}>
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
             </div>
