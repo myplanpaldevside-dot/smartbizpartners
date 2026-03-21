@@ -57,7 +57,7 @@ const Navbar = () => {
               }`}
             >
               {l.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-emerald group-hover:w-full transition-all duration-300" />
+              <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-primary group-hover:w-full transition-all duration-300" />
             </motion.a>
           ))}
         </div>
