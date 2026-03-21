@@ -58,10 +58,10 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 border border-emerald/30 bg-emerald/5 mb-6 sm:mb-8"
+          className="inline-flex items-center gap-2 px-4 py-1.5 border border-primary/30 bg-primary/5 rounded-full mb-6 sm:mb-8"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald animate-pulse" />
-          <span className="text-[10px] sm:text-xs font-semibold tracking-[0.2em] text-emerald uppercase">
+          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+          <span className="text-[10px] sm:text-xs font-semibold tracking-[0.2em] text-primary uppercase">
             Built for African SMEs
           </span>
         </motion.div>
