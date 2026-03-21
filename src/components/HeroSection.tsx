@@ -109,7 +109,7 @@ const HeroSection = () => {
           <Button
             variant="hero"
             size="xl"
-            className="rounded-full px-12"
+            className="rounded-full px-12 bg-primary text-primary-foreground hover:bg-primary/90"
             onClick={() => navigate("/smartbooks")}
           >
             Get Started
