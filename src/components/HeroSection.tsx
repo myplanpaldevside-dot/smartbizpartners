@@ -128,9 +128,9 @@ const HeroSection = () => {
           {[...featurePills, ...featurePills, ...featurePills].map((pill, i) => (
             <div
               key={`pill-${i}`}
-              className="inline-flex items-center gap-2 px-4 py-2.5 border border-border bg-card mx-2 shrink-0 hover:border-emerald/40 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2.5 border border-border bg-card mx-2 shrink-0 hover:border-primary/40 transition-colors rounded-full"
             >
-              <pill.icon className="h-4 w-4 text-emerald shrink-0" />
+              <pill.icon className="h-4 w-4 text-primary shrink-0" />
               <span className="text-xs sm:text-sm font-medium text-foreground">{pill.label}</span>
             </div>
           ))}
