@@ -145,7 +145,7 @@ const HeroSection = () => {
         className="relative mt-10 sm:mt-16 w-full max-w-4xl mx-auto"
       >
         {/* Glow behind mockup */}
-        <div className="absolute inset-0 bg-emerald/10 blur-[80px] rounded-full scale-75" />
+        <div className="absolute inset-0 bg-primary/10 blur-[80px] rounded-full scale-75" />
         
         {/* Desktop + mobile combo mockup */}
         <div className="relative flex justify-center">
