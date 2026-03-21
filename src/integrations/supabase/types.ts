@@ -14,6 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
+      customers: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          date: string
+          description: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          date?: string
+          description?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          date?: string
+          description?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      inventory: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          low_stock_threshold: number
+          name: string
+          quantity: number
+          sku: string | null
+          unit_price: number
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          low_stock_threshold?: number
+          name?: string
+          quantity?: number
+          sku?: string | null
+          unit_price?: number
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          low_stock_threshold?: number
+          name?: string
+          quantity?: number
+          sku?: string | null
+          unit_price?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       invoice_items: {
         Row: {
           amount: number
