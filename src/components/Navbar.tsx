@@ -53,7 +53,7 @@ const Navbar = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + i * 0.1 }}
               className={`text-[12px] font-bold tracking-[0.15em] transition-colors relative group cursor-pointer ${
-                l.isRoute ? "text-emerald hover:text-foreground" : "text-foreground hover:text-emerald"
+                l.isRoute ? "text-primary hover:text-foreground" : "text-foreground hover:text-primary"
               }`}
             >
               {l.label}
