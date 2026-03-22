@@ -19,7 +19,7 @@ const Footer = () => {
         >
           {[...Array(6)].map((_, i) => (
             <span key={i} className="font-display text-6xl md:text-8xl font-bold mx-8" style={{ WebkitTextStroke: "1px hsl(0 0% 100% / 0.15)", color: "transparent" }}>
-              SMARTBIZ ✦ GROW SMART ✦ BUILD BOLD ✦
+              SMARTBIZ — GROW SMART — BUILD BOLD —
             </span>
           ))}
         </motion.div>
@@ -27,7 +27,6 @@ const Footer = () => {
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-20">
         <div className="grid md:grid-cols-4 gap-12">
-          {/* Brand */}
           <div className="md:col-span-1">
             <div className="mb-6">
               <img src={logo} alt="SmartBiz" className="h-28 w-auto object-contain brightness-0 invert" />
@@ -37,9 +36,8 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Links */}
           <div>
-            <h4 className="font-display font-bold text-[10px] tracking-[0.3em] uppercase mb-8 text-emerald">Company</h4>
+            <h4 className="font-display font-bold text-[10px] tracking-[0.3em] uppercase mb-8 text-primary">Company</h4>
             <div className="space-y-4 text-sm text-primary-foreground/50">
               <a href="#problem" className="block hover:text-primary-foreground hover:pl-2 transition-all duration-300">About</a>
               <a href="#solution" className="block hover:text-primary-foreground hover:pl-2 transition-all duration-300">Services</a>
@@ -49,26 +47,25 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-display font-bold text-[10px] tracking-[0.3em] uppercase mb-8 text-emerald">Contact</h4>
+            <h4 className="font-display font-bold text-[10px] tracking-[0.3em] uppercase mb-8 text-primary">Contact</h4>
             <div className="space-y-4 text-sm text-primary-foreground/50">
-              <div className="flex items-center gap-3 hover:text-primary-foreground transition-colors"><Mail className="h-4 w-4 text-emerald/60" /> hello@smartbiz.ng</div>
-              <div className="flex items-center gap-3 hover:text-primary-foreground transition-colors"><Phone className="h-4 w-4 text-emerald/60" /> +234 800 SMARTBIZ</div>
-              <div className="flex items-center gap-3 hover:text-primary-foreground transition-colors"><MapPin className="h-4 w-4 text-emerald/60" /> Lagos, Nigeria</div>
+              <div className="flex items-center gap-3 hover:text-primary-foreground transition-colors"><Mail className="h-4 w-4 text-primary/60" /> hello@smartbiz.ng</div>
+              <div className="flex items-center gap-3 hover:text-primary-foreground transition-colors"><Phone className="h-4 w-4 text-primary/60" /> +234 800 SMARTBIZ</div>
+              <div className="flex items-center gap-3 hover:text-primary-foreground transition-colors"><MapPin className="h-4 w-4 text-primary/60" /> Lagos, Nigeria</div>
             </div>
           </div>
 
-          {/* Newsletter */}
           <div>
-            <h4 className="font-display font-bold text-[10px] tracking-[0.3em] uppercase mb-8 text-emerald">Stay Updated</h4>
+            <h4 className="font-display font-bold text-[10px] tracking-[0.3em] uppercase mb-8 text-primary">Stay Updated</h4>
             <p className="text-sm text-primary-foreground/40 mb-4">Get growth tips and updates.</p>
             <div className="flex gap-0">
               <Input
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
-                className="bg-primary-foreground/5 border-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/20 rounded-none focus:border-emerald"
+                className="bg-primary-foreground/5 border-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/20 rounded-none focus:border-primary"
               />
-              <button className="bg-emerald text-foreground px-4 font-bold text-xs tracking-wider hover:bg-primary-foreground hover:text-foreground transition-colors">
+              <button className="bg-primary text-primary-foreground px-4 font-bold text-xs tracking-wider hover:bg-primary-foreground hover:text-foreground transition-colors">
                 <ArrowUpRight className="h-4 w-4" />
               </button>
             </div>
