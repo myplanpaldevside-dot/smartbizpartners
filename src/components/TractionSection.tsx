@@ -2,11 +2,11 @@ import { motion } from "framer-motion";
 import { CheckCircle, Quote } from "lucide-react";
 
 const milestones = [
-  "5 paying customers acquired",
-  "Early market validation complete",
+  "5 paying customers onboarded",
+  "Early product validation underway",
   "Structured product roadmap defined",
-  "Target: 200 SMEs in 12 months",
-  "Revenue growth on track",
+  "Building toward 200 SMEs in 12 months",
+  "Revenue growth trajectory established",
 ];
 
 const testimonials = [
@@ -26,7 +26,7 @@ const TractionSection = () => (
         className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-20"
       >
         <div>
-          <p className="text-xs font-semibold tracking-[0.3em] text-emerald uppercase mb-4">Client Reflections</p>
+          <p className="text-xs font-semibold tracking-[0.3em] text-primary uppercase mb-4">Client Reflections</p>
           <h2 className="font-display text-5xl md:text-8xl font-bold text-foreground leading-[0.9]">
             Early Momentum,<br /><span className="text-gradient">Clear Direction</span>
           </h2>
@@ -37,14 +37,13 @@ const TractionSection = () => (
       </motion.div>
 
       <div className="grid lg:grid-cols-2 gap-16">
-        {/* Milestones */}
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
         >
-          <h3 className="font-display font-bold text-xs text-muted-foreground mb-8 tracking-[0.3em] uppercase">Key Milestones</h3>
+          <h3 className="font-display font-bold text-xs text-muted-foreground mb-8 tracking-[0.3em] uppercase">Where We Are</h3>
           <div className="space-y-0">
             {milestones.map((m, i) => (
               <motion.div
@@ -55,14 +54,13 @@ const TractionSection = () => (
                 transition={{ delay: i * 0.08, duration: 0.5 }}
                 className="flex items-center gap-5 group py-5 border-b border-border hover:pl-2 transition-all duration-300"
               >
-                <CheckCircle className="h-4 w-4 text-emerald shrink-0 group-hover:scale-110 transition-transform" />
-                <p className="text-foreground text-sm group-hover:text-emerald transition-colors">{m}</p>
+                <CheckCircle className="h-4 w-4 text-primary shrink-0 group-hover:scale-110 transition-transform" />
+                <p className="text-foreground text-sm group-hover:text-primary transition-colors">{m}</p>
               </motion.div>
             ))}
           </div>
         </motion.div>
 
-        {/* Testimonials */}
         <div className="space-y-0">
           {testimonials.map((t, i) => (
             <motion.div
@@ -73,10 +71,10 @@ const TractionSection = () => (
               transition={{ delay: i * 0.12, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               className="border-b border-border py-8 group hover:bg-background/50 px-6 -mx-6 transition-colors duration-500"
             >
-              <Quote className="h-5 w-5 text-emerald/30 group-hover:text-emerald transition-colors mb-4" />
+              <Quote className="h-5 w-5 text-primary/30 group-hover:text-primary transition-colors mb-4" />
               <p className="text-foreground mb-5 text-lg leading-relaxed">"{t.quote}"</p>
               <div className="flex items-center gap-3">
-                <div className="h-[1px] w-6 bg-emerald" />
+                <div className="h-[1px] w-6 bg-primary" />
                 <div>
                   <p className="font-display font-bold text-sm text-foreground">{t.name}</p>
                   <p className="text-[11px] text-muted-foreground tracking-wider uppercase">{t.role}</p>
