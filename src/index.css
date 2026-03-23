@@ -157,6 +157,10 @@
   animation: marquee-logos 25s linear infinite;
 }
 
+.animate-marquee-logos-fast {
+  animation: marquee-logos 12s linear infinite;
+}
+
 .animate-marquee-logos-reverse {
   animation: marquee-logos-reverse 30s linear infinite;
 }
