@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,8 @@ import {
   CheckCircle2,
   LogOut,
   Settings,
+  Upload,
+  Camera,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
@@ -28,6 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const tools = [
   { title: "Invoices & Payments", desc: "Create professional invoices, track payments, and send reminders.", icon: FileText, url: "/smartbooks/invoices", status: "live" as const },
@@ -39,13 +42,15 @@ const tools = [
 ];
 
 export default function SmartBooksDashboard() {
-  const { profile, signOut, refreshProfile } = useAuth();
+  const { profile, user, signOut, refreshProfile } = useAuth();
   const { toast } = useToast();
   const [showSettings, setShowSettings] = useState(false);
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [invoiceStats, setInvoiceStats] = useState({ count: 0, revenue: 0, pending: 0, customers: 0 });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { fetchStats(); }, []);
 
@@ -64,6 +69,34 @@ export default function SmartBooksDashboard() {
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(amount);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Please upload an image file", variant: "destructive" });
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "Image must be under 2MB", variant: "destructive" });
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const path = `${user.id}/logo.${ext}`;
+    const { error: uploadError } = await supabase.storage.from("logos").upload(path, file, { upsert: true });
+    if (uploadError) {
+      toast({ title: "Upload failed", description: uploadError.message, variant: "destructive" });
+      setUploading(false);
+      return;
+    }
+    const { data: urlData } = supabase.storage.from("logos").getPublicUrl(path);
+    const logoUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+    await supabase.from("profiles").update({ logo_url: logoUrl, updated_at: new Date().toISOString() }).eq("id", user.id);
+    await refreshProfile();
+    toast({ title: "Logo updated!" });
+    setUploading(false);
+  };
 
   const handleSaveSettings = async () => {
     setSaving(true);
@@ -88,6 +121,7 @@ export default function SmartBooksDashboard() {
   };
 
   const businessName = profile?.business_name || "Your Business";
+  const logoUrl = profile?.logo_url;
 
   const quickStats = [
     { label: "Total Revenue", value: formatCurrency(invoiceStats.revenue), icon: TrendingUp, sub: invoiceStats.revenue > 0 ? "Collected" : "Start tracking" },
@@ -100,22 +134,30 @@ export default function SmartBooksDashboard() {
     <div className="max-w-6xl mx-auto space-y-8">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <div className="flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <p className="text-[10px] font-bold tracking-[0.3em] text-primary uppercase">Dashboard</p>
-            </div>
-            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
-              {businessName}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Welcome back! Here's your business overview.
-            </p>
-            {profile?.trial_ends_at && profile?.subscription_status === "trialing" && (
-              <p className="text-xs text-primary mt-1 font-medium">
-                Free trial ends {new Date(profile.trial_ends_at).toLocaleDateString()}
+          <div className="flex items-center gap-4">
+            <Avatar className="h-14 w-14 border-2 border-primary/20">
+              <AvatarImage src={logoUrl || undefined} alt={businessName} />
+              <AvatarFallback className="bg-primary/10 text-primary font-display font-bold text-lg">
+                {businessName.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <p className="text-[10px] font-bold tracking-[0.3em] text-primary uppercase">Dashboard</p>
+              </div>
+              <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
+                {businessName}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Welcome back! Here's your business overview.
               </p>
-            )}
+              {profile?.trial_ends_at && profile?.subscription_status === "trialing" && (
+                <p className="text-xs text-primary mt-1 font-medium">
+                  Free trial ends {new Date(profile.trial_ends_at).toLocaleDateString()}
+                </p>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={openSettings} title="Settings">
@@ -189,7 +231,30 @@ export default function SmartBooksDashboard() {
           <DialogHeader>
             <DialogTitle className="font-display">Business Settings</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 mt-4">
+          <div className="space-y-5 mt-4">
+            <div className="flex flex-col items-center gap-3">
+              <div className="relative group">
+                <Avatar className="h-20 w-20 border-2 border-primary/20">
+                  <AvatarImage src={logoUrl || undefined} alt={businessName} />
+                  <AvatarFallback className="bg-primary/10 text-primary font-display font-bold text-2xl">
+                    {businessName.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                >
+                  <Camera className="h-5 w-5 text-white" />
+                </button>
+              </div>
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+              <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="text-xs">
+                <Upload className="h-3 w-3 mr-1" />
+                {uploading ? "Uploading..." : "Upload Logo"}
+              </Button>
+            </div>
+
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Business Name</Label>
               <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
