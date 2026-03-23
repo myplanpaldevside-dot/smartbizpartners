@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import tmgLogo from "@/assets/clients/tmg.png";
 import edugridLogo from "@/assets/clients/edugrid.png";
 import henosisLogo from "@/assets/clients/henosis.png";
@@ -13,68 +12,30 @@ const clients = [
   { name: "BoxedBliss", logo: boxedblissLogo },
 ];
 
-// Double the array for seamless infinite scroll
-const doubled = [...clients, ...clients, ...clients];
+const tripled = [...clients, ...clients, ...clients];
 
 const ClientsSection = () => (
-  <section className="py-28 px-6 md:px-12 overflow-hidden">
-    <div className="max-w-7xl mx-auto mb-16">
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        className="flex flex-col md:flex-row md:items-end md:justify-between gap-6"
-      >
-        <div>
-          <p className="text-xs font-semibold tracking-[0.3em] text-muted-foreground uppercase mb-4">Our Partners</p>
-          <h2 className="font-display text-5xl md:text-7xl font-bold text-foreground leading-[0.95]">
-            Trusted By<br />
-            <span className="text-stroke">Ambitious Brands</span>
-          </h2>
-        </div>
-        <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
-          Here are some of the brands we've had the privilege to collaborate with and deliver results.
-        </p>
-      </motion.div>
+  <section className="py-16 px-6 md:px-12 overflow-hidden">
+    <div className="max-w-7xl mx-auto mb-10">
+      <p className="text-xs font-semibold tracking-[0.3em] text-muted-foreground uppercase text-center">
+        Brands that trust us
+      </p>
     </div>
 
-    {/* Scrolling logo row - forward */}
-    <div className="relative">
+    <div className="relative group/marquee">
       <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-background to-transparent z-10" />
       <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent z-10" />
-      
-      <div className="flex items-center gap-16 animate-marquee-logos whitespace-nowrap py-8">
-        {doubled.map((client, i) => (
+
+      <div className="flex items-center gap-20 animate-marquee-logos-fast whitespace-nowrap py-6 group-hover/marquee:[animation-play-state:paused]">
+        {tripled.map((client, i) => (
           <div
             key={`${client.name}-${i}`}
-            className="flex-shrink-0 flex items-center justify-center w-40 md:w-52 h-24 md:h-28 grayscale hover:grayscale-0 opacity-50 hover:opacity-100 transition-all duration-500 cursor-pointer"
+            className="flex-shrink-0 flex items-center justify-center w-32 md:w-40 h-16 grayscale hover:grayscale-0 opacity-40 hover:opacity-100 transition-all duration-300"
           >
             <img
               src={client.logo}
               alt={client.name}
-              className="max-h-20 md:max-h-24 w-auto object-contain"
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-
-    {/* Scrolling logo row - reverse */}
-    <div className="relative mt-4">
-      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-background to-transparent z-10" />
-      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent z-10" />
-      
-      <div className="flex items-center gap-16 animate-marquee-logos-reverse whitespace-nowrap py-8">
-        {doubled.map((client, i) => (
-          <div
-            key={`${client.name}-rev-${i}`}
-            className="flex-shrink-0 flex items-center justify-center w-40 md:w-52 h-24 md:h-28 grayscale hover:grayscale-0 opacity-50 hover:opacity-100 transition-all duration-500 cursor-pointer"
-          >
-            <img
-              src={client.logo}
-              alt={client.name}
-              className="max-h-20 md:max-h-24 w-auto object-contain"
+              className="max-h-14 md:max-h-16 w-auto object-contain"
             />
           </div>
         ))}

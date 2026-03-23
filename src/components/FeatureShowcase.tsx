@@ -1,37 +1,33 @@
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, FileText, Calculator, Users, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
-import invoiceMockup from "@/assets/smartbooks-invoice-mockup.png";
-import expensesMockup from "@/assets/smartbooks-expenses-mockup.png";
-import crmMockup from "@/assets/smartbooks-crm-mockup.png";
-import dashboardMockup from "@/assets/smartbooks-dashboard-mockup.png";
 
 const features = [
   {
     title: "Create invoices, share receipts & track payments easily",
     desc: "Generate professional invoices in seconds, send receipts via WhatsApp, and never lose track of who owes you what.",
-    image: invoiceMockup,
+    icon: FileText,
     link: "/smartbooks/invoices",
     badge: "Live",
   },
   {
     title: "Stay ahead with real-time expense & profit analytics",
     desc: "Log expenses, track revenue streams, and see your real profit margins at a glance. Know exactly where your money goes.",
-    image: expensesMockup,
+    icon: Calculator,
     link: "/smartbooks/expenses",
-    badge: "Coming Soon",
+    badge: "Live",
   },
   {
     title: "Save customer details & keep them coming back",
     desc: "Record customer details with purchase history, shipping addresses, and contact info. Never miss a follow-up again.",
-    image: crmMockup,
+    icon: Users,
     link: "/smartbooks/crm",
-    badge: "Coming Soon",
+    badge: "Live",
   },
   {
     title: "Have full visibility on your business operations",
     desc: "One dashboard to view sales, inventory, expenses & analytics. Stop running your business blindly.",
-    image: dashboardMockup,
+    icon: BarChart3,
     link: "/smartbooks",
     badge: "Live",
   },
@@ -39,62 +35,61 @@ const features = [
 
 const FeatureShowcase = () => (
   <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-6 md:px-12 bg-background">
-    <div className="max-w-6xl mx-auto space-y-20 sm:space-y-32">
-      {features.map((feature, i) => {
-        const isReversed = i % 2 !== 0;
-        return (
-          <motion.div
-            key={feature.title}
-            initial={{ opacity: 0, y: 60 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col ${isReversed ? "md:flex-row-reverse" : "md:flex-row"} items-center gap-8 sm:gap-12 md:gap-16`}
-          >
-            {/* Text side */}
-            <div className="flex-1 text-center md:text-left">
-              {feature.badge && (
-                <span
-                  className={`inline-block text-[10px] font-bold tracking-[0.2em] uppercase px-3 py-1 mb-4 ${
-                    feature.badge === "Live"
-                      ? "bg-emerald/15 text-emerald"
-                      : "border border-border text-muted-foreground"
-                  }`}
-                >
-                  {feature.badge}
-                </span>
-              )}
-              <h3 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight mb-4">
-                {feature.title}
-              </h3>
-              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-6 max-w-md mx-auto md:mx-0">
-                {feature.desc}
-              </p>
+    <div className="max-w-6xl mx-auto">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        className="text-center mb-16"
+      >
+        <p className="text-xs font-semibold tracking-[0.3em] text-primary uppercase mb-3">What You Get</p>
+        <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4">
+          Everything your business needs
+        </h2>
+        <p className="text-muted-foreground max-w-lg mx-auto">
+          Tools designed for real businesses, not Silicon Valley startups.
+        </p>
+      </motion.div>
+
+      <div className="grid sm:grid-cols-2 gap-6">
+        {features.map((feature, i) => {
+          const Icon = feature.icon;
+          return (
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            >
               <Link
                 to={feature.link}
-                className="inline-flex items-center gap-2 text-sm font-semibold text-emerald hover:text-foreground transition-colors group"
+                className="group block p-8 sm:p-10 border border-border bg-card rounded-xl hover:border-primary/40 hover:shadow-elevated transition-all duration-500 h-full"
               >
-                Learn More
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <span className="text-[9px] font-bold tracking-[0.2em] uppercase bg-secondary/15 text-secondary px-2.5 py-0.5 rounded-full">
+                    {feature.badge}
+                  </span>
+                </div>
+                <h3 className="font-display text-xl sm:text-2xl font-bold text-foreground leading-tight mb-3 group-hover:text-primary transition-colors">
+                  {feature.title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+                  {feature.desc}
+                </p>
+                <div className="inline-flex items-center gap-2 text-sm font-semibold text-primary group-hover:gap-3 transition-all">
+                  Try it now
+                  <ArrowRight className="h-4 w-4" />
+                </div>
               </Link>
-            </div>
-
-            {/* Image side */}
-            <motion.div
-              className="flex-1 flex justify-center"
-              whileInView={{ scale: [0.95, 1] }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-            >
-              <img
-                src={feature.image}
-                alt={feature.title}
-                className="w-48 sm:w-56 md:w-64 lg:w-72 drop-shadow-xl"
-              />
             </motion.div>
-          </motion.div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   </section>
 );

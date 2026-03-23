@@ -2,17 +2,16 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import dashboardMockup from "@/assets/smartbooks-dashboard-mockup.png";
 import {
   FileText,
   Calculator,
   Users,
   Package,
-  FileCheck,
-  Globe,
   BarChart3,
   CreditCard,
   Bell,
+  Globe,
+  FileCheck,
   Shield,
 } from "lucide-react";
 
@@ -44,16 +43,13 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-[100svh] flex flex-col items-center justify-center px-4 sm:px-6 md:px-12 overflow-hidden pt-20 pb-10">
-      {/* Background glow */}
       <motion.div
         className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[150px]"
         animate={{ scale: [1, 1.2, 1] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Centered hero content */}
       <div className="relative z-10 text-center max-w-4xl mx-auto">
-        {/* Tagline pill */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -66,7 +62,6 @@ const HeroSection = () => {
           </span>
         </motion.div>
 
-        {/* Main headline with rotating word */}
         <motion.h1
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -89,7 +84,6 @@ const HeroSection = () => {
           problems, one solution at a time.
         </motion.h1>
 
-        {/* Subtitle */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -100,7 +94,6 @@ const HeroSection = () => {
           expenses & customer management easy.
         </motion.p>
 
-        {/* CTA Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -117,7 +110,6 @@ const HeroSection = () => {
         </motion.div>
       </div>
 
-      {/* Feature pills marquee */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -134,28 +126,6 @@ const HeroSection = () => {
               <span className="text-xs sm:text-sm font-medium text-foreground">{pill.label}</span>
             </div>
           ))}
-        </div>
-      </motion.div>
-
-      {/* Phone mockup with dashboard */}
-      <motion.div
-        initial={{ opacity: 0, y: 80 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative mt-10 sm:mt-16 w-full max-w-4xl mx-auto"
-      >
-        {/* Glow behind mockup */}
-        <div className="absolute inset-0 bg-primary/10 blur-[80px] rounded-full scale-75" />
-        
-        {/* Desktop + mobile combo mockup */}
-        <div className="relative flex justify-center">
-          <motion.img
-            src={dashboardMockup}
-            alt="SmartBooks Dashboard"
-            className="relative w-48 sm:w-56 md:w-72 lg:w-80 drop-shadow-2xl"
-            animate={{ y: [0, -12, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          />
         </div>
       </motion.div>
     </section>
