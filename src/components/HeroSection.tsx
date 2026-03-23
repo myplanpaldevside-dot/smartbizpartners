@@ -68,7 +68,7 @@ const HeroSection = () => {
           transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
           className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-[1.1] mb-4 sm:mb-6"
         >
-          Solving your{" "}
+          Your business{" "}
           <span className="relative inline-block">
             <motion.span
               key={wordIndex}
@@ -81,7 +81,7 @@ const HeroSection = () => {
               {rotatingWords[wordIndex]}
             </motion.span>
           </span>{" "}
-          problems, one solution at a time.
+          partner, from day one.
         </motion.h1>
 
         <motion.p
@@ -90,8 +90,8 @@ const HeroSection = () => {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed"
         >
-          Simplify your business operations with tools that make invoicing, sales,
-          expenses & customer management easy.
+          Run your business like a pro — manage invoices, track expenses, organize
+          customers & grow smarter with one platform built for African entrepreneurs.
         </motion.p>
 
         <motion.div
