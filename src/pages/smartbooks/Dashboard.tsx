@@ -12,7 +12,7 @@ import {
   FileCheck,
   Globe,
   ArrowRight,
-  Sparkles,
+  Zap,
   TrendingUp,
   Clock,
   CheckCircle2,
