@@ -167,12 +167,12 @@
 
 /* Giant text stroke */
 .text-stroke {
-  -webkit-text-stroke: 2px hsl(213 84% 55%);
+  -webkit-text-stroke: 2px hsl(170 70% 40%);
   color: transparent;
 }
 
 .text-stroke-emerald {
-  -webkit-text-stroke: 2px hsl(145 62% 40%);
+  -webkit-text-stroke: 2px hsl(170 70% 40%);
   color: transparent;
 }
 
