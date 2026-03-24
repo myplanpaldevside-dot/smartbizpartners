@@ -12,7 +12,7 @@ import {
   FileCheck,
   Globe,
   ArrowRight,
-  Sparkles,
+  Zap,
   TrendingUp,
   Clock,
   CheckCircle2,
@@ -37,8 +37,8 @@ const tools = [
   { title: "Expenses & Profit", desc: "Log expenses, track revenue, and see real margins.", icon: Calculator, url: "/smartbooks/expenses", status: "live" as const },
   { title: "Customer CRM", desc: "Manage contacts, log interactions, never miss a follow-up.", icon: Users, url: "/smartbooks/crm", status: "live" as const },
   { title: "Inventory Manager", desc: "Track stock levels, get alerts, see what's selling.", icon: Package, url: "/smartbooks/inventory", status: "live" as const },
-  { title: "Quotes & Proposals", desc: "Generate professional quotes and convert to invoices.", icon: FileCheck, url: "/smartbooks/quotes", status: "coming-soon" as const },
-  { title: "Website Generator", desc: "AI-powered website builder — online in minutes.", icon: Globe, url: "/smartbooks/website", status: "coming-soon" as const },
+  { title: "Quotes & Proposals", desc: "Generate professional quotes and convert to invoices.", icon: FileCheck, url: "/smartbooks/quotes", status: "live" as const },
+  { title: "Website Generator", desc: "AI-powered website builder — online in minutes.", icon: Globe, url: "/smartbooks/website", status: "live" as const },
 ];
 
 export default function SmartBooksDashboard() {
@@ -143,7 +143,7 @@ export default function SmartBooksDashboard() {
             </Avatar>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Sparkles className="h-4 w-4 text-primary" />
+                <Zap className="h-4 w-4 text-primary" />
                 <p className="text-[10px] font-bold tracking-[0.3em] text-primary uppercase">Dashboard</p>
               </div>
               <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">

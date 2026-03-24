@@ -12,7 +12,8 @@ import Invoices from "./pages/smartbooks/Invoices";
 import Expenses from "./pages/smartbooks/Expenses";
 import CRM from "./pages/smartbooks/CRM";
 import Inventory from "./pages/smartbooks/Inventory";
-import ComingSoon from "./pages/smartbooks/ComingSoon";
+import Quotes from "./pages/smartbooks/Quotes";
+import WebsiteGenerator from "./pages/smartbooks/WebsiteGenerator";
 import Auth from "./pages/smartbooks/Auth";
 import Pricing from "./pages/smartbooks/Pricing";
 import AdminDashboard from "./pages/smartbooks/AdminDashboard";
@@ -44,8 +45,8 @@ const App = () => (
               <Route path="expenses" element={<Expenses />} />
               <Route path="crm" element={<CRM />} />
               <Route path="inventory" element={<Inventory />} />
-              <Route path="quotes" element={<ComingSoon />} />
-              <Route path="website" element={<ComingSoon />} />
+              <Route path="quotes" element={<Quotes />} />
+              <Route path="website" element={<WebsiteGenerator />} />
               <Route path="admin" element={<AdminDashboard />} />
             </Route>
             <Route path="*" element={<NotFound />} />
