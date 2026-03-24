@@ -37,8 +37,8 @@ const tools = [
   { title: "Expenses & Profit", desc: "Log expenses, track revenue, and see real margins.", icon: Calculator, url: "/smartbooks/expenses", status: "live" as const },
   { title: "Customer CRM", desc: "Manage contacts, log interactions, never miss a follow-up.", icon: Users, url: "/smartbooks/crm", status: "live" as const },
   { title: "Inventory Manager", desc: "Track stock levels, get alerts, see what's selling.", icon: Package, url: "/smartbooks/inventory", status: "live" as const },
-  { title: "Quotes & Proposals", desc: "Generate professional quotes and convert to invoices.", icon: FileCheck, url: "/smartbooks/quotes", status: "coming-soon" as const },
-  { title: "Website Generator", desc: "AI-powered website builder — online in minutes.", icon: Globe, url: "/smartbooks/website", status: "coming-soon" as const },
+  { title: "Quotes & Proposals", desc: "Generate professional quotes and convert to invoices.", icon: FileCheck, url: "/smartbooks/quotes", status: "live" as const },
+  { title: "Website Generator", desc: "AI-powered website builder — online in minutes.", icon: Globe, url: "/smartbooks/website", status: "live" as const },
 ];
 
 export default function SmartBooksDashboard() {
