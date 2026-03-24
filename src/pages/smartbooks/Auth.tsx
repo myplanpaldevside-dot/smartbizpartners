@@ -79,7 +79,7 @@ export default function Auth() {
 
         <div className="border border-border bg-card p-8 rounded-lg shadow-elevated">
           <div className="flex items-center gap-2 mb-1">
-            <Sparkles className="h-4 w-4 text-primary" />
+            <Zap className="h-4 w-4 text-primary" />
             <span className="text-[10px] font-bold tracking-[0.3em] text-primary uppercase">
               SmartBooks
             </span>
