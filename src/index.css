@@ -88,8 +88,8 @@
     scroll-behavior: smooth;
   }
 
-  ::selection {
-    background: hsl(213 84% 55%);
+::selection {
+    background: hsl(170 70% 40%);
     color: white;
   }
 }
