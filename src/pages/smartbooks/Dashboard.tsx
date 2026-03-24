@@ -143,7 +143,7 @@ export default function SmartBooksDashboard() {
             </Avatar>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Sparkles className="h-4 w-4 text-primary" />
+                <Zap className="h-4 w-4 text-primary" />
                 <p className="text-[10px] font-bold tracking-[0.3em] text-primary uppercase">Dashboard</p>
               </div>
               <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
