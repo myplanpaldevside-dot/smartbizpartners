@@ -1,13 +1,13 @@
 project_id = "kjlpppxgyydzdsmxdowv"
 
-[functions.chat]
-verify_jwt = false
-
-[functions.paystack-checkout]
-verify_jwt = false
-
-[functions.paystack-webhook]
-verify_jwt = false
-
-[functions.process-email-queue]
-verify_jwt = true
+[functions]
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.chat]
+    verify_jwt = false
+  [functions.paystack-checkout]
+    verify_jwt = false
+  [functions.paystack-webhook]
+    verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
