@@ -44,6 +44,7 @@ const App = () => (
           <Suspense fallback={<SmartBooksLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/smartbooks/auth" element={<Auth />} />
               <Route path="/smartbooks/pricing" element={<Pricing />} />
               <Route
