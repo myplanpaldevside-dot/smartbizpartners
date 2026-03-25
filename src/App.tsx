@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,20 +7,31 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import SmartBooksLayout from "./components/smartbooks/SmartBooksLayout";
-import SmartBooksDashboard from "./pages/smartbooks/Dashboard";
-import Invoices from "./pages/smartbooks/Invoices";
-import Expenses from "./pages/smartbooks/Expenses";
-import CRM from "./pages/smartbooks/CRM";
-import Inventory from "./pages/smartbooks/Inventory";
-import Quotes from "./pages/smartbooks/Quotes";
-import WebsiteGenerator from "./pages/smartbooks/WebsiteGenerator";
-import Auth from "./pages/smartbooks/Auth";
-import Pricing from "./pages/smartbooks/Pricing";
-import AdminDashboard from "./pages/smartbooks/AdminDashboard";
-import ProtectedRoute from "./components/smartbooks/ProtectedRoute";
+
+// Lazy load SmartBooks pages for faster initial load
+const SmartBooksLayout = lazy(() => import("./components/smartbooks/SmartBooksLayout"));
+const SmartBooksDashboard = lazy(() => import("./pages/smartbooks/Dashboard"));
+const Invoices = lazy(() => import("./pages/smartbooks/Invoices"));
+const Expenses = lazy(() => import("./pages/smartbooks/Expenses"));
+const CRM = lazy(() => import("./pages/smartbooks/CRM"));
+const Inventory = lazy(() => import("./pages/smartbooks/Inventory"));
+const Quotes = lazy(() => import("./pages/smartbooks/Quotes"));
+const WebsiteGenerator = lazy(() => import("./pages/smartbooks/WebsiteGenerator"));
+const Auth = lazy(() => import("./pages/smartbooks/Auth"));
+const Pricing = lazy(() => import("./pages/smartbooks/Pricing"));
+const AdminDashboard = lazy(() => import("./pages/smartbooks/AdminDashboard"));
+const ProtectedRoute = lazy(() => import("./components/smartbooks/ProtectedRoute"));
 
 const queryClient = new QueryClient();
+
+const SmartBooksLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="text-center space-y-3">
+      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+      <p className="text-sm text-muted-foreground font-medium">Loading SmartBooks...</p>
+    </div>
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -28,29 +40,31 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/smartbooks/auth" element={<Auth />} />
-            <Route path="/smartbooks/pricing" element={<Pricing />} />
-            <Route
-              path="/smartbooks"
-              element={
-                <ProtectedRoute>
-                  <SmartBooksLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<SmartBooksDashboard />} />
-              <Route path="invoices" element={<Invoices />} />
-              <Route path="expenses" element={<Expenses />} />
-              <Route path="crm" element={<CRM />} />
-              <Route path="inventory" element={<Inventory />} />
-              <Route path="quotes" element={<Quotes />} />
-              <Route path="website" element={<WebsiteGenerator />} />
-              <Route path="admin" element={<AdminDashboard />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<SmartBooksLoader />}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/smartbooks/auth" element={<Auth />} />
+              <Route path="/smartbooks/pricing" element={<Pricing />} />
+              <Route
+                path="/smartbooks"
+                element={
+                  <ProtectedRoute>
+                    <SmartBooksLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<SmartBooksDashboard />} />
+                <Route path="invoices" element={<Invoices />} />
+                <Route path="expenses" element={<Expenses />} />
+                <Route path="crm" element={<CRM />} />
+                <Route path="inventory" element={<Inventory />} />
+                <Route path="quotes" element={<Quotes />} />
+                <Route path="website" element={<WebsiteGenerator />} />
+                <Route path="admin" element={<AdminDashboard />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>
