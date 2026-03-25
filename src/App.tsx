@@ -20,6 +20,7 @@ const WebsiteGenerator = lazy(() => import("./pages/smartbooks/WebsiteGenerator"
 const Auth = lazy(() => import("./pages/smartbooks/Auth"));
 const Pricing = lazy(() => import("./pages/smartbooks/Pricing"));
 const AdminDashboard = lazy(() => import("./pages/smartbooks/AdminDashboard"));
+const ResetPassword = lazy(() => import("./pages/smartbooks/ResetPassword"));
 const ProtectedRoute = lazy(() => import("./components/smartbooks/ProtectedRoute"));
 
 const queryClient = new QueryClient();
