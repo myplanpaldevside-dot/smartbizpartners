@@ -12,7 +12,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-DialogDescription,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface Customer {
   id: string;
