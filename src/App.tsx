@@ -18,7 +18,7 @@ const Expenses = lazy(() => import("./pages/smartbooks/Expenses"));
 const CRM = lazy(() => import("./pages/smartbooks/CRM"));
 const Inventory = lazy(() => import("./pages/smartbooks/Inventory"));
 const Quotes = lazy(() => import("./pages/smartbooks/Quotes"));
-const WebsiteGenerator = lazy(() => import("./pages/smartbooks/WebsiteGenerator"));
+
 const Auth = lazy(() => import("./pages/smartbooks/Auth"));
 const Pricing = lazy(() => import("./pages/smartbooks/Pricing"));
 const AdminDashboard = lazy(() => import("./pages/smartbooks/AdminDashboard"));
@@ -68,7 +68,7 @@ const App = () => (
                 <Route path="crm" element={<CRM />} />
                 <Route path="inventory" element={<Inventory />} />
                 <Route path="quotes" element={<Quotes />} />
-                <Route path="website" element={<WebsiteGenerator />} />
+                
                 <Route path="store" element={<Store />} />
                 <Route path="orders" element={<Orders />} />
                 <Route path="admin" element={<AdminDashboard />} />
