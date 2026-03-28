@@ -37,7 +37,7 @@ const tools = [
   { title: "Quotes & Proposals", url: "/smartbooks/quotes", icon: FileCheck },
   { title: "My Store", url: "/smartbooks/store", icon: ShoppingBag },
   { title: "Orders", url: "/smartbooks/orders", icon: ShoppingCart },
-  { title: "Website Generator", url: "/smartbooks/website", icon: Globe },
+  
 ];
 
 export function SmartBooksSidebar() {
