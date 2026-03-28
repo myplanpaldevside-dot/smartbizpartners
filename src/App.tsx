@@ -8,6 +8,8 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
+import ProtectedRoute from "./components/smartbooks/ProtectedRoute";
+
 // Lazy load SmartBooks pages for faster initial load
 const SmartBooksLayout = lazy(() => import("./components/smartbooks/SmartBooksLayout"));
 const SmartBooksDashboard = lazy(() => import("./pages/smartbooks/Dashboard"));
@@ -21,7 +23,6 @@ const Auth = lazy(() => import("./pages/smartbooks/Auth"));
 const Pricing = lazy(() => import("./pages/smartbooks/Pricing"));
 const AdminDashboard = lazy(() => import("./pages/smartbooks/AdminDashboard"));
 const ResetPassword = lazy(() => import("./pages/smartbooks/ResetPassword"));
-const ProtectedRoute = lazy(() => import("./components/smartbooks/ProtectedRoute"));
 
 const queryClient = new QueryClient();
 
