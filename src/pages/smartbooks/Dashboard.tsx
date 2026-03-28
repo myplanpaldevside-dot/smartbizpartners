@@ -135,12 +135,23 @@ export default function SmartBooksDashboard() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <Avatar className="h-14 w-14 border-2 border-primary/20">
-              <AvatarImage src={logoUrl || undefined} alt={businessName} />
-              <AvatarFallback className="bg-primary/10 text-primary font-display font-bold text-lg">
-                {businessName.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+              <Avatar className="h-14 w-14 border-2 border-primary/20 group-hover:border-primary/50 transition-colors">
+                <AvatarImage src={logoUrl || undefined} alt={businessName} />
+                <AvatarFallback className="bg-primary/10 text-primary font-display font-bold text-lg">
+                  {businessName.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                <Camera className="h-4 w-4 text-white" />
+              </div>
+              {uploading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                </div>
+              )}
+            </div>
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <Zap className="h-4 w-4 text-primary" />
