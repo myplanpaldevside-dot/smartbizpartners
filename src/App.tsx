@@ -23,6 +23,10 @@ const Auth = lazy(() => import("./pages/smartbooks/Auth"));
 const Pricing = lazy(() => import("./pages/smartbooks/Pricing"));
 const AdminDashboard = lazy(() => import("./pages/smartbooks/AdminDashboard"));
 const ResetPassword = lazy(() => import("./pages/smartbooks/ResetPassword"));
+const Store = lazy(() => import("./pages/smartbooks/Store"));
+const Orders = lazy(() => import("./pages/smartbooks/Orders"));
+const Storefront = lazy(() => import("./pages/Storefront"));
+const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
 
 const queryClient = new QueryClient();
 
@@ -45,6 +49,8 @@ const App = () => (
           <Suspense fallback={<SmartBooksLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/store/:slug" element={<Storefront />} />
+              <Route path="/store/order-success" element={<OrderSuccess />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/smartbooks/auth" element={<Auth />} />
               <Route path="/smartbooks/pricing" element={<Pricing />} />
@@ -63,6 +69,8 @@ const App = () => (
                 <Route path="inventory" element={<Inventory />} />
                 <Route path="quotes" element={<Quotes />} />
                 <Route path="website" element={<WebsiteGenerator />} />
+                <Route path="store" element={<Store />} />
+                <Route path="orders" element={<Orders />} />
                 <Route path="admin" element={<AdminDashboard />} />
               </Route>
               <Route path="*" element={<NotFound />} />

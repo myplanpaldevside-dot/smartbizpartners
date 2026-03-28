@@ -8,6 +8,8 @@ import {
   LayoutDashboard,
   ArrowLeft,
   Shield,
+  ShoppingBag,
+  ShoppingCart,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -33,6 +35,8 @@ const tools = [
   { title: "Customer CRM", url: "/smartbooks/crm", icon: Users },
   { title: "Inventory", url: "/smartbooks/inventory", icon: Package },
   { title: "Quotes & Proposals", url: "/smartbooks/quotes", icon: FileCheck },
+  { title: "My Store", url: "/smartbooks/store", icon: ShoppingBag },
+  { title: "Orders", url: "/smartbooks/orders", icon: ShoppingCart },
   { title: "Website Generator", url: "/smartbooks/website", icon: Globe },
 ];
 

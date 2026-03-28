@@ -20,6 +20,7 @@ import {
   Settings,
   Upload,
   Camera,
+  ShoppingBag,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
@@ -38,6 +39,7 @@ const tools = [
   { title: "Customer CRM", desc: "Manage contacts, log interactions, never miss a follow-up.", icon: Users, url: "/smartbooks/crm", status: "live" as const },
   { title: "Inventory Manager", desc: "Track stock levels, get alerts, see what's selling.", icon: Package, url: "/smartbooks/inventory", status: "live" as const },
   { title: "Quotes & Proposals", desc: "Generate professional quotes and convert to invoices.", icon: FileCheck, url: "/smartbooks/quotes", status: "live" as const },
+  { title: "My Store", desc: "Build your online store, list products, and receive orders.", icon: ShoppingBag, url: "/smartbooks/store", status: "live" as const },
   { title: "Website Generator", desc: "AI-powered website builder — online in minutes.", icon: Globe, url: "/smartbooks/website", status: "live" as const },
 ];
 
