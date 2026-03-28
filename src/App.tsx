@@ -68,7 +68,7 @@ const App = () => (
                 <Route path="crm" element={<CRM />} />
                 <Route path="inventory" element={<Inventory />} />
                 <Route path="quotes" element={<Quotes />} />
-                <Route path="website" element={<WebsiteGenerator />} />
+                
                 <Route path="store" element={<Store />} />
                 <Route path="orders" element={<Orders />} />
                 <Route path="admin" element={<AdminDashboard />} />
