@@ -4,7 +4,6 @@ import {
   Users,
   Package,
   FileCheck,
-  
   LayoutDashboard,
   ArrowLeft,
   Shield,
@@ -30,14 +29,13 @@ import {
 
 const tools = [
   { title: "Dashboard", url: "/smartbooks", icon: LayoutDashboard },
-  { title: "Invoices & Payments", url: "/smartbooks/invoices", icon: FileText },
-  { title: "Expenses & Profit", url: "/smartbooks/expenses", icon: Calculator },
-  { title: "Customer CRM", url: "/smartbooks/crm", icon: Users },
+  { title: "Invoices", url: "/smartbooks/invoices", icon: FileText },
+  { title: "Expenses", url: "/smartbooks/expenses", icon: Calculator },
+  { title: "Customers", url: "/smartbooks/crm", icon: Users },
   { title: "Inventory", url: "/smartbooks/inventory", icon: Package },
-  { title: "Quotes & Proposals", url: "/smartbooks/quotes", icon: FileCheck },
-  { title: "My Store", url: "/smartbooks/store", icon: ShoppingBag },
+  { title: "Quotes", url: "/smartbooks/quotes", icon: FileCheck },
+  { title: "Store", url: "/smartbooks/store", icon: ShoppingBag },
   { title: "Orders", url: "/smartbooks/orders", icon: ShoppingCart },
-  
 ];
 
 export function SmartBooksSidebar() {
@@ -48,23 +46,23 @@ export function SmartBooksSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border">
-      <SidebarHeader className="p-4">
-        <a href="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-xs font-medium tracking-wide uppercase">
-          <ArrowLeft className="h-3 w-3" />
-          {!collapsed && <span>Back to SmartBiz</span>}
+      <SidebarHeader className="p-3">
+        <a href="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-xs font-medium">
+          <ArrowLeft className="h-3.5 w-3.5" />
+          {!collapsed && <span>Back to Home</span>}
         </a>
         {!collapsed && (
-          <div className="mt-4">
-            <h1 className="font-display text-xl font-bold text-foreground">SmartBooks</h1>
-            <p className="text-[10px] tracking-[0.2em] text-primary uppercase font-semibold">Business Tools</p>
+          <div className="mt-3 px-1">
+            <h1 className="font-display text-lg font-bold text-foreground">SmartBooks</h1>
+            <p className="text-[10px] text-muted-foreground">Business Management Suite</p>
           </div>
         )}
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-semibold">
-            Tools
+          <SidebarGroupLabel className="text-[10px] tracking-widest uppercase text-muted-foreground/70 font-semibold">
+            Menu
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -74,11 +72,11 @@ export function SmartBooksSidebar() {
                     <NavLink
                       to={item.url}
                       end={item.url === "/smartbooks"}
-                      className="hover:bg-accent/10 transition-colors"
+                      className="hover:bg-accent/50 transition-colors rounded-lg"
                       activeClassName="bg-primary/10 text-primary font-semibold"
                     >
                       <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!collapsed && <span className="text-sm">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -89,7 +87,7 @@ export function SmartBooksSidebar() {
 
         {isAdmin && (
           <SidebarGroup>
-            <SidebarGroupLabel className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-semibold">
+            <SidebarGroupLabel className="text-[10px] tracking-widest uppercase text-muted-foreground/70 font-semibold">
               Admin
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -98,11 +96,11 @@ export function SmartBooksSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to="/smartbooks/admin"
-                      className="hover:bg-accent/10 transition-colors"
+                      className="hover:bg-accent/50 transition-colors rounded-lg"
                       activeClassName="bg-primary/10 text-primary font-semibold"
                     >
                       <Shield className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>Admin Panel</span>}
+                      {!collapsed && <span className="text-sm">Admin Panel</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -112,10 +110,10 @@ export function SmartBooksSidebar() {
         )}
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-3">
         {!collapsed && (
-          <p className="text-[10px] text-muted-foreground text-center">
-            Powered by SmartBiz Partners
+          <p className="text-[10px] text-muted-foreground/50 text-center">
+            SmartBiz Partners
           </p>
         )}
       </SidebarFooter>
