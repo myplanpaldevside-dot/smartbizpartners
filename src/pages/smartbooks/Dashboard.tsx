@@ -10,7 +10,6 @@ import {
   Users,
   Package,
   FileCheck,
-  Globe,
   ArrowRight,
   Zap,
   TrendingUp,
