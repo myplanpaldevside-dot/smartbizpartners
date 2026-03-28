@@ -23,6 +23,10 @@ const Auth = lazy(() => import("./pages/smartbooks/Auth"));
 const Pricing = lazy(() => import("./pages/smartbooks/Pricing"));
 const AdminDashboard = lazy(() => import("./pages/smartbooks/AdminDashboard"));
 const ResetPassword = lazy(() => import("./pages/smartbooks/ResetPassword"));
+const Store = lazy(() => import("./pages/smartbooks/Store"));
+const Orders = lazy(() => import("./pages/smartbooks/Orders"));
+const Storefront = lazy(() => import("./pages/Storefront"));
+const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
 
 const queryClient = new QueryClient();
 
