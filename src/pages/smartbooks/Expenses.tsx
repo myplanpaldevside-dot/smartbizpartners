@@ -19,6 +19,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -189,6 +190,7 @@ export default function Expenses() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="font-display">Add Expense</DialogTitle>
+            <DialogDescription>Record a new business expense.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 mt-4">
             <div className="space-y-2">

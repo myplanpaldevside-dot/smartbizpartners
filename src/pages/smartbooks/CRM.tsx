@@ -12,6 +12,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 interface Customer {
@@ -156,6 +157,7 @@ export default function CRM() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="font-display">Add Customer</DialogTitle>
+            <DialogDescription>Add a new customer to your CRM.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 mt-4">
             <div className="space-y-2">
