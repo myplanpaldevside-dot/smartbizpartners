@@ -49,6 +49,8 @@ const App = () => (
           <Suspense fallback={<SmartBooksLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/store/:slug" element={<Storefront />} />
+              <Route path="/store/order-success" element={<OrderSuccess />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/smartbooks/auth" element={<Auth />} />
               <Route path="/smartbooks/pricing" element={<Pricing />} />
