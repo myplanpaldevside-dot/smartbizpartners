@@ -20,6 +20,7 @@ import {
   Settings,
   Upload,
   Camera,
+  ShoppingBag,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
