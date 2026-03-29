@@ -42,14 +42,14 @@ const tools = [
   { title: "Store", desc: "Your online shop", icon: ShoppingBag, url: "/smartbooks/store", color: "text-pink-500 bg-pink-500/10" },
 ];
 
-const withTimeout = async <T,>(operation: () => Promise<T>, ms = 20000) => {
+const withTimeout = async <T,>(operation: () => PromiseLike<T>, ms = 20000): Promise<T> => {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
-  const timeoutPromise = new Promise<never>((_, reject) => {
+  const timeoutPromise = new Promise<T>((_, reject) => {
     timeoutId = setTimeout(() => reject(new Error("Request timed out. Please try again.")), ms);
   });
 
   try {
-    return await Promise.race([operation(), timeoutPromise]);
+    return await Promise.race([Promise.resolve(operation()), timeoutPromise]);
   } finally {
     if (timeoutId) clearTimeout(timeoutId);
   }
