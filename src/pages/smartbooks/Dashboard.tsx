@@ -42,6 +42,19 @@ const tools = [
   { title: "Store", desc: "Your online shop", icon: ShoppingBag, url: "/smartbooks/store", color: "text-pink-500 bg-pink-500/10" },
 ];
 
+const withTimeout = async <T,>(operation: () => PromiseLike<T>, ms = 20000): Promise<T> => {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeoutPromise = new Promise<T>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error("Request timed out. Please try again.")), ms);
+  });
+
+  try {
+    return await Promise.race([Promise.resolve(operation()), timeoutPromise]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+};
+
 export default function SmartBooksDashboard() {
   const { profile, user, signOut, refreshProfile } = useAuth();
   const { toast } = useToast();
@@ -77,32 +90,89 @@ export default function SmartBooksDashboard() {
     if (!file.type.startsWith("image/")) { toast({ title: "Please upload an image file", variant: "destructive" }); return; }
     if (file.size > 2 * 1024 * 1024) { toast({ title: "Image must be under 2MB", variant: "destructive" }); return; }
     setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/logo.${ext}`;
-    const { error: uploadError } = await supabase.storage.from("logos").upload(path, file, { upsert: true });
-    if (uploadError) { toast({ title: "Upload failed", description: uploadError.message, variant: "destructive" }); setUploading(false); return; }
-    const { data: urlData } = supabase.storage.from("logos").getPublicUrl(path);
-    const logoUrl = `${urlData.publicUrl}?t=${Date.now()}`;
-    await supabase.from("profiles").update({ logo_url: logoUrl, updated_at: new Date().toISOString() }).eq("id", user.id);
-    await refreshProfile();
-    toast({ title: "Logo updated!" });
-    setUploading(false);
+
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `${user.id}/logo.${ext}`;
+
+      const { error: uploadError } = await withTimeout(() =>
+        supabase.storage.from("logos").upload(path, file, { upsert: true })
+      );
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage.from("logos").getPublicUrl(path);
+      const logoUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
+      const { error: profileError } = await withTimeout(() =>
+        supabase.from("profiles").upsert(
+          {
+            id: user.id,
+            email: user.email ?? profile?.email ?? null,
+            business_name: profile?.business_name || user.user_metadata?.business_name || "My Business",
+            phone: profile?.phone || user.user_metadata?.phone || "",
+            logo_url: logoUrl,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "id" }
+        )
+      );
+      if (profileError) throw profileError;
+
+      await withTimeout(() => refreshProfile(), 10000);
+      toast({ title: "Logo updated!" });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err?.message || "Please try again", variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSaveSettings = async () => {
+    if (!user) {
+      toast({ title: "Please sign in again", variant: "destructive" });
+      return;
+    }
+
+    const cleanName = editName.trim();
+    if (!cleanName) {
+      toast({ title: "Business name is required", variant: "destructive" });
+      return;
+    }
+
     setSaving(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ business_name: editName, phone: editPhone, updated_at: new Date().toISOString() })
-      .eq("id", profile!.id);
-    if (error) { toast({ title: "Error updating profile", variant: "destructive" }); }
-    else { toast({ title: "Profile updated!" }); await refreshProfile(); setShowSettings(false); }
-    setSaving(false);
+
+    try {
+      const { error } = await withTimeout(() =>
+        supabase.from("profiles").upsert(
+          {
+            id: user.id,
+            email: user.email ?? profile?.email ?? null,
+            business_name: cleanName,
+            phone: editPhone.trim(),
+            logo_url: profile?.logo_url ?? null,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "id" }
+        )
+      );
+
+      if (error) throw error;
+
+      await withTimeout(() => refreshProfile(), 10000);
+      toast({ title: "Profile updated!" });
+      setShowSettings(false);
+    } catch (err: any) {
+      toast({ title: "Error updating profile", description: err?.message || "Please try again", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const openSettings = () => {
-    setEditName(profile?.business_name || "");
-    setEditPhone(profile?.phone || "");
+    const metaName = typeof user?.user_metadata?.business_name === "string" ? user.user_metadata.business_name : "";
+    const metaPhone = typeof user?.user_metadata?.phone === "string" ? user.user_metadata.phone : "";
+    setEditName(profile?.business_name || metaName || "");
+    setEditPhone(profile?.phone || metaPhone || "");
     setShowSettings(true);
   };
 
