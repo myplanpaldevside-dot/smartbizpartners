@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import {
   FileText, Calculator, Users, Package, FileCheck, ArrowRight,
   LogOut, Settings, Camera, ShoppingBag, Wallet, BarChart3, Clock,
-  ShoppingCart, Upload,
+  ShoppingCart, Upload, ChartNoAxesCombined,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
@@ -25,6 +25,7 @@ const tools = [
   { title: "Quotes", desc: "Send proposals", icon: FileCheck, url: "/smartbooks/quotes", color: "text-cyan-500 bg-cyan-500/10" },
   { title: "Store", desc: "Online shop", icon: ShoppingBag, url: "/smartbooks/store", color: "text-pink-500 bg-pink-500/10" },
   { title: "Orders", desc: "Manage orders", icon: ShoppingCart, url: "/smartbooks/orders", color: "text-amber-500 bg-amber-500/10" },
+  { title: "Reports", desc: "Business analytics", icon: ChartNoAxesCombined, url: "/smartbooks/reports", color: "text-violet-500 bg-violet-500/10" },
 ];
 
 export default function SmartBooksDashboard() {
@@ -38,6 +39,13 @@ export default function SmartBooksDashboard() {
   const [uploading, setUploading] = useState(false);
   const [stats, setStats] = useState({ count: 0, revenue: 0, pending: 0, customers: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const withTimeout = async <T,>(operation: Promise<T>, timeoutMs = 25000): Promise<T> => {
+    return await Promise.race([
+      operation,
+      new Promise<T>((_, reject) => setTimeout(() => reject(new Error("Request timed out. Please try again.")), timeoutMs)),
+    ]);
+  };
 
   useEffect(() => { fetchStats(); }, [user]);
 
@@ -63,27 +71,63 @@ export default function SmartBooksDashboard() {
     const file = e.target.files?.[0];
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (!file || !user) return;
-    if (!file.type.startsWith("image/")) { toast({ title: "Please upload an image file", variant: "destructive" }); return; }
-    if (file.size > 2 * 1024 * 1024) { toast({ title: "Image must be under 2MB", variant: "destructive" }); return; }
+
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Unsupported image format",
+        description: "Please upload a JPG, PNG, or WEBP image.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Image must be under 5MB", variant: "destructive" });
+      return;
+    }
+
     setUploading(true);
+
     try {
-      const ext = file.name.split(".").pop() || "png";
-      const path = `${user.id}/logo.${ext}`;
-      const { error: uploadError } = await supabase.storage.from("logos").upload(path, file, { upsert: true });
+      const extByType: Record<string, string> = {
+        "image/jpeg": "jpg",
+        "image/jpg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+      };
+      const ext = extByType[file.type] || "jpg";
+      const path = `${user.id}/logo-${Date.now()}.${ext}`;
+
+      const { error: uploadError } = await withTimeout(
+        supabase.storage.from("logos").upload(path, file, { upsert: false }),
+      );
+
       if (uploadError) throw uploadError;
+
       const { data: urlData } = supabase.storage.from("logos").getPublicUrl(path);
       const logoUrl = `${urlData.publicUrl}?t=${Date.now()}`;
-      const { error: profileError } = await supabase.from("profiles").upsert({
-        id: user.id, email: editEmail || profile?.email || user.email || null,
-        business_name: profile?.business_name || "My Business",
-        phone: profile?.phone || "", logo_url: logoUrl, updated_at: new Date().toISOString(),
-      }, { onConflict: "id" });
+
+      const { error: profileError } = await withTimeout(
+        supabase.from("profiles").upsert({
+          id: user.id,
+          email: editEmail || profile?.email || user.email || null,
+          business_name: profile?.business_name || "My Business",
+          phone: profile?.phone || "",
+          logo_url: logoUrl,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "id" }),
+      );
+
       if (profileError) throw profileError;
+
       await refreshProfile();
       toast({ title: "✓ Logo updated!" });
     } catch (err: any) {
       toast({ title: "Upload failed", description: err?.message || "Try again", variant: "destructive" });
-    } finally { setUploading(false); }
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSaveSettings = async () => {
@@ -92,11 +136,16 @@ export default function SmartBooksDashboard() {
     if (!cleanName) { toast({ title: "Business name is required", variant: "destructive" }); return; }
     setSaving(true);
     try {
-      const { error } = await supabase.from("profiles").upsert({
-        id: user.id, email: editEmail.trim() || user.email || null,
-        business_name: cleanName, phone: editPhone.trim(),
-        logo_url: profile?.logo_url ?? null, updated_at: new Date().toISOString(),
-      }, { onConflict: "id" });
+      const { error } = await withTimeout(
+        supabase.from("profiles").upsert({
+          id: user.id,
+          email: editEmail.trim() || user.email || null,
+          business_name: cleanName,
+          phone: editPhone.trim(),
+          logo_url: profile?.logo_url ?? null,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "id" }),
+      );
       if (error) throw error;
       await refreshProfile();
       toast({ title: "✓ Settings saved!" });
@@ -147,7 +196,7 @@ export default function SmartBooksDashboard() {
                 </div>
               )}
             </div>
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={handleLogoUpload} />
             <div>
               <p className="text-xs sm:text-sm text-muted-foreground">{greeting} 👋</p>
               <h1 className="font-display text-lg sm:text-2xl font-bold text-foreground leading-tight">{businessName}</h1>
@@ -230,6 +279,7 @@ export default function SmartBooksDashboard() {
                 <Upload className="h-3 w-3 mr-1.5" />
                 {uploading ? "Uploading..." : "Upload Logo"}
               </Button>
+              <p className="text-[10px] text-muted-foreground">JPG, PNG, WEBP • max 5MB</p>
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-medium text-muted-foreground">Business Name</Label>
@@ -245,7 +295,7 @@ export default function SmartBooksDashboard() {
             </div>
             <div className="flex gap-3 pt-1">
               <Button variant="outline" className="flex-1 rounded-lg" onClick={() => setShowSettings(false)}>Cancel</Button>
-              <Button className="flex-1 rounded-lg" onClick={handleSaveSettings} disabled={saving}>
+              <Button className="flex-1 rounded-lg" onClick={handleSaveSettings} disabled={saving || uploading}>
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
             </div>
