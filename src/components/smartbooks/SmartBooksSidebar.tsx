@@ -113,8 +113,8 @@ export function SmartBooksSidebar() {
 
       <SidebarFooter className="p-3">
         {!collapsed && (
-          <p className="text-[10px] text-muted-foreground/50 text-center">
-            Powered by SmartBiz
+          <p className="text-[10px] text-muted-foreground/40 text-center">
+            {businessName}
           </p>
         )}
       </SidebarFooter>
