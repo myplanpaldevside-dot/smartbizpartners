@@ -191,7 +191,7 @@ export default function Store() {
         }
       }
 
-      await withTimeout(fetchStoreSettings(), 10000);
+      await withTimeout(() => fetchStoreSettings(), 10000);
       setShowStoreSettings(false);
     } catch (err: any) {
       console.error("Store settings error:", err);
@@ -306,7 +306,7 @@ export default function Store() {
         toast({ title: "Product added!" });
       }
 
-      await withTimeout(fetchProducts(), 10000);
+      await withTimeout(() => fetchProducts(), 10000);
       setShowProductDialog(false);
     } catch (err: any) {
       console.error("Save product error:", err);
