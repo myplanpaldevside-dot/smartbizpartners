@@ -37,14 +37,14 @@ interface StoreSettings {
   is_published: boolean;
 }
 
-const withTimeout = async <T,>(promise: Promise<T>, ms = 20000) => {
+const withTimeout = async <T,>(operation: () => PromiseLike<T>, ms = 20000): Promise<T> => {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
-  const timeoutPromise = new Promise<never>((_, reject) => {
+  const timeoutPromise = new Promise<T>((_, reject) => {
     timeoutId = setTimeout(() => reject(new Error("Request timed out. Please try again.")), ms);
   });
 
   try {
-    return await Promise.race([promise, timeoutPromise]);
+    return await Promise.race([Promise.resolve(operation()), timeoutPromise]);
   } finally {
     if (timeoutId) clearTimeout(timeoutId);
   }
@@ -158,18 +158,20 @@ export default function Store() {
       };
 
       if (storeSettings) {
-        const { error } = await withTimeout(supabase
-          .from("store_settings")
-          .update(payload)
-          .eq("id", storeSettings.id));
+        const { error } = await withTimeout(() =>
+          supabase
+            .from("store_settings")
+            .update(payload)
+            .eq("id", storeSettings.id)
+        );
         if (error) throw error;
         toast({ title: "Store settings saved!" });
       } else {
-        const { error } = await withTimeout(supabase.from("store_settings").insert(payload));
+        const { error } = await withTimeout(() => supabase.from("store_settings").insert(payload));
 
         if (error) {
           if (error.code === "23505" && error.message.includes("store_settings_user_id")) {
-            const { error: updateExistingError } = await withTimeout(
+            const { error: updateExistingError } = await withTimeout(() =>
               supabase
                 .from("store_settings")
                 .update(payload)
@@ -219,9 +221,11 @@ export default function Store() {
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${user.id}/${Date.now()}.${ext}`;
 
-      const { error: uploadError } = await withTimeout(supabase.storage
-        .from("store-images")
-        .upload(path, file, { cacheControl: "3600", upsert: false }));
+      const { error: uploadError } = await withTimeout(() =>
+        supabase.storage
+          .from("store-images")
+          .upload(path, file, { cacheControl: "3600", upsert: false })
+      );
 
       if (uploadError) throw uploadError;
 
@@ -289,13 +293,13 @@ export default function Store() {
       };
 
       if (editingProduct) {
-        const { error } = await withTimeout(
+        const { error } = await withTimeout(() =>
           supabase.from("store_products").update(payload).eq("id", editingProduct.id)
         );
         if (error) throw error;
         toast({ title: "Product updated!" });
       } else {
-        const { error } = await withTimeout(
+        const { error } = await withTimeout(() =>
           supabase.from("store_products").insert({ ...payload, user_id: user.id })
         );
         if (error) throw error;
