@@ -42,14 +42,14 @@ const tools = [
   { title: "Store", desc: "Your online shop", icon: ShoppingBag, url: "/smartbooks/store", color: "text-pink-500 bg-pink-500/10" },
 ];
 
-const withTimeout = async <T,>(promise: Promise<T>, ms = 20000) => {
+const withTimeout = async <T,>(operation: () => Promise<T>, ms = 20000) => {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
   const timeoutPromise = new Promise<never>((_, reject) => {
     timeoutId = setTimeout(() => reject(new Error("Request timed out. Please try again.")), ms);
   });
 
   try {
-    return await Promise.race([promise, timeoutPromise]);
+    return await Promise.race([operation(), timeoutPromise]);
   } finally {
     if (timeoutId) clearTimeout(timeoutId);
   }
@@ -95,15 +95,15 @@ export default function SmartBooksDashboard() {
       const ext = file.name.split(".").pop() || "png";
       const path = `${user.id}/logo.${ext}`;
 
-      const { error: uploadError } = await withTimeout(
-        supabase.storage.from("logos").upload(path, file, { upsert: true }),
+      const { error: uploadError } = await withTimeout(() =>
+        supabase.storage.from("logos").upload(path, file, { upsert: true })
       );
       if (uploadError) throw uploadError;
 
       const { data: urlData } = supabase.storage.from("logos").getPublicUrl(path);
       const logoUrl = `${urlData.publicUrl}?t=${Date.now()}`;
 
-      const { error: profileError } = await withTimeout(
+      const { error: profileError } = await withTimeout(() =>
         supabase.from("profiles").upsert(
           {
             id: user.id,
@@ -118,7 +118,7 @@ export default function SmartBooksDashboard() {
       );
       if (profileError) throw profileError;
 
-      await withTimeout(refreshProfile(), 10000);
+      await withTimeout(() => refreshProfile(), 10000);
       toast({ title: "Logo updated!" });
     } catch (err: any) {
       toast({ title: "Upload failed", description: err?.message || "Please try again", variant: "destructive" });
@@ -142,7 +142,7 @@ export default function SmartBooksDashboard() {
     setSaving(true);
 
     try {
-      const { error } = await withTimeout(
+      const { error } = await withTimeout(() =>
         supabase.from("profiles").upsert(
           {
             id: user.id,
@@ -158,7 +158,7 @@ export default function SmartBooksDashboard() {
 
       if (error) throw error;
 
-      await withTimeout(refreshProfile(), 10000);
+      await withTimeout(() => refreshProfile(), 10000);
       toast({ title: "Profile updated!" });
       setShowSettings(false);
     } catch (err: any) {
