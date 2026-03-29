@@ -6,20 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Package, Search, Trash2, AlertTriangle } from "lucide-react";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
+import { Plus, Package, Search, Trash2, AlertTriangle, DollarSign } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface Product {
-  id: string;
-  name: string;
-  sku: string | null;
-  quantity: number;
-  unit_price: number;
-  category: string | null;
-  low_stock_threshold: number;
-  created_at: string;
+  id: string; name: string; sku: string | null; quantity: number; unit_price: number; category: string | null; low_stock_threshold: number; created_at: string;
 }
 
 export default function Inventory() {
@@ -50,98 +41,76 @@ export default function Inventory() {
     setSaving(true);
     const { error } = await supabase.from("inventory").insert({
       user_id: user!.id, name, sku: sku || null, quantity: Number(quantity) || 0,
-      unit_price: Number(unitPrice) || 0, category: category || null,
-      low_stock_threshold: Number(threshold) || 5,
+      unit_price: Number(unitPrice) || 0, category: category || null, low_stock_threshold: Number(threshold) || 5,
     });
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-    else {
-      toast({ title: "Product added!" });
-      setShowCreate(false); setName(""); setSku(""); setQuantity(""); setUnitPrice(""); setCategory("");
-      fetchProducts();
-    }
+    else { toast({ title: "✓ Product added!" }); setShowCreate(false); setName(""); setSku(""); setQuantity(""); setUnitPrice(""); setCategory(""); fetchProducts(); }
     setSaving(false);
   };
 
-  const deleteProduct = async (id: string) => {
-    await supabase.from("inventory").delete().eq("id", id);
-    fetchProducts();
-  };
+  const deleteProduct = async (id: string) => { await supabase.from("inventory").delete().eq("id", id); fetchProducts(); };
 
-  const formatCurrency = (amt: number) =>
-    new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(amt);
-
-  const filtered = products.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    (p.sku && p.sku.toLowerCase().includes(search.toLowerCase()))
-  );
-
+  const fmt = (amt: number) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(amt);
+  const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || (p.sku && p.sku.toLowerCase().includes(search.toLowerCase())));
   const lowStock = products.filter(p => p.quantity <= p.low_stock_threshold);
   const totalValue = products.reduce((s, p) => s + p.quantity * p.unit_price, 0);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="max-w-5xl mx-auto space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-bold">Inventory Manager</h1>
-          <p className="text-sm text-muted-foreground">Track your products and stock levels</p>
+          <h1 className="font-display text-xl sm:text-2xl font-bold">Inventory</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">Track products and stock levels</p>
         </div>
-        <Button className="bg-primary text-primary-foreground" onClick={() => setShowCreate(true)}>
-          <Plus className="h-4 w-4 mr-1" /> Add Product
-        </Button>
+        <Button size="sm" className="rounded-lg" onClick={() => setShowCreate(true)}><Plus className="h-3.5 w-3.5 mr-1.5" /> Add Product</Button>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        <div className="border border-border bg-card p-4 rounded-lg">
-          <Package className="h-4 w-4 text-primary mb-2" />
-          <p className="font-display text-xl font-bold">{products.length}</p>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Products</p>
-        </div>
-        <div className="border border-border bg-card p-4 rounded-lg">
-          <AlertTriangle className="h-4 w-4 text-destructive mb-2" />
-          <p className="font-display text-xl font-bold">{lowStock.length}</p>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Low Stock</p>
-        </div>
-        <div className="border border-border bg-card p-4 rounded-lg">
-          <Package className="h-4 w-4 text-secondary mb-2" />
-          <p className="font-display text-xl font-bold">{formatCurrency(totalValue)}</p>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Value</p>
-        </div>
+        {[
+          { label: "Products", value: String(products.length), icon: Package, color: "text-blue-500 bg-blue-500/10" },
+          { label: "Low Stock", value: String(lowStock.length), icon: AlertTriangle, color: "text-red-500 bg-red-500/10" },
+          { label: "Total Value", value: fmt(totalValue), icon: DollarSign, color: "text-emerald-500 bg-emerald-500/10" },
+        ].map((s) => (
+          <div key={s.label} className="border border-border bg-card p-3.5 rounded-xl">
+            <div className={`w-7 h-7 rounded-lg ${s.color} flex items-center justify-center mb-2`}><s.icon className="h-3.5 w-3.5" /></div>
+            <p className="font-display text-sm sm:text-base font-bold">{s.value}</p>
+            <p className="text-[10px] text-muted-foreground">{s.label}</p>
+          </div>
+        ))}
       </div>
 
-      <div className="relative">
+      <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+        <Input placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 rounded-lg" />
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Loading...</div>
+        <div className="text-center py-12"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" /></div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 border border-dashed border-border rounded-lg">
-          <Package className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-          <p className="font-display font-bold">No products yet</p>
+        <div className="text-center py-14 border border-dashed border-border rounded-xl">
+          <Package className="h-8 w-8 text-muted-foreground/30 mx-auto mb-3" />
+          <p className="font-display font-bold text-sm">No products yet</p>
         </div>
       ) : (
         <div className="space-y-2">
-          {filtered.map((p) => (
-            <motion.div key={p.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="flex items-center justify-between p-4 border border-border bg-card rounded-lg hover:border-primary/20 transition-colors"
+          {filtered.map((p, i) => (
+            <motion.div key={p.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
+              className="flex items-center justify-between p-3.5 border border-border bg-card rounded-xl hover:border-primary/20 transition-colors"
             >
               <div className="flex items-center gap-3 min-w-0">
-                {p.quantity <= p.low_stock_threshold && (
-                  <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
-                )}
+                {p.quantity <= p.low_stock_threshold && <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0" />}
                 <div className="min-w-0">
                   <p className="font-medium text-sm truncate">{p.name}</p>
                   <p className="text-[10px] text-muted-foreground">{p.sku || "No SKU"} • {p.category || "Uncategorized"}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <div className="text-right">
                   <p className="font-display font-bold text-sm">{p.quantity} units</p>
-                  <p className="text-[10px] text-muted-foreground">{formatCurrency(p.unit_price)} each</p>
+                  <p className="text-[10px] text-muted-foreground">{fmt(p.unit_price)} each</p>
                 </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => deleteProduct(p.id)}>
-                  <Trash2 className="h-4 w-4" />
+                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => deleteProduct(p.id)}>
+                  <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </motion.div>
@@ -150,38 +119,41 @@ export default function Inventory() {
       )}
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent>
-          <DialogHeader><DialogTitle className="font-display">Add Product</DialogTitle></DialogHeader>
-          <div className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Product Name *</Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Product name" />
+        <DialogContent className="rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-display">Add Product</DialogTitle>
+            <DialogDescription>Add a new product to your inventory.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">Product Name *</Label>
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Product name" className="rounded-lg" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">SKU</Label>
-                <Input value={sku} onChange={(e) => setSku(e.target.value)} placeholder="SKU-001" />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-muted-foreground">SKU</Label>
+                <Input value={sku} onChange={(e) => setSku(e.target.value)} placeholder="SKU-001" className="rounded-lg" />
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</Label>
-                <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" />
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quantity</Label>
-                <Input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="0" />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Price (₦)</Label>
-                <Input type="number" value={unitPrice} onChange={(e) => setUnitPrice(e.target.value)} placeholder="0" />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Low Stock Alert</Label>
-                <Input type="number" value={threshold} onChange={(e) => setThreshold(e.target.value)} placeholder="5" />
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-muted-foreground">Category</Label>
+                <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" className="rounded-lg" />
               </div>
             </div>
-            <Button className="w-full bg-primary text-primary-foreground" onClick={handleCreate} disabled={saving}>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-muted-foreground">Quantity</Label>
+                <Input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="0" className="rounded-lg" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-muted-foreground">Price (₦)</Label>
+                <Input type="number" value={unitPrice} onChange={(e) => setUnitPrice(e.target.value)} placeholder="0" className="rounded-lg" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-muted-foreground">Low Alert</Label>
+                <Input type="number" value={threshold} onChange={(e) => setThreshold(e.target.value)} placeholder="5" className="rounded-lg" />
+              </div>
+            </div>
+            <Button className="w-full rounded-lg" onClick={handleCreate} disabled={saving}>
               {saving ? "Saving..." : "Add Product"}
             </Button>
           </div>
