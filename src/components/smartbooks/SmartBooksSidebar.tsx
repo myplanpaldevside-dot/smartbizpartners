@@ -9,6 +9,7 @@ import {
   Shield,
   ShoppingBag,
   ShoppingCart,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -36,6 +37,7 @@ const tools = [
   { title: "Quotes", url: "/smartbooks/quotes", icon: FileCheck },
   { title: "Store", url: "/smartbooks/store", icon: ShoppingBag },
   { title: "Orders", url: "/smartbooks/orders", icon: ShoppingCart },
+  { title: "Reports", url: "/smartbooks/reports", icon: ChartNoAxesCombined },
 ];
 
 export function SmartBooksSidebar() {

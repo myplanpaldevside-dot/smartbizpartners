@@ -25,6 +25,7 @@ const AdminDashboard = lazy(() => import("./pages/smartbooks/AdminDashboard"));
 const ResetPassword = lazy(() => import("./pages/smartbooks/ResetPassword"));
 const Store = lazy(() => import("./pages/smartbooks/Store"));
 const Orders = lazy(() => import("./pages/smartbooks/Orders"));
+const Reports = lazy(() => import("./pages/smartbooks/Reports"));
 const Storefront = lazy(() => import("./pages/Storefront"));
 const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
 
@@ -72,6 +73,7 @@ const App = () => (
                 
                 <Route path="store" element={<Store />} />
                 <Route path="orders" element={<Orders />} />
+                <Route path="reports" element={<Reports />} />
                 <Route path="admin" element={<AdminDashboard />} />
               </Route>
               <Route path="*" element={<NotFound />} />
