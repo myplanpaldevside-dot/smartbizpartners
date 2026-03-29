@@ -72,10 +72,11 @@ export default function SmartBooksDashboard() {
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (!file || !user) return;
 
-    if (!file.type.startsWith("image/")) {
+    const supportedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!supportedTypes.includes(file.type)) {
       toast({
         title: "Unsupported image format",
-        description: "Please upload an image file.",
+        description: "Please upload a JPG, PNG, or WEBP image.",
         variant: "destructive",
       });
       return;
@@ -89,7 +90,12 @@ export default function SmartBooksDashboard() {
     setUploading(true);
 
     try {
-      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const extByType: Record<string, string> = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+      };
+      const ext = extByType[file.type] || "jpg";
       const path = `${user.id}/logo-${Date.now()}.${ext}`;
 
       const { error: uploadError } = await withTimeout(
