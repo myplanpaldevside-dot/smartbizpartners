@@ -42,7 +42,8 @@ export function SmartBooksSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const { isAdmin } = useAuth();
+  const { isAdmin, profile } = useAuth();
+  const businessName = profile?.business_name || "SmartBooks";
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border">
