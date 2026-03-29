@@ -37,6 +37,19 @@ interface StoreSettings {
   is_published: boolean;
 }
 
+const withTimeout = async <T,>(promise: Promise<T>, ms = 20000) => {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error("Request timed out. Please try again.")), ms);
+  });
+
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+};
+
 export default function Store() {
   const { user, profile } = useAuth();
   const { toast } = useToast();
@@ -93,10 +106,14 @@ export default function Store() {
   }, [user]);
 
   useEffect(() => {
-    if (user) {
-      fetchProducts();
-      fetchStoreSettings();
+    if (!user) {
+      setLoading(false);
+      return;
     }
+
+    setLoading(true);
+    fetchProducts();
+    fetchStoreSettings();
   }, [user, fetchProducts, fetchStoreSettings]);
 
   const generateSlug = (name: string) =>
@@ -114,49 +131,65 @@ export default function Store() {
   };
 
   const handleSaveStoreSettings = async () => {
+    if (!user) {
+      toast({ title: "Please sign in again", variant: "destructive" });
+      return;
+    }
+
     if (!storeForm.store_name.trim()) {
       toast({ title: "Store name is required", variant: "destructive" });
       return;
     }
-    if (!storeForm.store_slug.trim()) {
+    const cleanSlug = generateSlug(storeForm.store_slug.trim());
+    if (!cleanSlug) {
       toast({ title: "Store URL is required", variant: "destructive" });
       return;
     }
+
     setSaving(true);
     try {
+      const payload = {
+        user_id: user.id,
+        store_name: storeForm.store_name.trim(),
+        store_slug: cleanSlug,
+        description: storeForm.description.trim(),
+        is_published: storeForm.is_published,
+        updated_at: new Date().toISOString(),
+      };
+
       if (storeSettings) {
-        const { error } = await supabase
+        const { error } = await withTimeout(supabase
           .from("store_settings")
-          .update({
-            store_name: storeForm.store_name.trim(),
-            store_slug: storeForm.store_slug.trim(),
-            description: storeForm.description.trim(),
-            is_published: storeForm.is_published,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", storeSettings.id);
+          .update(payload)
+          .eq("id", storeSettings.id));
         if (error) throw error;
         toast({ title: "Store settings saved!" });
       } else {
-        const { error } = await supabase.from("store_settings").insert({
-          user_id: user!.id,
-          store_name: storeForm.store_name.trim(),
-          store_slug: storeForm.store_slug.trim(),
-          description: storeForm.description.trim(),
-          is_published: storeForm.is_published,
-        });
+        const { error } = await withTimeout(supabase.from("store_settings").insert(payload));
+
         if (error) {
-          if (error.message.includes("duplicate") || error.code === "23505") {
+          if (error.code === "23505" && error.message.includes("store_settings_user_id")) {
+            const { error: updateExistingError } = await withTimeout(
+              supabase
+                .from("store_settings")
+                .update(payload)
+                .eq("user_id", user.id)
+            );
+
+            if (updateExistingError) throw updateExistingError;
+            toast({ title: "Store settings saved!" });
+          } else if (error.code === "23505") {
             toast({ title: "This store URL is already taken. Try a different one.", variant: "destructive" });
+            return;
           } else {
             throw error;
           }
-          setSaving(false);
-          return;
+        } else {
+          toast({ title: "Store created successfully!" });
         }
-        toast({ title: "Store created successfully!" });
       }
-      await fetchStoreSettings();
+
+      await withTimeout(fetchStoreSettings(), 10000);
       setShowStoreSettings(false);
     } catch (err: any) {
       console.error("Store settings error:", err);
@@ -186,9 +219,9 @@ export default function Store() {
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${user.id}/${Date.now()}.${ext}`;
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await withTimeout(supabase.storage
         .from("store-images")
-        .upload(path, file, { cacheControl: "3600", upsert: false });
+        .upload(path, file, { cacheControl: "3600", upsert: false }));
 
       if (uploadError) throw uploadError;
 
@@ -229,6 +262,11 @@ export default function Store() {
   };
 
   const handleSaveProduct = async () => {
+    if (!user) {
+      toast({ title: "Please sign in again", variant: "destructive" });
+      return;
+    }
+
     if (!form.name.trim()) {
       toast({ title: "Product name is required", variant: "destructive" });
       return;
@@ -251,15 +289,20 @@ export default function Store() {
       };
 
       if (editingProduct) {
-        const { error } = await supabase.from("store_products").update(payload).eq("id", editingProduct.id);
+        const { error } = await withTimeout(
+          supabase.from("store_products").update(payload).eq("id", editingProduct.id)
+        );
         if (error) throw error;
         toast({ title: "Product updated!" });
       } else {
-        const { error } = await supabase.from("store_products").insert({ ...payload, user_id: user!.id });
+        const { error } = await withTimeout(
+          supabase.from("store_products").insert({ ...payload, user_id: user.id })
+        );
         if (error) throw error;
         toast({ title: "Product added!" });
       }
-      await fetchProducts();
+
+      await withTimeout(fetchProducts(), 10000);
       setShowProductDialog(false);
     } catch (err: any) {
       console.error("Save product error:", err);
