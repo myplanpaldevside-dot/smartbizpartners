@@ -239,6 +239,7 @@ export default function SmartBooksDashboard() {
             <div className="space-y-2">
               <Label className="text-xs font-semibold text-muted-foreground">Email</Label>
               <Input value={profile?.email || ""} disabled className="opacity-60" />
+              <p className="text-[10px] text-muted-foreground">Email can't be changed here. Contact support to update.</p>
             </div>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1" onClick={() => setShowSettings(false)}>Cancel</Button>
