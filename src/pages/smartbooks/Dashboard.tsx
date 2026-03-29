@@ -40,10 +40,10 @@ export default function SmartBooksDashboard() {
   const [stats, setStats] = useState({ count: 0, revenue: 0, pending: 0, customers: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const withTimeout = async <T,>(operation: Promise<T>, timeoutMs = 25000): Promise<T> => {
+  const withTimeout = async <T,>(operation: PromiseLike<T>, timeoutMs = 25000): Promise<T> => {
     return await Promise.race([
-      operation,
-      new Promise<T>((_, reject) => setTimeout(() => reject(new Error("Request timed out. Please try again.")), timeoutMs)),
+      Promise.resolve(operation),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Request timed out. Please try again.")), timeoutMs)),
     ]);
   };
 
@@ -72,11 +72,10 @@ export default function SmartBooksDashboard() {
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (!file || !user) return;
 
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
+    if (!file.type.startsWith("image/")) {
       toast({
         title: "Unsupported image format",
-        description: "Please upload a JPG, PNG, or WEBP image.",
+        description: "Please upload an image file.",
         variant: "destructive",
       });
       return;
@@ -90,13 +89,7 @@ export default function SmartBooksDashboard() {
     setUploading(true);
 
     try {
-      const extByType: Record<string, string> = {
-        "image/jpeg": "jpg",
-        "image/jpg": "jpg",
-        "image/png": "png",
-        "image/webp": "webp",
-      };
-      const ext = extByType[file.type] || "jpg";
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
       const path = `${user.id}/logo-${Date.now()}.${ext}`;
 
       const { error: uploadError } = await withTimeout(
@@ -196,7 +189,7 @@ export default function SmartBooksDashboard() {
                 </div>
               )}
             </div>
-            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={handleLogoUpload} />
+            <input ref={fileInputRef} type="file" accept="image/*" className="sr-only" onChange={handleLogoUpload} />
             <div>
               <p className="text-xs sm:text-sm text-muted-foreground">{greeting} 👋</p>
               <h1 className="font-display text-lg sm:text-2xl font-bold text-foreground leading-tight">{businessName}</h1>
