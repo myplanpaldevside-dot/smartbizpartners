@@ -38,6 +38,13 @@ export default function Store() {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const withTimeout = async <T,>(operation: PromiseLike<T>, timeoutMs = 25000): Promise<T> => {
+    return await Promise.race([
+      Promise.resolve(operation),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Request timed out. Please try again.")), timeoutMs)),
+    ]);
+  };
+
   const [form, setForm] = useState({
     name: "", description: "", price: "", compare_at_price: "", category: "", stock_quantity: "0", image_url: "",
   });
@@ -48,20 +55,26 @@ export default function Store() {
   const fetchProducts = useCallback(async () => {
     if (!user) return;
     try {
-      const { data, error } = await supabase.from("store_products").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
+      const { data, error } = await withTimeout(
+        supabase.from("store_products").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      );
       if (error) throw error;
       setProducts((data || []) as unknown as Product[]);
     } catch (err: any) {
-      toast({ title: "Failed to load products", variant: "destructive" });
+      toast({ title: "Failed to load products", description: err?.message, variant: "destructive" });
     } finally { setLoading(false); }
   }, [user]);
 
   const fetchStoreSettings = useCallback(async () => {
     if (!user) return;
     try {
-      const { data } = await supabase.from("store_settings").select("*").eq("user_id", user.id).maybeSingle();
+      const { data } = await withTimeout(
+        supabase.from("store_settings").select("*").eq("user_id", user.id).maybeSingle(),
+      );
       if (data) setStoreSettings(data as unknown as StoreSettings);
-    } catch {}
+    } catch (err: any) {
+      toast({ title: "Failed to load store settings", description: err?.message, variant: "destructive" });
+    }
   }, [user]);
 
   useEffect(() => {
@@ -98,10 +111,14 @@ export default function Store() {
       };
 
       if (storeSettings) {
-        const { error } = await supabase.from("store_settings").update(payload).eq("id", storeSettings.id);
+        const { error } = await withTimeout(
+          supabase.from("store_settings").update(payload).eq("id", storeSettings.id),
+        );
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("store_settings").insert(payload);
+        const { error } = await withTimeout(
+          supabase.from("store_settings").insert(payload),
+        );
         if (error) {
           if (error.code === "23505" && error.message.includes("store_slug")) {
             toast({ title: "This store URL is taken. Try another.", variant: "destructive" });
@@ -109,7 +126,9 @@ export default function Store() {
           }
           // Try upsert fallback for user_id conflict
           if (error.code === "23505") {
-            const { error: updateErr } = await supabase.from("store_settings").update(payload).eq("user_id", user.id);
+            const { error: updateErr } = await withTimeout(
+              supabase.from("store_settings").update(payload).eq("user_id", user.id),
+            );
             if (updateErr) throw updateErr;
           } else throw error;
         }
@@ -134,7 +153,9 @@ export default function Store() {
     try {
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${user.id}/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("store-images").upload(path, file, { cacheControl: "3600", upsert: false });
+      const { error } = await withTimeout(
+        supabase.storage.from("store-images").upload(path, file, { cacheControl: "3600", upsert: false }),
+      );
       if (error) throw error;
       const { data: urlData } = supabase.storage.from("store-images").getPublicUrl(path);
       setForm((f) => ({ ...f, image_url: urlData.publicUrl }));
@@ -174,11 +195,15 @@ export default function Store() {
         image_url: form.image_url || null, updated_at: new Date().toISOString(),
       };
       if (editingProduct) {
-        const { error } = await supabase.from("store_products").update(payload).eq("id", editingProduct.id);
+        const { error } = await withTimeout(
+          supabase.from("store_products").update(payload).eq("id", editingProduct.id),
+        );
         if (error) throw error;
         toast({ title: "✓ Product updated!" });
       } else {
-        const { error } = await supabase.from("store_products").insert({ ...payload, user_id: user.id });
+        const { error } = await withTimeout(
+          supabase.from("store_products").insert({ ...payload, user_id: user.id }),
+        );
         if (error) throw error;
         toast({ title: "✓ Product added!" });
       }
