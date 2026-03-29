@@ -6,7 +6,7 @@ interface Profile {
   id: string;
   email: string | null;
   business_name: string;
-  phone: string;
+  phone: string | null;
   logo_url?: string | null;
   subscription_status?: string | null;
   trial_ends_at?: string | null;
@@ -36,21 +36,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const fetchProfile = useCallback(async (userId: string) => {
+  const fetchProfile = useCallback(async (currentUser: User) => {
+    const userId = currentUser.id;
+
     try {
-      const [{ data }, { data: roles }] = await Promise.all([
-        supabase.from("profiles").select("*").eq("id", userId).single(),
+      const [{ data: profileData, error: profileError }, { data: roles, error: rolesError }] = await Promise.all([
+        supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
         supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin"),
       ]);
-      if (data) setProfile(data as unknown as Profile);
+
+      if (rolesError) throw rolesError;
+      if (profileError && profileError.code !== "PGRST116") throw profileError;
+
+      let nextProfile = profileData as unknown as Profile | null;
+
+      if (!nextProfile) {
+        const metadataBusinessName =
+          typeof currentUser.user_metadata?.business_name === "string"
+            ? currentUser.user_metadata.business_name.trim()
+            : "";
+        const metadataPhone =
+          typeof currentUser.user_metadata?.phone === "string"
+            ? currentUser.user_metadata.phone.trim()
+            : "";
+
+        const { data: createdProfile, error: createProfileError } = await supabase
+          .from("profiles")
+          .upsert(
+            {
+              id: userId,
+              email: currentUser.email ?? null,
+              business_name: metadataBusinessName || (currentUser.email?.split("@")[0] ?? "My Business"),
+              phone: metadataPhone,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "id" }
+          )
+          .select("*")
+          .single();
+
+        if (createProfileError) throw createProfileError;
+        nextProfile = createdProfile as unknown as Profile;
+      }
+
+      setProfile(nextProfile);
       setIsAdmin(!!(roles && roles.length > 0));
-    } catch {
-      // Profile may not exist yet for new users
+    } catch (error) {
+      console.error("Failed to fetch profile", error);
+      setProfile(null);
+      setIsAdmin(false);
     }
   }, []);
 
   const refreshProfile = useCallback(async () => {
-    if (user) await fetchProfile(user.id);
+    if (user) await fetchProfile(user);
   }, [user, fetchProfile]);
 
   useEffect(() => {
@@ -69,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) {
-        fetchProfile(currentUser.id).finally(() => {
+        fetchProfile(currentUser).finally(() => {
           if (mounted) setLoading(false);
         });
       } else {
@@ -86,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const currentUser = session?.user ?? null;
         setUser(currentUser);
         if (currentUser) {
-          await fetchProfile(currentUser.id);
+          await fetchProfile(currentUser);
         } else {
           setProfile(null);
           setIsAdmin(false);
