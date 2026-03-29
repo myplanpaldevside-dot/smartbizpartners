@@ -54,8 +54,8 @@ export function SmartBooksSidebar() {
         </a>
         {!collapsed && (
           <div className="mt-3 px-1">
-            <h1 className="font-display text-lg font-bold text-foreground">SmartBooks</h1>
-            <p className="text-[10px] text-muted-foreground">Business Management Suite</p>
+            <h1 className="font-display text-lg font-bold text-foreground truncate">{businessName}</h1>
+            <p className="text-[10px] text-muted-foreground">Business Dashboard</p>
           </div>
         )}
       </SidebarHeader>
