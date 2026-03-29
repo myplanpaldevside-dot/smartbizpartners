@@ -314,7 +314,9 @@ export default function Store() {
               <ShoppingBag className="h-4 w-4 text-primary" />
               <p className="text-[10px] font-bold tracking-[0.3em] text-primary uppercase">E-Commerce</p>
             </div>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">My Store</h1>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">
+              {storeSettings?.store_name || profile?.business_name || "My"} Store
+            </h1>
             <p className="text-sm text-muted-foreground mt-0.5">Manage your products and online store.</p>
           </div>
           <div className="flex items-center gap-2">

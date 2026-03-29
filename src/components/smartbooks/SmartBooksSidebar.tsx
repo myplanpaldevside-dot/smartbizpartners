@@ -42,7 +42,8 @@ export function SmartBooksSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const { isAdmin } = useAuth();
+  const { isAdmin, profile } = useAuth();
+  const businessName = profile?.business_name || "SmartBooks";
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border">
@@ -53,8 +54,8 @@ export function SmartBooksSidebar() {
         </a>
         {!collapsed && (
           <div className="mt-3 px-1">
-            <h1 className="font-display text-lg font-bold text-foreground">SmartBooks</h1>
-            <p className="text-[10px] text-muted-foreground">Business Management Suite</p>
+            <h1 className="font-display text-lg font-bold text-foreground truncate">{businessName}</h1>
+            <p className="text-[10px] text-muted-foreground">Business Dashboard</p>
           </div>
         )}
       </SidebarHeader>
@@ -113,7 +114,7 @@ export function SmartBooksSidebar() {
       <SidebarFooter className="p-3">
         {!collapsed && (
           <p className="text-[10px] text-muted-foreground/50 text-center">
-            SmartBiz Partners
+            Powered by SmartBiz
           </p>
         )}
       </SidebarFooter>
