@@ -67,6 +67,12 @@ export default function SmartBooksDashboard() {
   const fmt = (amount: number) =>
     new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(amount);
 
+  const resolvedBusinessName =
+    profile?.business_name?.trim() ||
+    (typeof user?.user_metadata?.business_name === "string" ? user.user_metadata.business_name.trim() : "") ||
+    user?.email?.split("@")[0] ||
+    "My Business";
+
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -93,7 +99,7 @@ export default function SmartBooksDashboard() {
       const path = `${user.id}/logo-${Date.now()}.${ext}`;
 
       const { error: uploadError } = await withTimeout(
-        supabase.storage.from("logos").upload(path, file, { upsert: false }),
+        supabase.storage.from("logos").upload(path, file, { cacheControl: "3600", contentType: file.type, upsert: true }),
       );
 
       if (uploadError) throw uploadError;
@@ -104,8 +110,8 @@ export default function SmartBooksDashboard() {
       const { error: profileError } = await withTimeout(
         supabase.from("profiles").upsert({
           id: user.id,
-          email: editEmail || profile?.email || user.email || null,
-          business_name: profile?.business_name || "My Business",
+          email: profile?.email || user.email || null,
+          business_name: resolvedBusinessName,
           phone: profile?.phone || "",
           logo_url: logoUrl,
           updated_at: new Date().toISOString(),

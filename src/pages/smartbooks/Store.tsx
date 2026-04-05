@@ -68,10 +68,16 @@ export default function Store() {
   const fetchStoreSettings = useCallback(async () => {
     if (!user) return;
     try {
-      const { data } = await withTimeout(
-        supabase.from("store_settings").select("*").eq("user_id", user.id).maybeSingle(),
+      const { data, error } = await withTimeout(
+        supabase
+          .from("store_settings")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(1),
       );
-      if (data) setStoreSettings(data as unknown as StoreSettings);
+      if (error) throw error;
+      setStoreSettings(((data as unknown as StoreSettings[] | null) || [])[0] || null);
     } catch (err: any) {
       toast({ title: "Failed to load store settings", description: err?.message, variant: "destructive" });
     }
@@ -154,11 +160,11 @@ export default function Store() {
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${user.id}/${Date.now()}.${ext}`;
       const { error } = await withTimeout(
-        supabase.storage.from("store-images").upload(path, file, { cacheControl: "3600", upsert: false }),
+        supabase.storage.from("store-images").upload(path, file, { cacheControl: "3600", contentType: file.type, upsert: true }),
       );
       if (error) throw error;
       const { data: urlData } = supabase.storage.from("store-images").getPublicUrl(path);
-      setForm((f) => ({ ...f, image_url: urlData.publicUrl }));
+      setForm((f) => ({ ...f, image_url: `${urlData.publicUrl}?t=${Date.now()}` }));
       toast({ title: "✓ Image uploaded!" });
     } catch (err: any) {
       toast({ title: "Upload failed", description: err.message, variant: "destructive" });
