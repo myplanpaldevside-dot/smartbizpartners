@@ -1,43 +1,57 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Check, Rocket, ArrowLeft, Shield } from "lucide-react";
+import { Check, ArrowLeft, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
-const allFeatures = [
-  "Unlimited Invoices & Receipts",
-  "Expense & Profit Tracking",
-  "Customer CRM",
-  "Inventory Management",
-  "Quotes & Proposals",
-  "Business Website Generator",
-  "Unlimited Users",
-  "Weekly Content Creation",
-  "Priority Support",
-  "Analytics Dashboard",
-  "Multi-Currency Support",
-  "API Access",
-];
+import { getTierAmountKobo, pricingTiers, type PricingTier, type PricingTierKey } from "@/lib/pricing";
 
 export default function Pricing() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const initialPlan = useMemo<PricingTierKey>(() => {
+    if (typeof window === "undefined") return "growth";
+    const requestedPlan = new URLSearchParams(window.location.search).get("plan");
+    return requestedPlan === "starter" || requestedPlan === "growth" || requestedPlan === "premium"
+      ? requestedPlan
+      : "growth";
+  }, []);
+  const [selectedPlan, setSelectedPlan] = useState<PricingTierKey>(initialPlan);
+  const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
-  const handleSubscribe = async () => {
+  const activeTier = pricingTiers.find((tier) => tier.key === selectedPlan) || pricingTiers[1];
+
+  const getPlanId = async (tier: PricingTier) => {
+    const { data, error } = await supabase
+      .from("subscription_plans")
+      .select("id")
+      .eq("name", tier.planName)
+      .limit(1);
+
+    if (error) throw error;
+    if (!data || data.length === 0) throw new Error("Selected plan is not available yet.");
+
+    return data[0].id;
+  };
+
+  const handleSubscribe = async (tier: PricingTier) => {
     if (!user) {
       navigate("/smartbooks/auth");
       return;
     }
 
-    setLoading(true);
+    setLoadingAction(`subscribe-${tier.key}`);
     try {
       const { data, error } = await supabase.functions.invoke("paystack-checkout", {
-        body: { email: user.email, amount: 10000000, plan_name: "SmartBooks Pro" },
+        body: {
+          email: user.email,
+          amount: getTierAmountKobo(tier),
+          plan_name: tier.planName,
+        },
       });
       if (error) throw error;
       if (data?.authorization_url) {
@@ -48,56 +62,53 @@ export default function Pricing() {
     } catch (err: any) {
       toast({ title: "Payment error", description: err.message, variant: "destructive" });
     }
-    setLoading(false);
+    setLoadingAction(null);
   };
 
-  const handleStartTrial = async () => {
+  const handleStartTrial = async (tier: PricingTier) => {
     if (!user) {
       navigate("/smartbooks/auth");
       return;
     }
 
-    // Check if already has subscription
-    const { data: existing } = await supabase
-      .from("subscriptions")
-      .select("id")
-      .eq("user_id", user.id)
-      .limit(1);
+    setLoadingAction(`trial-${tier.key}`);
 
-    if (existing && existing.length > 0) {
-      toast({ title: "You already have an active plan!" });
+    try {
+      const { data: existing, error: existingError } = await supabase
+        .from("subscriptions")
+        .select("id")
+        .eq("user_id", user.id)
+        .limit(1);
+
+      if (existingError) throw existingError;
+
+      if (existing && existing.length > 0) {
+        toast({ title: "You already have an active plan!" });
+        navigate("/smartbooks");
+        return;
+      }
+
+      const planId = await getPlanId(tier);
+      const { error } = await supabase.from("subscriptions").insert({
+        user_id: user.id,
+        plan_id: planId,
+        status: "trialing",
+      });
+
+      if (error) throw error;
+
+      toast({ title: `${tier.label} trial started successfully.` });
       navigate("/smartbooks");
-      return;
-    }
-
-    // Get plan ID
-    const { data: plans } = await supabase
-      .from("subscription_plans")
-      .select("id")
-      .limit(1);
-
-    if (!plans || plans.length === 0) {
-      toast({ title: "No plans available", variant: "destructive" });
-      return;
-    }
-
-    const { error } = await supabase.from("subscriptions").insert({
-      user_id: user.id,
-      plan_id: plans[0].id,
-      status: "trialing",
-    });
-
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Welcome! Your 14-day free trial has started." });
-      navigate("/smartbooks");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setLoadingAction(null);
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
         <a
           href="/"
           className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground mb-8 transition-colors"
@@ -113,72 +124,109 @@ export default function Pricing() {
         >
           <p className="text-xs font-semibold tracking-[0.3em] text-primary uppercase mb-3">Pricing</p>
           <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4">
-            One plan. Full access.
+            Tiered pricing built to convert more SMEs.
           </h1>
-          <p className="text-muted-foreground max-w-lg mx-auto">
-            Start with a 14-day free trial, then ₦100,000/month for the complete business toolkit.
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Starter removes friction, Growth is the main seller, and Premium closes serious businesses.
           </p>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="relative border-2 border-primary/40 bg-card p-8 sm:p-10 rounded-2xl shadow-elevated"
-        >
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-            <span className="bg-primary text-primary-foreground text-[10px] font-bold tracking-wider uppercase px-5 py-1 rounded-full">
-              All Access
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-              <Rocket className="h-6 w-6" />
-            </div>
-            <div>
-              <h3 className="font-display font-bold text-2xl">SmartBooks Pro</h3>
-              <p className="text-xs text-muted-foreground">Everything included, zero surprises</p>
-            </div>
-          </div>
-
-          <div className="mb-8">
-            <span className="font-display font-bold text-5xl sm:text-6xl">₦100,000</span>
-            <span className="text-sm text-muted-foreground ml-2">/month</span>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3 mb-8">
-            <Button
-              className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-bold"
-              onClick={handleStartTrial}
-              disabled={loading}
-            >
-              Start 14-Day Free Trial
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1 h-12 text-base font-bold"
-              onClick={handleSubscribe}
-              disabled={loading}
-            >
-              {loading ? "Processing..." : "Subscribe Now"}
-            </Button>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-3 mb-8">
-            {allFeatures.map((f) => (
-              <div key={f} className="flex items-center gap-2.5 text-sm">
-                <Check className="h-4 w-4 text-secondary shrink-0" />
-                <span className="text-foreground/80">{f}</span>
-              </div>
+        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+            className="grid gap-4 md:grid-cols-3 lg:grid-cols-1"
+          >
+            {pricingTiers.map((tier, index) => (
+              <button
+                key={tier.key}
+                type="button"
+                onClick={() => setSelectedPlan(tier.key)}
+                className={`rounded-3xl border p-5 text-left transition-all ${selectedPlan === tier.key ? "border-primary bg-primary/5 shadow-card" : "border-border bg-card hover:border-primary/30"}`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">{tier.badge}</p>
+                    <h2 className="mt-2 font-display text-xl font-bold text-foreground">{tier.label}</h2>
+                  </div>
+                  {tier.highlight && (
+                    <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+                      Best Value
+                    </span>
+                  )}
+                </div>
+                <p className="mt-3 font-display text-4xl font-bold text-foreground">{tier.priceLabel}<span className="ml-1 text-sm font-medium text-muted-foreground">/month</span></p>
+                <p className="mt-2 text-sm text-muted-foreground">{tier.summary}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {tier.features.slice(0, 2).map((feature) => (
+                    <span key={feature} className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              </button>
             ))}
-          </div>
+          </motion.div>
 
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground border-t border-border pt-6">
-            <Shield className="h-3.5 w-3.5" />
-            Secured by Paystack. Cancel anytime. No hidden fees.
-          </div>
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.14 }}
+            className="rounded-3xl border border-primary/40 bg-card p-8 shadow-elevated"
+          >
+            <div className="mb-6 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">Selected Plan</p>
+                <h3 className="mt-2 font-display text-2xl font-bold text-foreground">{activeTier.label}</h3>
+              </div>
+              {activeTier.highlight && (
+                <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+                  Recommended
+                </span>
+              )}
+            </div>
+
+            <div className="mb-4">
+              <span className="font-display text-5xl font-bold text-foreground">{activeTier.priceLabel}</span>
+              <span className="ml-2 text-sm text-muted-foreground">/month</span>
+            </div>
+
+            <p className="mb-8 text-sm leading-6 text-muted-foreground">{activeTier.summary}</p>
+
+            <div className="mb-8 space-y-3">
+              {activeTier.features.map((feature) => (
+                <div key={feature} className="flex items-center gap-2.5 text-sm">
+                  <Check className="h-4 w-4 shrink-0 text-primary" />
+                  <span className="text-foreground/80">{feature}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button
+                className="h-12 flex-1 text-base font-bold"
+                onClick={() => handleStartTrial(activeTier)}
+                disabled={loadingAction !== null}
+              >
+                {loadingAction === `trial-${activeTier.key}` ? "Starting..." : "Start 14-Day Free Trial"}
+              </Button>
+              <Button
+                variant="outline"
+                className="h-12 flex-1 text-base font-bold"
+                onClick={() => handleSubscribe(activeTier)}
+                disabled={loadingAction !== null}
+              >
+                {loadingAction === `subscribe-${activeTier.key}` ? "Processing..." : "Subscribe Now"}
+              </Button>
+            </div>
+
+            <div className="mt-8 flex items-center justify-center gap-2 border-t border-border pt-6 text-xs text-muted-foreground">
+              <Shield className="h-3.5 w-3.5" />
+              Secured by Paystack. Cancel anytime. No hidden fees.
+            </div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );

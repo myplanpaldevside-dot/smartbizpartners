@@ -26,8 +26,24 @@ serve(async (req) => {
       );
     }
 
-    const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
-    const callbackUrl = `${SUPABASE_URL}/functions/v1/paystack-webhook`;
+    const origin = req.headers.get("origin");
+    const callbackUrl = origin ? `${origin}/smartbooks` : undefined;
+
+    const payload: Record<string, unknown> = {
+      email,
+      amount,
+      currency: "NGN",
+      metadata: {
+        plan_name,
+        custom_fields: [
+          { display_name: "Plan", variable_name: "plan", value: plan_name },
+        ],
+      },
+    };
+
+    if (callbackUrl) {
+      payload.callback_url = callbackUrl;
+    }
 
     const res = await fetch("https://api.paystack.co/transaction/initialize", {
       method: "POST",
@@ -35,18 +51,7 @@ serve(async (req) => {
         Authorization: `Bearer ${PAYSTACK_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        email,
-        amount, // in kobo
-        currency: "NGN",
-        callback_url: typeof globalThis !== "undefined" ? undefined : undefined,
-        metadata: {
-          plan_name,
-          custom_fields: [
-            { display_name: "Plan", variable_name: "plan", value: plan_name },
-          ],
-        },
-      }),
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
