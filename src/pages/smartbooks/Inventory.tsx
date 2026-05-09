@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Package, Search, Trash2, AlertTriangle, DollarSign } from "lucide-react";
+import { Plus, Package, Search, Trash2, AlertTriangle, DollarSign, ShoppingBag } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Product {
   id: string; name: string; sku: string | null; quantity: number; unit_price: number; category: string | null; low_stock_threshold: number; created_at: string;
@@ -28,6 +29,10 @@ export default function Inventory() {
   const [threshold, setThreshold] = useState("5");
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [listInStore, setListInStore] = useState<Product | null>(null);
+  const [listPrice, setListPrice] = useState("");
+  const [listDesc, setListDesc] = useState("");
+  const [listSaving, setListSaving] = useState(false);
 
   const fetchProducts = async () => {
     if (!user) return;
@@ -48,6 +53,28 @@ export default function Inventory() {
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
     else { toast({ title: "✓ Product added!" }); setShowCreate(false); setName(""); setSku(""); setQuantity(""); setUnitPrice(""); setCategory(""); fetchProducts(); }
     setSaving(false);
+  };
+
+  const handleListInStore = async () => {
+    if (!listInStore || !user) return;
+    setListSaving(true);
+    const { error } = await supabase.from("store_products").insert({
+      user_id: user.id,
+      name: listInStore.name,
+      price: Number(listPrice) || listInStore.unit_price,
+      description: listDesc || "",
+      stock_quantity: listInStore.quantity,
+      is_active: true,
+    });
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "✓ Added to store!" });
+      setListInStore(null);
+      setListPrice("");
+      setListDesc("");
+    }
+    setListSaving(false);
   };
 
   const deleteProduct = async (id: string) => {
@@ -116,6 +143,9 @@ export default function Inventory() {
                   <p className="font-display font-bold text-sm">{p.quantity} units</p>
                   <p className="text-[10px] text-muted-foreground">{fmt(p.unit_price)} each</p>
                 </div>
+                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg text-muted-foreground hover:text-primary" onClick={() => { setListInStore(p); setListPrice(String(p.unit_price)); setListDesc(""); }}>
+                  <ShoppingBag className="h-3.5 w-3.5" />
+                </Button>
                 <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => setDeleteConfirm(p.id)}>
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
@@ -134,6 +164,31 @@ export default function Inventory() {
           <div className="flex gap-3 mt-2">
             <Button variant="outline" className="flex-1 rounded-lg" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
             <Button variant="destructive" className="flex-1 rounded-lg" onClick={() => deleteConfirm && deleteProduct(deleteConfirm)}>Delete</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!listInStore} onOpenChange={(open) => { if (!open) { setListInStore(null); setListPrice(""); setListDesc(""); } }}>
+        <DialogContent className="max-w-sm rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-display">List in Store</DialogTitle>
+            <DialogDescription>Publish <strong>{listInStore?.name}</strong> to your online store.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">Price (₦)</Label>
+              <Input type="number" value={listPrice} onChange={(e) => setListPrice(e.target.value)} placeholder="0" className="rounded-lg" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">Description (optional)</Label>
+              <Textarea value={listDesc} onChange={(e) => setListDesc(e.target.value)} placeholder="Add a short description…" className="rounded-lg resize-none" rows={3} />
+            </div>
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1 rounded-lg" onClick={() => { setListInStore(null); setListPrice(""); setListDesc(""); }}>Cancel</Button>
+              <Button className="flex-1 rounded-lg" onClick={handleListInStore} disabled={listSaving}>
+                {listSaving ? "Publishing…" : "Add to Store"}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

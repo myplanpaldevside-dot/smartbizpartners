@@ -52,7 +52,7 @@ export default function Reports() {
       setLoading(true);
 
       const [invoiceRes, expenseRes, customerRes] = await Promise.all([
-        supabase.from("invoices").select("total,status,issue_date").eq("user_id", user.id),
+        supabase.from("invoices").select("total,status,issue_date").eq("user_id", user.id).not("invoice_number", "like", "QT-%"),
         supabase.from("expenses").select("amount,category,date").eq("user_id", user.id),
         supabase.from("customers").select("created_at").eq("user_id", user.id),
       ]);

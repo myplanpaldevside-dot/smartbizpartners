@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,33 +7,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Plus, FileCheck, Search, MoreVertical, Send, CheckCircle2, Clock, X, Trash2, Eye,
+  Plus, FileCheck, Search, MoreVertical, Send, CheckCircle2,
+  Clock, X, Trash2, Eye, Printer, UserCheck,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface QuoteItem { id?: string; description: string; quantity: number; unit_price: number; amount: number; }
-
-// Quotes are stored in the invoices table with invoice_number prefixed "QT-"
 interface Quote {
-  id: string;
-  quote_number: string;
-  customer_name: string;
-  customer_email: string;
-  customer_phone: string;
-  customer_address: string;
-  status: string;
-  issue_date: string;
-  valid_until: string | null;
-  subtotal: number;
-  tax_rate: number;
-  tax_amount: number;
-  discount_amount: number;
-  total: number;
-  notes: string;
-  created_at: string;
+  id: string; quote_number: string; customer_name: string; customer_email: string; customer_phone: string;
+  customer_address: string; status: string; issue_date: string; valid_until: string | null;
+  subtotal: number; tax_rate: number; tax_amount: number; discount_amount: number; total: number;
+  notes: string; created_at: string;
 }
+interface Customer { id: string; name: string; email: string | null; phone: string | null; address: string | null; }
 
 const statusConfig: Record<string, { icon: any; color: string; label: string }> = {
   draft:    { icon: FileCheck,    color: "text-muted-foreground",  label: "Draft" },
@@ -47,6 +35,7 @@ export default function Quotes() {
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -54,7 +43,8 @@ export default function Quotes() {
   const [showView, setShowView] = useState<Quote | null>(null);
   const [viewItems, setViewItems] = useState<QuoteItem[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-
+  const [showCustomerPicker, setShowCustomerPicker] = useState(false);
+  const [customerPickerSearch, setCustomerPickerSearch] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -66,7 +56,9 @@ export default function Quotes() {
   const [items, setItems] = useState<QuoteItem[]>([{ description: "", quantity: 1, unit_price: 0, amount: 0 }]);
   const [saving, setSaving] = useState(false);
 
-  const fetchQuotes = async () => {
+  const fmt = (n: number) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(n);
+
+  const fetchQuotes = useCallback(async () => {
     if (!user) return;
     const { data, error } = await supabase
       .from("invoices")
@@ -74,24 +66,149 @@ export default function Quotes() {
       .eq("user_id", user.id)
       .like("invoice_number", "QT-%")
       .order("created_at", { ascending: false });
-    if (error) { console.error("fetchQuotes:", error); }
+    if (error) console.error("fetchQuotes:", error);
     if (data) {
-      setQuotes(
-        (data as any[]).map((r) => ({
-          ...r,
-          quote_number: r.invoice_number,
-          valid_until: r.due_date,
-        })) as Quote[]
-      );
+      setQuotes((data as any[]).map((r) => ({ ...r, quote_number: r.invoice_number, valid_until: r.due_date })) as Quote[]);
     }
     setLoading(false);
+  }, [user]);
+
+  const fetchCustomers = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("customers")
+      .select("id,name,email,phone,address")
+      .eq("user_id", user.id)
+      .order("name");
+    if (data) setCustomers(data as Customer[]);
+  }, [user]);
+
+  useEffect(() => {
+    fetchQuotes();
+    fetchCustomers();
+  }, [fetchQuotes, fetchCustomers]);
+
+  const generateQuoteNumber = async () => {
+    const prefix = (profile?.business_name || "SB").substring(0, 3).toUpperCase();
+    const { data } = await supabase
+      .from("invoices")
+      .select("invoice_number")
+      .eq("user_id", user!.id)
+      .like("invoice_number", "QT-%")
+      .order("created_at", { ascending: false })
+      .limit(1);
+    let nextNum = 1;
+    if (data && data.length > 0) {
+      const match = data[0].invoice_number.match(/(\d+)$/);
+      if (match) nextNum = parseInt(match[1]) + 1;
+    }
+    return `QT-${prefix}-${String(nextNum).padStart(4, "0")}`;
   };
 
-  useEffect(() => { fetchQuotes(); }, [user]);
+  const pickCustomer = (c: Customer) => {
+    setCustomerName(c.name);
+    setCustomerEmail(c.email || "");
+    setCustomerPhone(c.phone || "");
+    setCustomerAddress(c.address || "");
+    setShowCustomerPicker(false);
+    setCustomerPickerSearch("");
+  };
 
-  const generateQuoteNumber = () => {
-    const prefix = (profile?.business_name || "SB").substring(0, 3).toUpperCase();
-    return `QT-${prefix}-${String(quotes.length + 1).padStart(4, "0")}`;
+  const printQuote = (quote: Quote, lineItems: QuoteItem[]) => {
+    const win = window.open("", "_blank", "width=860,height=720");
+    if (!win) { toast({ title: "Allow popups to print", variant: "destructive" }); return; }
+    const fmtDate = (d: string) =>
+      new Date(d).toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric" });
+    win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Quote ${quote.quote_number}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#111827;padding:48px;max-width:820px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px}
+.biz-name{font-size:22px;font-weight:800;letter-spacing:-0.02em}
+.biz-info{font-size:12px;color:#6b7280;margin-top:6px;line-height:1.7}
+.inv-label{font-size:34px;font-weight:800;color:#7c3aed;letter-spacing:-0.04em}
+.inv-meta{text-align:right;font-size:12px;color:#6b7280;margin-top:4px}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-top:8px}
+.badge-draft{background:#f3f4f6;color:#6b7280}
+.badge-sent{background:#dbeafe;color:#1e40af}
+.badge-accepted{background:#d1fae5;color:#065f46}
+.badge-declined{background:#fee2e2;color:#991b1b}
+.badge-expired{background:#fef3c7;color:#92400e}
+.divider{border:none;border-top:1px solid #f3f4f6;margin:28px 0}
+.parties{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:28px}
+.label{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#9ca3af;font-weight:600;margin-bottom:6px}
+.party-name{font-size:15px;font-weight:700}
+.party-info{font-size:12px;color:#6b7280;line-height:1.7;margin-top:4px}
+.dates{display:flex;gap:32px;background:#f9fafb;border-radius:12px;padding:16px 20px;margin-bottom:28px}
+.date-val{font-size:13px;font-weight:600;margin-top:3px}
+table{width:100%;border-collapse:collapse;margin-bottom:20px}
+thead tr{background:#f9fafb}
+th{padding:10px 14px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#9ca3af;font-weight:600}
+td{padding:11px 14px;border-bottom:1px solid #f9fafb;font-size:13px}
+.text-right{text-align:right}
+.font-bold{font-weight:700}
+.totals{margin-left:auto;width:260px;margin-top:8px}
+.total-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:#6b7280}
+.grand-total{display:flex;justify-content:space-between;font-size:16px;font-weight:800;color:#111827;border-top:2px solid #e5e7eb;padding-top:10px;margin-top:8px}
+.grand-total span:last-child{color:#7c3aed}
+.notes-box{background:#f9fafb;border-radius:12px;padding:16px 20px;margin-top:28px}
+.footer{margin-top:40px;text-align:center;font-size:11px;color:#d1d5db;border-top:1px solid #f3f4f6;padding-top:20px}
+@media print{body{padding:24px}@page{margin:1.5cm}}
+</style></head><body>
+<div class="header">
+  <div>
+    <div class="biz-name">${profile?.business_name || "Your Business"}</div>
+    <div class="biz-info">${[profile?.email, profile?.phone].filter(Boolean).join("<br>")}</div>
+  </div>
+  <div style="text-align:right">
+    <div class="inv-label">QUOTE</div>
+    <div class="inv-meta">#${quote.quote_number}</div>
+    <div><span class="badge badge-${quote.status}">${quote.status}</span></div>
+  </div>
+</div>
+<hr class="divider">
+<div class="parties">
+  <div>
+    <div class="label">From</div>
+    <div class="party-name">${profile?.business_name || "Your Business"}</div>
+    <div class="party-info">${[profile?.email, profile?.phone].filter(Boolean).join("<br>")}</div>
+  </div>
+  <div>
+    <div class="label">Proposed To</div>
+    <div class="party-name">${quote.customer_name}</div>
+    <div class="party-info">${[quote.customer_email, quote.customer_phone, quote.customer_address].filter(Boolean).join("<br>")}</div>
+  </div>
+</div>
+<div class="dates">
+  <div><div class="label">Issue Date</div><div class="date-val">${fmtDate(quote.issue_date)}</div></div>
+  ${quote.valid_until ? `<div><div class="label">Valid Until</div><div class="date-val">${fmtDate(quote.valid_until)}</div></div>` : ""}
+</div>
+<table>
+  <thead><tr>
+    <th>Description</th>
+    <th style="text-align:center">Qty</th>
+    <th class="text-right">Unit Price</th>
+    <th class="text-right">Amount</th>
+  </tr></thead>
+  <tbody>${lineItems.map(it => `<tr>
+    <td>${it.description}</td>
+    <td style="text-align:center">${it.quantity}</td>
+    <td class="text-right">${fmt(Number(it.unit_price))}</td>
+    <td class="text-right font-bold">${fmt(Number(it.amount))}</td>
+  </tr>`).join("")}</tbody>
+</table>
+<div class="totals">
+  <div class="total-row"><span>Subtotal</span><span>${fmt(Number(quote.subtotal))}</span></div>
+  ${Number(quote.tax_rate) > 0 ? `<div class="total-row"><span>Tax (${quote.tax_rate}%)</span><span>${fmt(Number(quote.tax_amount))}</span></div>` : ""}
+  ${Number(quote.discount_amount) > 0 ? `<div class="total-row"><span>Discount</span><span>-${fmt(Number(quote.discount_amount))}</span></div>` : ""}
+  <div class="grand-total"><span>Total</span><span>${fmt(Number(quote.total))}</span></div>
+</div>
+${quote.notes ? `<div class="notes-box"><div class="label">Notes / Terms</div><div style="margin-top:6px;font-size:12px;color:#6b7280">${quote.notes}</div></div>` : ""}
+<div class="footer">Generated by SmartBiz Partners &nbsp;•&nbsp; smartbiz.team</div>
+<script>window.onload=()=>{window.print();window.onafterprint=()=>window.close()}</script>
+</body></html>`);
+    win.document.close();
   };
 
   const updateItem = (index: number, field: keyof QuoteItem, value: string | number) => {
@@ -110,48 +227,25 @@ export default function Quotes() {
     if (!customerName.trim()) { toast({ title: "Customer name required", variant: "destructive" }); return; }
     if (items.every((i) => !i.description.trim())) { toast({ title: "Add at least one item", variant: "destructive" }); return; }
     setSaving(true);
-    const quoteNumber = generateQuoteNumber();
+    const quoteNumber = await generateQuoteNumber();
     const { data: inv, error } = await supabase.from("invoices").insert({
-      user_id: user!.id,
-      invoice_number: quoteNumber,
-      customer_name: customerName,
-      customer_email: customerEmail,
-      customer_phone: customerPhone,
-      customer_address: customerAddress,
-      due_date: validUntil || null,
-      notes,
-      tax_rate: taxRate,
-      tax_amount: taxAmount,
-      discount_amount: discountAmount,
-      subtotal,
-      total,
-      status: "draft",
+      user_id: user!.id, invoice_number: quoteNumber, customer_name: customerName,
+      customer_email: customerEmail, customer_phone: customerPhone, customer_address: customerAddress,
+      due_date: validUntil || null, notes, tax_rate: taxRate, tax_amount: taxAmount,
+      discount_amount: discountAmount, subtotal, total, status: "draft",
     }).select().single();
-
     if (error || !inv) {
       toast({ title: "Error creating quote", description: error?.message, variant: "destructive" });
-      setSaving(false);
-      return;
+      setSaving(false); return;
     }
-
     const validItems = items.filter((i) => i.description.trim());
     if (validItems.length > 0) {
-      await supabase.from("invoice_items").insert(
-        validItems.map((i) => ({
-          invoice_id: (inv as any).id,
-          description: i.description,
-          quantity: i.quantity,
-          unit_price: i.unit_price,
-          amount: i.amount,
-        }))
-      );
+      await supabase.from("invoice_items").insert(validItems.map((i) => ({
+        invoice_id: (inv as any).id, description: i.description, quantity: i.quantity, unit_price: i.unit_price, amount: i.amount,
+      })));
     }
-
     toast({ title: `✓ Quote ${quoteNumber} created!` });
-    resetForm();
-    setShowCreate(false);
-    fetchQuotes();
-    setSaving(false);
+    resetForm(); setShowCreate(false); fetchQuotes(); setSaving(false);
   };
 
   const resetForm = () => {
@@ -162,16 +256,13 @@ export default function Quotes() {
 
   const updateStatus = async (id: string, status: string) => {
     await supabase.from("invoices").update({ status }).eq("id", id).eq("user_id", user!.id);
-    fetchQuotes();
-    toast({ title: `Quote marked as ${status}` });
+    fetchQuotes(); toast({ title: `Quote marked as ${status}` });
   };
 
   const deleteQuote = async (id: string) => {
     await supabase.from("invoice_items").delete().eq("invoice_id", id);
     await supabase.from("invoices").delete().eq("id", id).eq("user_id", user!.id);
-    setDeleteConfirm(null);
-    fetchQuotes();
-    toast({ title: "Quote deleted" });
+    setDeleteConfirm(null); fetchQuotes(); toast({ title: "Quote deleted" });
   };
 
   const viewQuote = async (quote: Quote) => {
@@ -181,19 +272,24 @@ export default function Quotes() {
   };
 
   const convertToInvoice = async (quote: Quote) => {
-    const invoiceNumber = `INV-${(profile?.business_name || "SB").substring(0, 3).toUpperCase()}-${Date.now().toString().slice(-4)}`;
-    await supabase
+    const prefix = (profile?.business_name || "SB").substring(0, 3).toUpperCase();
+    const { data } = await supabase
       .from("invoices")
-      .update({ invoice_number: invoiceNumber })
-      .eq("id", quote.id)
-      .eq("user_id", user!.id);
+      .select("invoice_number")
+      .eq("user_id", user!.id)
+      .not("invoice_number", "like", "QT-%")
+      .order("created_at", { ascending: false })
+      .limit(1);
+    let nextNum = 1;
+    if (data && data.length > 0) {
+      const match = data[0].invoice_number.match(/(\d+)$/);
+      if (match) nextNum = parseInt(match[1]) + 1;
+    }
+    const invoiceNumber = `${prefix}-${String(nextNum).padStart(4, "0")}`;
+    await supabase.from("invoices").update({ invoice_number: invoiceNumber }).eq("id", quote.id).eq("user_id", user!.id);
     toast({ title: `✓ Converted to Invoice ${invoiceNumber}` });
-    setShowView(null);
-    fetchQuotes();
+    setShowView(null); fetchQuotes();
   };
-
-  const fmt = (amount: number) =>
-    new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(amount);
 
   const filteredQuotes = quotes.filter((q) => {
     const matchSearch =
@@ -201,6 +297,11 @@ export default function Quotes() {
       q.quote_number.toLowerCase().includes(search.toLowerCase());
     return matchSearch && (filterStatus === "all" || q.status === filterStatus);
   });
+
+  const filteredCustomers = customers.filter((c) =>
+    c.name.toLowerCase().includes(customerPickerSearch.toLowerCase()) ||
+    (c.email || "").toLowerCase().includes(customerPickerSearch.toLowerCase())
+  );
 
   const stats = {
     total: quotes.length,
@@ -253,9 +354,7 @@ export default function Quotes() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12">
-          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-        </div>
+        <div className="text-center py-12"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" /></div>
       ) : filteredQuotes.length === 0 ? (
         <div className="text-center py-14 border border-dashed border-border rounded-xl">
           <FileCheck className="h-8 w-8 text-muted-foreground/30 mx-auto mb-3" />
@@ -271,9 +370,7 @@ export default function Quotes() {
             const sc = statusConfig[q.status] || statusConfig.draft;
             const StatusIcon = sc.icon;
             return (
-              <motion.div
-                key={q.id}
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.025 }}
+              <motion.div key={q.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.025 }}
                 className="border border-border bg-card p-3.5 rounded-xl flex items-center justify-between hover:border-primary/20 transition-colors cursor-pointer"
                 onClick={() => viewQuote(q)}
               >
@@ -294,9 +391,7 @@ export default function Quotes() {
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg">
-                        <MoreVertical className="h-3.5 w-3.5" />
-                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg"><MoreVertical className="h-3.5 w-3.5" /></Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={(e) => { e.stopPropagation(); viewQuote(q); }}>
@@ -312,10 +407,7 @@ export default function Quotes() {
                           <CheckCircle2 className="h-3.5 w-3.5 mr-2" /> Mark Accepted
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={(e) => { e.stopPropagation(); setDeleteConfirm(q.id); }}
-                      >
+                      <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); setDeleteConfirm(q.id); }}>
                         <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -327,14 +419,64 @@ export default function Quotes() {
         </div>
       )}
 
-      {/* Create Quote Dialog */}
-      <Dialog open={showCreate} onOpenChange={setShowCreate}>
+      {/* Delete Confirmation */}
+      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <DialogContent className="max-w-sm rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-display">Delete Quote?</DialogTitle>
+            <DialogDescription>This action cannot be undone. The quote and all its items will be permanently deleted.</DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 mt-2">
+            <Button variant="outline" className="flex-1 rounded-lg" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+            <Button variant="destructive" className="flex-1 rounded-lg" onClick={() => deleteConfirm && deleteQuote(deleteConfirm)}>Delete</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Customer Picker */}
+      <Dialog open={showCustomerPicker} onOpenChange={(o) => { setShowCustomerPicker(o); setCustomerPickerSearch(""); }}>
+        <DialogContent className="max-w-sm rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-display">Pick from CRM</DialogTitle>
+            <DialogDescription>Select a customer to auto-fill their details.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 mt-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input placeholder="Search customers..." value={customerPickerSearch} onChange={(e) => setCustomerPickerSearch(e.target.value)} className="pl-9 rounded-lg" autoFocus />
+            </div>
+            <div className="space-y-1 max-h-64 overflow-y-auto">
+              {filteredCustomers.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-6">No customers found</p>
+              ) : filteredCustomers.map((c) => (
+                <button key={c.id} onClick={() => pickCustomer(c)}
+                  className="w-full text-left p-2.5 rounded-lg hover:bg-muted/60 transition-colors"
+                >
+                  <p className="font-medium text-sm">{c.name}</p>
+                  {c.email && <p className="text-xs text-muted-foreground">{c.email}</p>}
+                </button>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Quote */}
+      <Dialog open={showCreate} onOpenChange={(o) => { setShowCreate(o); if (!o) resetForm(); }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle className="font-display">New Quote</DialogTitle>
-            <DialogDescription>Create a professional quote/proposal for your customer.</DialogDescription>
+            <DialogDescription>Create a professional proposal for your customer.</DialogDescription>
           </DialogHeader>
           <div className="space-y-5 mt-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs font-medium text-muted-foreground">Customer Details</Label>
+              {customers.length > 0 && (
+                <Button variant="outline" size="sm" className="h-7 text-xs rounded-lg gap-1.5" onClick={() => setShowCustomerPicker(true)}>
+                  <UserCheck className="h-3 w-3" /> Pick from CRM
+                </Button>
+              )}
+            </div>
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium text-muted-foreground">Customer Name *</Label>
@@ -402,7 +544,6 @@ export default function Quotes() {
                 <Input type="number" value={discountAmount} onChange={(e) => setDiscountAmount(Number(e.target.value))} min={0} className="rounded-lg" />
               </div>
             </div>
-
             <div className="space-y-1.5">
               <Label className="text-xs font-medium text-muted-foreground">Notes / Terms</Label>
               <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Payment terms or additional notes..." className="rounded-lg" />
@@ -427,7 +568,7 @@ export default function Quotes() {
         </DialogContent>
       </Dialog>
 
-      {/* View Quote Dialog */}
+      {/* View Quote */}
       <Dialog open={!!showView} onOpenChange={() => setShowView(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl">
           {showView && (
@@ -439,13 +580,14 @@ export default function Quotes() {
                     {statusConfig[showView.status]?.label}
                   </span>
                 </div>
+                <DialogDescription>{showView.customer_name} • {new Date(showView.issue_date).toLocaleDateString()}</DialogDescription>
               </DialogHeader>
               <div className="mt-3 space-y-5">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1">From</p>
                     <p className="font-display font-bold text-sm">{profile?.business_name || "Your Business"}</p>
-                    <p className="text-xs text-muted-foreground">{profile?.email}</p>
+                    {profile?.email && <p className="text-xs text-muted-foreground">{profile.email}</p>}
                   </div>
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1">Proposed To</p>
@@ -457,7 +599,7 @@ export default function Quotes() {
 
                 {showView.valid_until && (
                   <p className="text-xs text-muted-foreground">
-                    Valid until: <span className="font-medium text-foreground">{new Date(showView.valid_until).toLocaleDateString()}</span>
+                    Valid until: <span className="font-semibold text-foreground">{new Date(showView.valid_until).toLocaleDateString()}</span>
                   </p>
                 )}
 
@@ -480,18 +622,8 @@ export default function Quotes() {
 
                 <div className="space-y-1.5 text-sm">
                   <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{fmt(Number(showView.subtotal))}</span></div>
-                  {Number(showView.tax_rate) > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Tax ({showView.tax_rate}%)</span>
-                      <span>{fmt(Number(showView.tax_amount))}</span>
-                    </div>
-                  )}
-                  {Number(showView.discount_amount) > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Discount</span>
-                      <span>-{fmt(Number(showView.discount_amount))}</span>
-                    </div>
-                  )}
+                  {Number(showView.tax_rate) > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Tax ({showView.tax_rate}%)</span><span>{fmt(Number(showView.tax_amount))}</span></div>}
+                  {Number(showView.discount_amount) > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span>-{fmt(Number(showView.discount_amount))}</span></div>}
                   <div className="flex justify-between font-display font-bold text-lg border-t border-border pt-2">
                     <span>Total</span><span className="text-primary">{fmt(Number(showView.total))}</span>
                   </div>
@@ -505,6 +637,9 @@ export default function Quotes() {
                 )}
 
                 <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" className="rounded-lg gap-1.5" onClick={() => printQuote(showView, viewItems)}>
+                    <Printer className="h-3.5 w-3.5" /> Print / PDF
+                  </Button>
                   {showView.status === "draft" && (
                     <Button className="flex-1 rounded-lg" onClick={() => { updateStatus(showView.id, "sent"); setShowView(null); }}>
                       <Send className="h-3.5 w-3.5 mr-1.5" /> Mark Sent
@@ -525,22 +660,6 @@ export default function Quotes() {
               </div>
             </>
           )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
-        <DialogContent className="max-w-sm rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="font-display">Delete Quote?</DialogTitle>
-            <DialogDescription>This action cannot be undone. The quote and all its items will be permanently deleted.</DialogDescription>
-          </DialogHeader>
-          <div className="flex gap-3 mt-2">
-            <Button variant="outline" className="flex-1 rounded-lg" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
-            <Button variant="destructive" className="flex-1 rounded-lg" onClick={() => deleteConfirm && deleteQuote(deleteConfirm)}>
-              Delete
-            </Button>
-          </div>
         </DialogContent>
       </Dialog>
     </div>
