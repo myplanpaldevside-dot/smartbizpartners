@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { email, amount, order_id, order_number, store_name } = await req.json();
+    const { email, amount, order_id, order_number, store_name, store_slug } = await req.json();
 
     if (!email || !amount || !order_id) {
       return new Response(
@@ -39,7 +39,7 @@ serve(async (req) => {
         amount: Math.round(amount * 100), // Convert to kobo
         currency: "NGN",
         reference: `STORE-${order_number}-${Date.now()}`,
-        callback_url: `${req.headers.get("origin") || "https://smartbizpartners.lovable.app"}/store/order-success?order_id=${order_id}`,
+        callback_url: `${req.headers.get("origin") || "https://smartbiz.team"}/store/order-success?order_id=${order_id}&slug=${store_slug || ""}`,
         metadata: {
           order_id,
           order_number,

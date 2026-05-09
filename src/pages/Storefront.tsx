@@ -169,12 +169,12 @@ export default function Storefront() {
           order_id: typedOrder.id,
           order_number: orderNumber,
           store_name: store!.store_name,
+          store_slug: slug,
         },
       });
 
       if (payError || !payData?.authorization_url) {
-        // If payment fails, still show success for the order
-        toast({ title: "Order placed! Payment link will be sent via email." });
+        toast({ title: "Order saved. Contact the store to complete payment.", variant: "destructive" });
         setCart([]);
         setShowCheckout(false);
         setShowCart(false);
@@ -182,7 +182,7 @@ export default function Storefront() {
         window.location.href = payData.authorization_url;
       }
     } catch {
-      toast({ title: "Order placed! You'll receive payment instructions shortly." });
+      toast({ title: "Order saved. Contact the store to complete payment.", variant: "destructive" });
       setCart([]);
       setShowCheckout(false);
       setShowCart(false);
