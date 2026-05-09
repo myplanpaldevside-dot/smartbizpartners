@@ -28,9 +28,11 @@ export default function Expenses() {
   const [category, setCategory] = useState("Other");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [saving, setSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const fetchExpenses = async () => {
-    const { data } = await supabase.from("expenses").select("*").order("date", { ascending: false });
+    if (!user) return;
+    const { data } = await supabase.from("expenses").select("*").eq("user_id", user.id).order("date", { ascending: false });
     if (data) setExpenses(data as Expense[]);
     setLoading(false);
   };
@@ -46,7 +48,12 @@ export default function Expenses() {
     setSaving(false);
   };
 
-  const deleteExpense = async (id: string) => { await supabase.from("expenses").delete().eq("id", id); fetchExpenses(); };
+  const deleteExpense = async (id: string) => {
+    await supabase.from("expenses").delete().eq("id", id).eq("user_id", user!.id);
+    setDeleteConfirm(null);
+    fetchExpenses();
+    toast({ title: "Expense deleted" });
+  };
 
   const fmt = (amt: number) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(amt);
   const totalExpenses = expenses.reduce((s, e) => s + Number(e.amount), 0);
@@ -105,7 +112,7 @@ export default function Expenses() {
               </div>
               <div className="flex items-center gap-3">
                 <span className="font-display font-bold text-sm text-destructive">-{fmt(Number(exp.amount))}</span>
-                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => deleteExpense(exp.id)}>
+                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => setDeleteConfirm(exp.id)}>
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
@@ -113,6 +120,19 @@ export default function Expenses() {
           ))}
         </div>
       )}
+
+      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <DialogContent className="max-w-sm rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-display">Delete Expense?</DialogTitle>
+            <DialogDescription>This will permanently remove this expense entry. This cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 mt-2">
+            <Button variant="outline" className="flex-1 rounded-lg" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+            <Button variant="destructive" className="flex-1 rounded-lg" onClick={() => deleteConfirm && deleteExpense(deleteConfirm)}>Delete</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="rounded-2xl">

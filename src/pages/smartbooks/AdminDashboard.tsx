@@ -9,7 +9,6 @@ import {
   TrendingUp,
   Shield,
   CreditCard,
-  ArrowLeft,
   RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -65,8 +64,11 @@ export default function AdminDashboard() {
     const { data: profiles } = await supabase.from("profiles").select("*");
     if (profiles) setUsers(profiles as UserProfile[]);
 
-    // Fetch invoice stats
-    const { data: invoices } = await supabase.from("invoices").select("total, status");
+    // Fetch invoice stats (exclude quotes which use QT- prefix)
+    const { data: invoices } = await supabase
+      .from("invoices")
+      .select("total, status, invoice_number")
+      .not("invoice_number", "like", "QT-%");
     if (invoices) {
       setInvoiceCount(invoices.length);
       setTotalRevenue(

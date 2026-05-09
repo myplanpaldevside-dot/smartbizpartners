@@ -27,9 +27,11 @@ export default function Inventory() {
   const [category, setCategory] = useState("");
   const [threshold, setThreshold] = useState("5");
   const [saving, setSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const fetchProducts = async () => {
-    const { data } = await supabase.from("inventory").select("*").order("created_at", { ascending: false });
+    if (!user) return;
+    const { data } = await supabase.from("inventory").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
     if (data) setProducts(data as Product[]);
     setLoading(false);
   };
@@ -48,7 +50,12 @@ export default function Inventory() {
     setSaving(false);
   };
 
-  const deleteProduct = async (id: string) => { await supabase.from("inventory").delete().eq("id", id); fetchProducts(); };
+  const deleteProduct = async (id: string) => {
+    await supabase.from("inventory").delete().eq("id", id).eq("user_id", user!.id);
+    setDeleteConfirm(null);
+    fetchProducts();
+    toast({ title: "Product deleted" });
+  };
 
   const fmt = (amt: number) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(amt);
   const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || (p.sku && p.sku.toLowerCase().includes(search.toLowerCase())));
@@ -109,7 +116,7 @@ export default function Inventory() {
                   <p className="font-display font-bold text-sm">{p.quantity} units</p>
                   <p className="text-[10px] text-muted-foreground">{fmt(p.unit_price)} each</p>
                 </div>
-                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => deleteProduct(p.id)}>
+                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => setDeleteConfirm(p.id)}>
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
@@ -117,6 +124,19 @@ export default function Inventory() {
           ))}
         </div>
       )}
+
+      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <DialogContent className="max-w-sm rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-display">Delete Product?</DialogTitle>
+            <DialogDescription>This will permanently remove this product from your inventory. This cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 mt-2">
+            <Button variant="outline" className="flex-1 rounded-lg" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+            <Button variant="destructive" className="flex-1 rounded-lg" onClick={() => deleteConfirm && deleteProduct(deleteConfirm)}>Delete</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="rounded-2xl">

@@ -38,7 +38,7 @@ export default function Store() {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const withTimeout = async <T,>(operation: PromiseLike<T>, timeoutMs = 25000): Promise<T> => {
+  const withTimeout = async <T,>(operation: PromiseLike<T>, timeoutMs = 10000): Promise<T> => {
     return await Promise.race([
       Promise.resolve(operation),
       new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Request timed out. Please try again.")), timeoutMs)),
@@ -73,11 +73,10 @@ export default function Store() {
           .from("store_settings")
           .select("*")
           .eq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(1),
+          .maybeSingle(),
       );
       if (error) throw error;
-      setStoreSettings(((data as unknown as StoreSettings[] | null) || [])[0] || null);
+      setStoreSettings((data as unknown as StoreSettings | null) || null);
     } catch (err: any) {
       toast({ title: "Failed to load store settings", description: err?.message, variant: "destructive" });
     }

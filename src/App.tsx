@@ -1,4 +1,4 @@
-import { lazy, Suspense, forwardRef } from "react";
+import { lazy, Suspense, forwardRef, Component, ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -29,6 +29,33 @@ const Reports = lazy(() => import("./pages/smartbooks/Reports"));
 const Storefront = lazy(() => import("./pages/Storefront"));
 const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
 
+class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: Error | null }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: Error) { return { hasError: true, error }; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background p-6">
+          <div className="text-center space-y-4 max-w-md">
+            <h1 className="text-xl font-bold text-foreground">Something went wrong</h1>
+            <p className="text-sm text-muted-foreground">{this.state.error?.message || "An unexpected error occurred."}</p>
+            <button
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm"
+              onClick={() => { this.setState({ hasError: false, error: null }); window.location.href = "/"; }}
+            >
+              Go to homepage
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const queryClient = new QueryClient();
 
 const SmartBooksLoader = forwardRef<HTMLDivElement>((_, ref) => (
@@ -42,6 +69,7 @@ const SmartBooksLoader = forwardRef<HTMLDivElement>((_, ref) => (
 SmartBooksLoader.displayName = "SmartBooksLoader";
 
 const App = () => (
+  <ErrorBoundary>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
@@ -83,6 +111,7 @@ const App = () => (
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

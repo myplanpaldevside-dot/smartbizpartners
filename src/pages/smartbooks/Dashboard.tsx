@@ -22,7 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 
-const withTimeout = async <T,>(operation: PromiseLike<T>, timeoutMs = 25000): Promise<T> => {
+const withTimeout = async <T,>(operation: PromiseLike<T>, timeoutMs = 10000): Promise<T> => {
   return await Promise.race([
     Promise.resolve(operation),
     new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Request timed out. Please try again.")), timeoutMs)),
@@ -93,7 +93,9 @@ export default function SmartBooksDashboard() {
         newCustomersThisMonth: customerData.filter((c: any) => c.created_at >= thisMonthStart).length,
         storeSlug: storeRes.data?.store_slug || "",
       });
-    } catch {}
+    } catch (err) {
+      console.error("fetchStats error:", err);
+    }
   };
 
   const resolvedBusinessName =

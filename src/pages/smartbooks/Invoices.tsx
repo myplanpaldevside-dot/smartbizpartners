@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Plus, FileText, Search, Filter, MoreVertical, Send, CheckCircle2, Clock, AlertCircle, X, Trash2, Eye,
+  Plus, FileText, Search, Filter, MoreVertical, Send, CheckCircle2, AlertCircle, X, Trash2, Eye,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -48,9 +48,11 @@ export default function Invoices() {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [items, setItems] = useState<InvoiceItem[]>([{ description: "", quantity: 1, unit_price: 0, amount: 0 }]);
   const [saving, setSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const fetchInvoices = async () => {
-    const { data, error } = await supabase.from("invoices").select("*").order("created_at", { ascending: false });
+    if (!user) return;
+    const { data, error } = await supabase.from("invoices").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
     if (!error && data) setInvoices(data as Invoice[]);
     setLoading(false);
   };
@@ -107,7 +109,11 @@ export default function Invoices() {
   };
 
   const deleteInvoice = async (id: string) => {
-    await supabase.from("invoices").delete().eq("id", id); fetchInvoices(); toast({ title: "Invoice deleted" });
+    await supabase.from("invoice_items").delete().eq("invoice_id", id);
+    await supabase.from("invoices").delete().eq("id", id).eq("user_id", user!.id);
+    setDeleteConfirm(null);
+    fetchInvoices();
+    toast({ title: "Invoice deleted" });
   };
 
   const viewInvoice = async (invoice: Invoice) => {
@@ -213,7 +219,7 @@ export default function Invoices() {
                       <DropdownMenuItem onClick={(e) => { e.stopPropagation(); viewInvoice(inv); }}><Eye className="h-3.5 w-3.5 mr-2" /> View</DropdownMenuItem>
                       {inv.status === "draft" && <DropdownMenuItem onClick={(e) => { e.stopPropagation(); updateStatus(inv.id, "sent"); }}><Send className="h-3.5 w-3.5 mr-2" /> Mark Sent</DropdownMenuItem>}
                       {["sent", "overdue"].includes(inv.status) && <DropdownMenuItem onClick={(e) => { e.stopPropagation(); updateStatus(inv.id, "paid"); }}><CheckCircle2 className="h-3.5 w-3.5 mr-2" /> Mark Paid</DropdownMenuItem>}
-                      <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); deleteInvoice(inv.id); }}><Trash2 className="h-3.5 w-3.5 mr-2" /> Delete</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); setDeleteConfirm(inv.id); }}><Trash2 className="h-3.5 w-3.5 mr-2" /> Delete</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -222,6 +228,20 @@ export default function Invoices() {
           })}
         </div>
       )}
+
+      {/* Delete Confirmation */}
+      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <DialogContent className="max-w-sm rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-display">Delete Invoice?</DialogTitle>
+            <DialogDescription>This will permanently delete the invoice and all its line items. This cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 mt-2">
+            <Button variant="outline" className="flex-1 rounded-lg" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+            <Button variant="destructive" className="flex-1 rounded-lg" onClick={() => deleteConfirm && deleteInvoice(deleteConfirm)}>Delete</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Create Invoice Dialog */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>

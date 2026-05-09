@@ -27,9 +27,11 @@ export default function CRM() {
   const [company, setCompany] = useState("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const fetchCustomers = async () => {
-    const { data } = await supabase.from("customers").select("*").order("created_at", { ascending: false });
+    if (!user) return;
+    const { data } = await supabase.from("customers").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
     if (data) setCustomers(data as Customer[]);
     setLoading(false);
   };
@@ -47,7 +49,12 @@ export default function CRM() {
     setSaving(false);
   };
 
-  const deleteCustomer = async (id: string) => { await supabase.from("customers").delete().eq("id", id); fetchCustomers(); };
+  const deleteCustomer = async (id: string) => {
+    await supabase.from("customers").delete().eq("id", id).eq("user_id", user!.id);
+    setDeleteConfirm(null);
+    fetchCustomers();
+    toast({ title: "Customer deleted" });
+  };
 
   const filtered = customers.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -103,7 +110,7 @@ export default function CRM() {
                 <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
                   {c.name.charAt(0).toUpperCase()}
                 </div>
-                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => deleteCustomer(c.id)}>
+                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => setDeleteConfirm(c.id)}>
                   <Trash2 className="h-3 w-3" />
                 </Button>
               </div>
@@ -118,6 +125,19 @@ export default function CRM() {
           ))}
         </div>
       )}
+
+      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <DialogContent className="max-w-sm rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-display">Delete Customer?</DialogTitle>
+            <DialogDescription>This will permanently remove the customer from your CRM. This cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 mt-2">
+            <Button variant="outline" className="flex-1 rounded-lg" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+            <Button variant="destructive" className="flex-1 rounded-lg" onClick={() => deleteConfirm && deleteCustomer(deleteConfirm)}>Delete</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="rounded-2xl">
