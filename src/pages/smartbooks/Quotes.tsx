@@ -21,7 +21,7 @@ interface Quote {
   subtotal: number; tax_rate: number; tax_amount: number; discount_amount: number; total: number;
   notes: string; created_at: string;
 }
-interface Customer { id: string; name: string; email: string | null; phone: string | null; address: string | null; }
+interface Customer { id: string; name: string; email: string | null; phone: string | null; }
 
 const statusConfig: Record<string, { icon: any; color: string; label: string }> = {
   draft:    { icon: FileCheck,    color: "text-muted-foreground",  label: "Draft" },
@@ -77,7 +77,7 @@ export default function Quotes() {
     if (!user) return;
     const { data } = await supabase
       .from("customers")
-      .select("id,name,email,phone,address")
+      .select("id,name,email,phone")
       .eq("user_id", user.id)
       .order("name");
     if (data) setCustomers(data as Customer[]);
