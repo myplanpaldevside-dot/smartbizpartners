@@ -43,6 +43,8 @@ const Footer = () => {
               <a href="#solution" className="block hover:text-primary-foreground hover:pl-2 transition-all duration-300">Services</a>
               <a href="#process" className="block hover:text-primary-foreground hover:pl-2 transition-all duration-300">Process</a>
               <a href="#contact" className="block hover:text-primary-foreground hover:pl-2 transition-all duration-300">Contact</a>
+              <a href="/privacy" className="block hover:text-primary-foreground hover:pl-2 transition-all duration-300">Privacy Policy</a>
+              <a href="/terms" className="block hover:text-primary-foreground hover:pl-2 transition-all duration-300">Terms of Service</a>
             </div>
           </div>
 
