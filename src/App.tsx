@@ -84,6 +84,8 @@ const App = () => (
               <Route path="/store/:slug" element={<Storefront />} />
               <Route path="/store/order-success" element={<OrderSuccess />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfService />} />
               <Route path="/smartbooks/auth" element={<Auth />} />
               <Route path="/smartbooks/pricing" element={<Pricing />} />
               <Route
