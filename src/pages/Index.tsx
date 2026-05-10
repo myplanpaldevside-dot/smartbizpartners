@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import FeatureShowcase from "@/components/FeatureShowcase";
@@ -21,11 +23,17 @@ import SplashScreen from "@/components/SplashScreen";
 
 const Index = () => {
   const [showSplash, setShowSplash] = useState(true);
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 2500);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (!loading && user) navigate("/smartbooks", { replace: true });
+  }, [user, loading, navigate]);
 
   return (
     <div className="min-h-screen bg-background">

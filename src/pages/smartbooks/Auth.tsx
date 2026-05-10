@@ -22,10 +22,12 @@ export default function Auth() {
 
   const handleGoogleSignIn = async () => {
     const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: `${window.location.origin}/smartbooks`,
     });
     if (error) {
       toast({ title: "Error", description: String(error), variant: "destructive" });
+    } else {
+      navigate("/smartbooks");
     }
   };
 

@@ -1,11 +1,23 @@
+import { useState } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SmartBooksSidebar } from "./SmartBooksSidebar";
 import { Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SmartBooksLayout() {
-  const { profile } = useAuth();
+  const { profile, user, refreshProfile } = useAuth();
   const location = useLocation();
+  const { toast } = useToast();
+  const [bizName, setBizName] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const needsBusinessName = profile && !profile.business_name;
   const businessName = profile?.business_name || "SmartBooks";
   const pageTitle =
     {
@@ -21,6 +33,22 @@ export default function SmartBooksLayout() {
       "/smartbooks/admin": "Admin",
     }[location.pathname] || "SmartBooks";
   const businessInitial = businessName.charAt(0).toUpperCase();
+
+  const handleSaveBusinessName = async () => {
+    if (!bizName.trim() || !user) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ business_name: bizName.trim(), updated_at: new Date().toISOString() })
+      .eq("id", user.id);
+    setSaving(false);
+    if (error) {
+      toast({ title: "Failed to save", description: error.message, variant: "destructive" });
+    } else {
+      await refreshProfile();
+      toast({ title: "Welcome to SmartBooks!" });
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -50,6 +78,36 @@ export default function SmartBooksLayout() {
           </main>
         </div>
       </div>
+
+      {/* First-time setup for Google sign-in users with no business name */}
+      <Dialog open={!!needsBusinessName} onOpenChange={() => {}}>
+        <DialogContent className="max-w-sm rounded-2xl" onInteractOutside={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle className="font-display">One last thing</DialogTitle>
+            <DialogDescription>What's the name of your business?</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">Business Name *</Label>
+              <Input
+                value={bizName}
+                onChange={(e) => setBizName(e.target.value)}
+                placeholder="e.g. Ola's Fashion Hub"
+                className="rounded-lg"
+                onKeyDown={(e) => e.key === "Enter" && handleSaveBusinessName()}
+                autoFocus
+              />
+            </div>
+            <Button
+              className="w-full rounded-lg"
+              onClick={handleSaveBusinessName}
+              disabled={saving || !bizName.trim()}
+            >
+              {saving ? "Saving..." : "Get Started"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </SidebarProvider>
   );
 }
