@@ -1,73 +1,107 @@
-# Welcome to your Lovable project
+# SmartBiz Partners
 
-## Project info
+**The all-in-one business management platform for Nigerian SMEs.**
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Live at [smartbiz.team](https://smartbiz.team)
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## What It Does
 
-**Use Lovable**
+SmartBiz Partners gives small and medium businesses in Nigeria everything they need to run professionally — from invoicing to inventory to an online store — in one clean, fast app.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### Features
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Invoices** — Create, send, and print branded invoices with sequential numbering and PDF export
+- **Quotes** — Generate professional quotes and convert them to invoices in one click
+- **Expenses** — Track business expenses by category
+- **CRM** — Manage customers and auto-fill their details into invoices and quotes
+- **Inventory** — Track stock levels and list items directly to your online store
+- **Store** — Launch a public storefront with your own URL, accept orders and Paystack payments
+- **Orders** — Manage and fulfill customer orders with status tracking
+- **Reports** — Revenue, expenses, and profit summaries with date filters
+- **AI Assistant** — Built-in business advisor chat
+- **Admin Panel** — Platform-wide user and subscription overview (admin only)
 
-**Use your preferred IDE**
+### Auth
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Email/password sign-up with 14-day free trial
+- Google sign-in
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Payments
 
-Follow these steps:
+Paystack integration for store checkout and subscription billing.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Tech Stack
 
-# Step 3: Install the necessary dependencies.
-npm i
+| Layer | Tech |
+|---|---|
+| Frontend | React 18, TypeScript, Vite |
+| UI | shadcn/ui, Tailwind CSS, Framer Motion |
+| Backend | Supabase (PostgreSQL, Auth, Storage, Edge Functions) |
+| Payments | Paystack |
+| Deployment | Lovable → GitHub → smartbiz.team |
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+---
+
+## Local Development
+
+```bash
+# Clone
+git clone https://github.com/myplanpaldevside-dot/smartbizpartners.git
+cd smartbizpartners
+
+# Install dependencies
+npm install
+
+# Start dev server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app runs on `http://localhost:8080` (or next available port).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+You'll need a Supabase project with the schema from `supabase/combined_migration.sql` and the following Edge Functions deployed:
 
-**Use GitHub Codespaces**
+- `store-checkout` — Paystack payment init for store orders
+- `paystack-checkout` — Subscription billing
+- `paystack-webhook` — Paystack event handler
+- `chat` — AI assistant
+- `auth-email-hook` — Custom auth emails
+- `process-email-queue` — Email sending
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Required Supabase secrets: `paystack_API_KEY`, `LOVABLE_API_KEY`
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## Deployment
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Pushing to the `main` branch on GitHub triggers an automatic redeploy on Lovable → smartbiz.team.
 
-## How can I deploy this project?
+```bash
+git add .
+git commit -m "your message"
+git push origin main
+```
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+## Project Structure
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+```
+src/
+  pages/
+    smartbooks/       # All dashboard pages (Invoices, Quotes, Store, etc.)
+    Storefront.tsx    # Public customer-facing store
+    OrderSuccess.tsx  # Post-payment confirmation page
+  components/
+    smartbooks/       # Layout, sidebar, shared components
+  hooks/
+    useAuth.tsx       # Auth context with profile management
+  integrations/
+    supabase/         # Supabase client and generated types
+supabase/
+  functions/          # Deno Edge Functions
+  migrations/         # SQL migration files
+```
