@@ -37,7 +37,7 @@ export default function Expenses() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchExpenses(); }, []);
+  useEffect(() => { if (user) fetchExpenses(); }, [user]);
 
   const handleCreate = async () => {
     if (!description.trim() || !amount) { toast({ title: "Fill in all fields", variant: "destructive" }); return; }
@@ -49,7 +49,8 @@ export default function Expenses() {
   };
 
   const deleteExpense = async (id: string) => {
-    await supabase.from("expenses").delete().eq("id", id).eq("user_id", user!.id);
+    const { error } = await supabase.from("expenses").delete().eq("id", id).eq("user_id", user!.id);
+    if (error) { toast({ title: "Delete failed", description: error.message, variant: "destructive" }); return; }
     setDeleteConfirm(null);
     fetchExpenses();
     toast({ title: "Expense deleted" });
@@ -57,7 +58,8 @@ export default function Expenses() {
 
   const fmt = (amt: number) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(amt);
   const totalExpenses = expenses.reduce((s, e) => s + Number(e.amount), 0);
-  const thisMonth = expenses.filter(e => new Date(e.date).getMonth() === new Date().getMonth()).reduce((s, e) => s + Number(e.amount), 0);
+  const now = new Date();
+  const thisMonth = expenses.filter(e => { const d = new Date(e.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); }).reduce((s, e) => s + Number(e.amount), 0);
   const filtered = expenses.filter(e => e.description.toLowerCase().includes(search.toLowerCase()) || e.category.toLowerCase().includes(search.toLowerCase()));
 
   return (

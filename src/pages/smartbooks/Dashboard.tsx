@@ -63,7 +63,7 @@ export default function SmartBooksDashboard() {
     if (!user) return;
     try {
       const [invoiceRes, expenseRes, customerRes, inventoryRes, orderRes, storeRes] = await Promise.all([
-        supabase.from("invoices").select("total,status,customer_name").eq("user_id", user.id),
+        supabase.from("invoices").select("total,status,customer_name").eq("user_id", user.id).not("invoice_number", "like", "QT-%"),
         supabase.from("expenses").select("amount").eq("user_id", user.id),
         supabase.from("customers").select("created_at").eq("user_id", user.id),
         supabase.from("inventory").select("quantity,low_stock_threshold").eq("user_id", user.id),
@@ -93,8 +93,8 @@ export default function SmartBooksDashboard() {
         newCustomersThisMonth: customerData.filter((c: any) => c.created_at >= thisMonthStart).length,
         storeSlug: storeRes.data?.store_slug || "",
       });
-    } catch (err) {
-      console.error("fetchStats error:", err);
+    } catch (err: any) {
+      toast({ title: "Failed to load dashboard data", description: err?.message, variant: "destructive" });
     }
   };
 

@@ -41,7 +41,7 @@ export default function Inventory() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchProducts(); }, []);
+  useEffect(() => { if (user) fetchProducts(); }, [user]);
 
   const handleCreate = async () => {
     if (!name.trim()) { toast({ title: "Name is required", variant: "destructive" }); return; }
@@ -78,7 +78,8 @@ export default function Inventory() {
   };
 
   const deleteProduct = async (id: string) => {
-    await supabase.from("inventory").delete().eq("id", id).eq("user_id", user!.id);
+    const { error } = await supabase.from("inventory").delete().eq("id", id).eq("user_id", user!.id);
+    if (error) { toast({ title: "Delete failed", description: error.message, variant: "destructive" }); return; }
     setDeleteConfirm(null);
     fetchProducts();
     toast({ title: "Product deleted" });

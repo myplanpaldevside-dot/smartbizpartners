@@ -36,7 +36,7 @@ export default function CRM() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchCustomers(); }, []);
+  useEffect(() => { if (user) fetchCustomers(); }, [user]);
 
   const handleCreate = async () => {
     if (!name.trim()) { toast({ title: "Name is required", variant: "destructive" }); return; }
@@ -50,7 +50,8 @@ export default function CRM() {
   };
 
   const deleteCustomer = async (id: string) => {
-    await supabase.from("customers").delete().eq("id", id).eq("user_id", user!.id);
+    const { error } = await supabase.from("customers").delete().eq("id", id).eq("user_id", user!.id);
+    if (error) { toast({ title: "Delete failed", description: error.message, variant: "destructive" }); return; }
     setDeleteConfirm(null);
     fetchCustomers();
     toast({ title: "Customer deleted" });
@@ -81,7 +82,7 @@ export default function CRM() {
         <div className="border border-border bg-card p-3.5 rounded-xl">
           <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-2"><Users className="h-3.5 w-3.5 text-emerald-500" /></div>
           <p className="font-display text-lg font-bold">
-            {customers.filter(c => new Date(c.created_at).getMonth() === new Date().getMonth()).length}
+            {customers.filter(c => { const d = new Date(c.created_at); const n = new Date(); return d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear(); }).length}
           </p>
           <p className="text-[10px] text-muted-foreground">Added This Month</p>
         </div>
