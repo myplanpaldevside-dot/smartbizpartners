@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { Zap, ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 export default function Auth() {
@@ -19,6 +20,12 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  // Navigate once auth context confirms the user is signed in
+  useEffect(() => {
+    if (user) navigate("/smartbooks", { replace: true });
+  }, [user, navigate]);
 
   const handleGoogleSignIn = async () => {
     const { error } = await lovable.auth.signInWithOAuth("google", {
@@ -39,7 +46,7 @@ export default function Auth() {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate("/smartbooks");
+        // Navigation handled by useEffect once auth context updates
       } else {
         if (!businessName.trim()) {
           toast({ title: "Business name is required", variant: "destructive" });
@@ -55,7 +62,7 @@ export default function Auth() {
         });
         if (error) throw error;
         toast({ title: "Account created!", description: "Welcome to SmartBooks. You have a 14-day free trial!" });
-        navigate("/smartbooks");
+        // Navigation handled by useEffect once auth context updates
       }
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
