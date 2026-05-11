@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import {
   Plus, Search, Trash2, Edit2, Eye, EyeOff, Upload, ExternalLink,
-  ShoppingBag, Package as PackageIcon, Copy, Settings, ImagePlus, X,
+  ShoppingBag, Package as PackageIcon, Copy, Settings, ImagePlus, X, Palette,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,7 +22,20 @@ interface Product {
 
 interface StoreSettings {
   id: string; store_name: string; store_slug: string; description: string; is_published: boolean;
+  logo_url: string | null; banner_url: string | null; theme_color: string | null;
 }
+
+const themeColors = [
+  { name: "Zinc",    value: "#18181b" },
+  { name: "Blue",    value: "#2563eb" },
+  { name: "Indigo",  value: "#4f46e5" },
+  { name: "Emerald", value: "#059669" },
+  { name: "Orange",  value: "#ea580c" },
+  { name: "Red",     value: "#dc2626" },
+  { name: "Purple",  value: "#9333ea" },
+  { name: "Pink",    value: "#db2777" },
+  { name: "Amber",   value: "#d97706" },
+];
 
 export default function Store() {
   const { user, profile } = useAuth();
@@ -36,7 +49,11 @@ export default function Store() {
   const [showStoreSettings, setShowStoreSettings] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const withTimeout = async <T,>(operation: PromiseLike<T>, timeoutMs = 10000): Promise<T> => {
     return await Promise.race([
@@ -50,6 +67,7 @@ export default function Store() {
   });
   const [storeForm, setStoreForm] = useState({
     store_name: "", store_slug: "", description: "", is_published: false,
+    logo_url: "", banner_url: "", theme_color: "#18181b",
   });
 
   const fetchProducts = useCallback(async () => {
@@ -69,11 +87,7 @@ export default function Store() {
     if (!user) return;
     try {
       const { data, error } = await withTimeout(
-        supabase
-          .from("store_settings")
-          .select("*")
-          .eq("user_id", user.id)
-          .maybeSingle(),
+        supabase.from("store_settings").select("*").eq("user_id", user.id).maybeSingle(),
       );
       if (error) throw error;
       setStoreSettings((data as unknown as StoreSettings | null) || null);
@@ -97,6 +111,9 @@ export default function Store() {
       store_slug: storeSettings?.store_slug || generateSlug(bizName),
       description: storeSettings?.description || "",
       is_published: storeSettings?.is_published || false,
+      logo_url: storeSettings?.logo_url || "",
+      banner_url: storeSettings?.banner_url || "",
+      theme_color: storeSettings?.theme_color || "#18181b",
     });
     setShowStoreSettings(true);
   };
@@ -112,28 +129,23 @@ export default function Store() {
       const payload = {
         user_id: user.id, store_name: storeForm.store_name.trim(), store_slug: cleanSlug,
         description: storeForm.description.trim(), is_published: storeForm.is_published,
+        logo_url: storeForm.logo_url || null, banner_url: storeForm.banner_url || null,
+        theme_color: storeForm.theme_color || "#18181b",
         updated_at: new Date().toISOString(),
       };
 
       if (storeSettings) {
-        const { error } = await withTimeout(
-          supabase.from("store_settings").update(payload).eq("id", storeSettings.id),
-        );
+        const { error } = await withTimeout(supabase.from("store_settings").update(payload).eq("id", storeSettings.id));
         if (error) throw error;
       } else {
-        const { error } = await withTimeout(
-          supabase.from("store_settings").insert(payload),
-        );
+        const { error } = await withTimeout(supabase.from("store_settings").insert(payload));
         if (error) {
           if (error.code === "23505" && error.message.includes("store_slug")) {
             toast({ title: "This store URL is taken. Try another.", variant: "destructive" });
             setSaving(false); return;
           }
-          // Try upsert fallback for user_id conflict
           if (error.code === "23505") {
-            const { error: updateErr } = await withTimeout(
-              supabase.from("store_settings").update(payload).eq("user_id", user.id),
-            );
+            const { error: updateErr } = await withTimeout(supabase.from("store_settings").update(payload).eq("user_id", user.id));
             if (updateErr) throw updateErr;
           } else throw error;
         }
@@ -147,27 +159,57 @@ export default function Store() {
     } finally { setSaving(false); }
   };
 
+  const uploadStoreImage = async (file: File, folder: string): Promise<string | null> => {
+    if (!user) return null;
+    if (!file.type.startsWith("image/")) { toast({ title: "Select an image file", variant: "destructive" }); return null; }
+    if (file.size > 5 * 1024 * 1024) { toast({ title: "Max 5MB", variant: "destructive" }); return null; }
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${user.id}/${folder}-${Date.now()}.${ext}`;
+    const { error } = await withTimeout(
+      supabase.storage.from("store-images").upload(path, file, { cacheControl: "3600", contentType: file.type, upsert: true }),
+    );
+    if (error) throw error;
+    const { data: urlData } = supabase.storage.from("store-images").getPublicUrl(path);
+    return `${urlData.publicUrl}?t=${Date.now()}`;
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (fileInputRef.current) fileInputRef.current.value = "";
-    if (!file || !user) return;
-    if (!file.type.startsWith("image/")) { toast({ title: "Select an image file", variant: "destructive" }); return; }
-    if (file.size > 5 * 1024 * 1024) { toast({ title: "Max 5MB", variant: "destructive" }); return; }
-
+    if (!file) return;
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() || "jpg";
-      const path = `${user.id}/${Date.now()}.${ext}`;
-      const { error } = await withTimeout(
-        supabase.storage.from("store-images").upload(path, file, { cacheControl: "3600", contentType: file.type, upsert: true }),
-      );
-      if (error) throw error;
-      const { data: urlData } = supabase.storage.from("store-images").getPublicUrl(path);
-      setForm((f) => ({ ...f, image_url: `${urlData.publicUrl}?t=${Date.now()}` }));
-      toast({ title: "✓ Image uploaded!" });
+      const url = await uploadStoreImage(file, "product");
+      if (url) { setForm((f) => ({ ...f, image_url: url })); toast({ title: "✓ Image uploaded!" }); }
     } catch (err: any) {
       toast({ title: "Upload failed", description: err.message, variant: "destructive" });
     } finally { setUploading(false); }
+  };
+
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (bannerInputRef.current) bannerInputRef.current.value = "";
+    if (!file) return;
+    setUploadingBanner(true);
+    try {
+      const url = await uploadStoreImage(file, "banner");
+      if (url) { setStoreForm((f) => ({ ...f, banner_url: url })); toast({ title: "✓ Banner uploaded!" }); }
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } finally { setUploadingBanner(false); }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (logoInputRef.current) logoInputRef.current.value = "";
+    if (!file) return;
+    setUploadingLogo(true);
+    try {
+      const url = await uploadStoreImage(file, "store-logo");
+      if (url) { setStoreForm((f) => ({ ...f, logo_url: url })); toast({ title: "✓ Logo uploaded!" }); }
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } finally { setUploadingLogo(false); }
   };
 
   const openCreateProduct = () => {
@@ -200,15 +242,11 @@ export default function Store() {
         image_url: form.image_url || null, updated_at: new Date().toISOString(),
       };
       if (editingProduct) {
-        const { error } = await withTimeout(
-          supabase.from("store_products").update(payload).eq("id", editingProduct.id),
-        );
+        const { error } = await withTimeout(supabase.from("store_products").update(payload).eq("id", editingProduct.id));
         if (error) throw error;
         toast({ title: "✓ Product updated!" });
       } else {
-        const { error } = await withTimeout(
-          supabase.from("store_products").insert({ ...payload, user_id: user.id }),
-        );
+        const { error } = await withTimeout(supabase.from("store_products").insert({ ...payload, user_id: user.id }));
         if (error) throw error;
         toast({ title: "✓ Product added!" });
       }
@@ -232,6 +270,7 @@ export default function Store() {
   const fmt = (n: number) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(n);
   const filtered = products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()) || (p.category || "").toLowerCase().includes(search.toLowerCase()));
   const storeUrl = storeSettings ? `${window.location.origin}/store/${storeSettings.store_slug}` : null;
+  const activeColor = storeSettings?.theme_color || "#18181b";
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -261,7 +300,13 @@ export default function Store() {
           className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 border border-border rounded-xl bg-card"
         >
           <div className="flex items-center gap-3">
-            <div className={`w-2.5 h-2.5 rounded-full ${storeSettings.is_published ? "bg-emerald-500" : "bg-muted-foreground/40"}`} />
+            {storeSettings.logo_url ? (
+              <img src={storeSettings.logo_url} alt="Store logo" className="w-9 h-9 rounded-lg object-cover border border-border" />
+            ) : (
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold" style={{ backgroundColor: activeColor }}>
+                {storeSettings.store_name.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div>
               <p className="text-sm font-semibold text-foreground">{storeSettings.store_name}</p>
               <p className="text-[10px] text-muted-foreground">{storeSettings.is_published ? "Live" : "Draft"} • {products.length} product{products.length !== 1 && "s"}</p>
@@ -333,7 +378,7 @@ export default function Store() {
                   {product.category && <span className="text-[8px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0">{product.category}</span>}
                 </div>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="font-bold text-primary text-sm">{fmt(product.price)}</span>
+                  <span className="font-bold text-sm" style={{ color: activeColor }}>{fmt(product.price)}</span>
                   {product.compare_at_price && product.compare_at_price > product.price && (
                     <span className="text-xs text-muted-foreground line-through">{fmt(product.compare_at_price)}</span>
                   )}
@@ -435,42 +480,131 @@ export default function Store() {
 
       {/* Store Settings Dialog */}
       <Dialog open={showStoreSettings} onOpenChange={setShowStoreSettings}>
-        <DialogContent className="max-w-md rounded-2xl">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle className="font-display">Store Settings</DialogTitle>
-            <DialogDescription>Configure your online store.</DialogDescription>
+            <DialogDescription>Configure your store details and appearance.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 mt-2">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Store Name *</Label>
-              <Input value={storeForm.store_name} onChange={(e) => {
-                const name = e.target.value;
-                setStoreForm((f) => ({ ...f, store_name: name, store_slug: !storeSettings ? generateSlug(name) : f.store_slug }));
-              }} placeholder="My Awesome Store" className="rounded-lg" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Store URL *</Label>
-              <div className="flex items-center gap-1 bg-muted/40 rounded-lg p-1">
-                <span className="text-xs text-muted-foreground shrink-0 pl-2">/store/</span>
-                <Input value={storeForm.store_slug} onChange={(e) => setStoreForm((f) => ({ ...f, store_slug: generateSlug(e.target.value) }))}
-                  className="border-0 bg-transparent shadow-none focus-visible:ring-0 rounded-lg" placeholder="my-store" />
+          <div className="space-y-5 mt-2">
+
+            {/* — Store Info — */}
+            <div className="space-y-3">
+              <p className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">Store Info</p>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-muted-foreground">Store Name *</Label>
+                <Input value={storeForm.store_name} onChange={(e) => {
+                  const name = e.target.value;
+                  setStoreForm((f) => ({ ...f, store_name: name, store_slug: !storeSettings ? generateSlug(name) : f.store_slug }));
+                }} placeholder="My Awesome Store" className="rounded-lg" />
               </div>
-              {storeForm.store_slug && <p className="text-[10px] text-muted-foreground">{window.location.origin}/store/{storeForm.store_slug}</p>}
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Description</Label>
-              <Textarea value={storeForm.description} onChange={(e) => setStoreForm((f) => ({ ...f, description: e.target.value }))} placeholder="What do you sell?" rows={2} className="rounded-lg" />
-            </div>
-            <div className="flex items-center justify-between p-3 border border-border rounded-xl bg-muted/20">
-              <div>
-                <p className="text-sm font-semibold">Publish Store</p>
-                <p className="text-[10px] text-muted-foreground">Make visible to customers</p>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-muted-foreground">Store URL *</Label>
+                <div className="flex items-center gap-1 bg-muted/40 rounded-lg p-1">
+                  <span className="text-xs text-muted-foreground shrink-0 pl-2">/store/</span>
+                  <Input value={storeForm.store_slug} onChange={(e) => setStoreForm((f) => ({ ...f, store_slug: generateSlug(e.target.value) }))}
+                    className="border-0 bg-transparent shadow-none focus-visible:ring-0 rounded-lg" placeholder="my-store" />
+                </div>
+                {storeForm.store_slug && <p className="text-[10px] text-muted-foreground">{window.location.origin}/store/{storeForm.store_slug}</p>}
               </div>
-              <Switch checked={storeForm.is_published} onCheckedChange={(v) => setStoreForm((f) => ({ ...f, is_published: v }))} />
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-muted-foreground">Description</Label>
+                <Textarea value={storeForm.description} onChange={(e) => setStoreForm((f) => ({ ...f, description: e.target.value }))} placeholder="What do you sell?" rows={2} className="rounded-lg" />
+              </div>
+              <div className="flex items-center justify-between p-3 border border-border rounded-xl bg-muted/20">
+                <div>
+                  <p className="text-sm font-semibold">Publish Store</p>
+                  <p className="text-[10px] text-muted-foreground">Make visible to customers</p>
+                </div>
+                <Switch checked={storeForm.is_published} onCheckedChange={(v) => setStoreForm((f) => ({ ...f, is_published: v }))} />
+              </div>
             </div>
-            <div className="flex gap-3">
+
+            <div className="border-t border-border" />
+
+            {/* — Appearance — */}
+            <div className="space-y-3">
+              <p className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground flex items-center gap-1.5">
+                <Palette className="h-3 w-3" /> Appearance
+              </p>
+
+              {/* Theme color */}
+              <div className="space-y-2">
+                <Label className="text-xs font-medium text-muted-foreground">Theme Color</Label>
+                <div className="flex flex-wrap gap-2">
+                  {themeColors.map((c) => (
+                    <button
+                      key={c.value}
+                      title={c.name}
+                      onClick={() => setStoreForm((f) => ({ ...f, theme_color: c.value }))}
+                      className="w-7 h-7 rounded-full border-2 transition-all"
+                      style={{
+                        backgroundColor: c.value,
+                        borderColor: storeForm.theme_color === c.value ? c.value : "transparent",
+                        boxShadow: storeForm.theme_color === c.value ? `0 0 0 3px white, 0 0 0 4px ${c.value}` : "none",
+                      }}
+                    />
+                  ))}
+                </div>
+                <p className="text-[10px] text-muted-foreground">Applied to buttons and prices in your storefront</p>
+              </div>
+
+              {/* Store Logo */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-muted-foreground">Store Logo</Label>
+                <div className="flex items-center gap-3">
+                  {storeForm.logo_url ? (
+                    <div className="relative">
+                      <img src={storeForm.logo_url} alt="Logo" className="w-14 h-14 rounded-xl object-cover border border-border" />
+                      <button onClick={() => setStoreForm((f) => ({ ...f, logo_url: "" }))}
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
+                        <X className="h-2.5 w-2.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl border-2 border-dashed border-border flex items-center justify-center text-muted-foreground/40">
+                      <ShoppingBag className="h-5 w-5" />
+                    </div>
+                  )}
+                  <Button variant="outline" size="sm" onClick={() => logoInputRef.current?.click()} disabled={uploadingLogo} className="text-xs rounded-lg">
+                    <Upload className="h-3 w-3 mr-1" /> {uploadingLogo ? "Uploading..." : storeForm.logo_url ? "Change" : "Upload Logo"}
+                  </Button>
+                  <input ref={logoInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleLogoUpload} />
+                </div>
+              </div>
+
+              {/* Banner Image */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-muted-foreground">Banner Image</Label>
+                {storeForm.banner_url ? (
+                  <div className="relative rounded-xl overflow-hidden">
+                    <img src={storeForm.banner_url} alt="Banner" className="w-full h-24 object-cover" />
+                    <button onClick={() => setStoreForm((f) => ({ ...f, banner_url: "" }))}
+                      className="absolute top-2 right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
+                      <X className="h-3 w-3" />
+                    </button>
+                    <Button variant="outline" size="sm" onClick={() => bannerInputRef.current?.click()} disabled={uploadingBanner}
+                      className="absolute bottom-2 right-2 text-xs rounded-lg bg-background/80 backdrop-blur-sm h-7">
+                      <Upload className="h-3 w-3 mr-1" /> Change
+                    </Button>
+                  </div>
+                ) : (
+                  <div onClick={() => !uploadingBanner && bannerInputRef.current?.click()}
+                    className="w-full h-24 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary/40 hover:bg-muted/30 transition-colors"
+                  >
+                    {uploadingBanner ? (
+                      <><div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin mb-1" /><p className="text-[10px] text-muted-foreground">Uploading...</p></>
+                    ) : (
+                      <><ImagePlus className="h-6 w-6 text-muted-foreground/30 mb-1" /><p className="text-[10px] text-muted-foreground">Click to upload banner • Recommended 1200×400px</p></>
+                    )}
+                  </div>
+                )}
+                <input ref={bannerInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleBannerUpload} />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-1">
               <Button variant="outline" className="flex-1 rounded-lg" onClick={() => setShowStoreSettings(false)}>Cancel</Button>
-              <Button className="flex-1 rounded-lg" onClick={handleSaveStoreSettings} disabled={saving}>
+              <Button className="flex-1 rounded-lg" onClick={handleSaveStoreSettings} disabled={saving || uploadingBanner || uploadingLogo}>
                 {saving ? "Saving..." : storeSettings ? "Save" : "Create Store"}
               </Button>
             </div>

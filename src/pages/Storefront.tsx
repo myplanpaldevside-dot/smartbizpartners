@@ -31,6 +31,8 @@ interface StoreInfo {
   description: string;
   user_id: string;
   logo_url: string | null;
+  banner_url: string | null;
+  theme_color: string | null;
 }
 
 export default function Storefront() {
@@ -53,14 +55,14 @@ export default function Storefront() {
   }, [slug]);
 
   const fetchStore = async () => {
-    const { data: storeData } = await supabase
+    const { data: storeData, error } = await supabase
       .from("store_settings")
       .select("*")
       .eq("store_slug", slug)
       .eq("is_published", true)
       .maybeSingle();
 
-    if (!storeData) {
+    if (error || !storeData) {
       setNotFound(true);
       setLoading(false);
       return;
@@ -83,24 +85,14 @@ export default function Storefront() {
   const addToCart = (product: Product) => {
     setCart((prev) => {
       const existing = prev.find((c) => c.product.id === product.id);
-      if (existing) {
-        return prev.map((c) =>
-          c.product.id === product.id ? { ...c, quantity: c.quantity + 1 } : c
-        );
-      }
+      if (existing) return prev.map((c) => c.product.id === product.id ? { ...c, quantity: c.quantity + 1 } : c);
       return [...prev, { product, quantity: 1 }];
     });
     toast({ title: `${product.name} added to cart` });
   };
 
   const updateCartQty = (productId: string, delta: number) => {
-    setCart((prev) =>
-      prev
-        .map((c) =>
-          c.product.id === productId ? { ...c, quantity: c.quantity + delta } : c
-        )
-        .filter((c) => c.quantity > 0)
-    );
+    setCart((prev) => prev.map((c) => c.product.id === productId ? { ...c, quantity: c.quantity + delta } : c).filter((c) => c.quantity > 0));
   };
 
   const removeFromCart = (productId: string) => {
@@ -109,9 +101,9 @@ export default function Storefront() {
 
   const cartTotal = cart.reduce((sum, c) => sum + c.product.price * c.quantity, 0);
   const cartCount = cart.reduce((sum, c) => sum + c.quantity, 0);
+  const formatCurrency = (n: number) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(n);
 
-  const formatCurrency = (n: number) =>
-    new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(n);
+  const themeColor = store?.theme_color || "#18181b";
 
   const handleCheckout = async () => {
     if (!checkoutForm.name || !checkoutForm.email || !checkoutForm.phone) {
@@ -148,19 +140,17 @@ export default function Storefront() {
 
     const typedOrder = order as unknown as { id: string };
 
-    // Insert order items
-    const items = cart.map((c) => ({
-      order_id: typedOrder.id,
-      product_id: c.product.id,
-      product_name: c.product.name,
-      quantity: c.quantity,
-      unit_price: c.product.price,
-      amount: c.product.price * c.quantity,
-    }));
+    await supabase.from("store_order_items").insert(
+      cart.map((c) => ({
+        order_id: typedOrder.id,
+        product_id: c.product.id,
+        product_name: c.product.name,
+        quantity: c.quantity,
+        unit_price: c.product.price,
+        amount: c.product.price * c.quantity,
+      }))
+    );
 
-    await supabase.from("store_order_items").insert(items);
-
-    // Initiate Paystack payment
     try {
       const { data: payData, error: payError } = await supabase.functions.invoke("store-checkout", {
         body: {
@@ -194,7 +184,7 @@ export default function Storefront() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "#18181b", borderTopColor: "transparent" }} />
       </div>
     );
   }
@@ -203,8 +193,9 @@ export default function Storefront() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Store Not Found</h1>
-          <p className="text-muted-foreground">This store doesn't exist or isn't published yet.</p>
+          <ShoppingBag className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+          <h1 className="text-xl font-bold mb-2">Store Not Found</h1>
+          <p className="text-muted-foreground text-sm">This store doesn't exist or isn't published yet.</p>
         </div>
       </div>
     );
@@ -215,22 +206,40 @@ export default function Storefront() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
-          <div>
-            <h1 className="font-bold text-lg">{store?.store_name}</h1>
-            {store?.description && (
-              <p className="text-xs text-muted-foreground">{store.description}</p>
+          <div className="flex items-center gap-3">
+            {store?.logo_url ? (
+              <img src={store.logo_url} alt={store.store_name} className="w-9 h-9 rounded-lg object-cover border border-border" />
+            ) : (
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold shrink-0" style={{ backgroundColor: themeColor }}>
+                {store?.store_name.charAt(0).toUpperCase()}
+              </div>
             )}
+            <div>
+              <h1 className="font-bold text-base leading-tight">{store?.store_name}</h1>
+              {store?.description && <p className="text-xs text-muted-foreground leading-tight">{store.description}</p>}
+            </div>
           </div>
-          <Button variant="outline" size="sm" className="relative" onClick={() => setShowCart(true)}>
+          <Button
+            variant="outline" size="sm" className="relative rounded-xl"
+            onClick={() => setShowCart(true)}
+            style={cartCount > 0 ? { borderColor: themeColor, color: themeColor } : {}}
+          >
             <ShoppingCart className="h-4 w-4" />
             {cartCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 text-white text-[10px] font-bold rounded-full flex items-center justify-center" style={{ backgroundColor: themeColor }}>
                 {cartCount}
               </span>
             )}
           </Button>
         </div>
       </header>
+
+      {/* Banner */}
+      {store?.banner_url && (
+        <div className="w-full h-40 sm:h-56 overflow-hidden">
+          <img src={store.banner_url} alt="Store banner" className="w-full h-full object-cover" />
+        </div>
+      )}
 
       {/* Products */}
       <main className="max-w-6xl mx-auto px-4 py-8">
@@ -242,7 +251,7 @@ export default function Storefront() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {products.map((product) => (
-              <div key={product.id} className="border border-border rounded-lg overflow-hidden bg-card group">
+              <div key={product.id} className="border border-border rounded-xl overflow-hidden bg-card group hover:shadow-md transition-shadow">
                 <div className="aspect-square bg-muted">
                   {product.image_url ? (
                     <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
@@ -258,14 +267,15 @@ export default function Storefront() {
                     <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{product.description}</p>
                   )}
                   <div className="flex items-center gap-2 mt-2">
-                    <span className="font-bold text-primary text-sm">{formatCurrency(product.price)}</span>
+                    <span className="font-bold text-sm" style={{ color: themeColor }}>{formatCurrency(product.price)}</span>
                     {product.compare_at_price && (
                       <span className="text-xs text-muted-foreground line-through">{formatCurrency(product.compare_at_price)}</span>
                     )}
                   </div>
                   <Button
                     size="sm"
-                    className="w-full mt-3 bg-primary text-primary-foreground text-xs h-8"
+                    className="w-full mt-3 text-xs h-8 text-white"
+                    style={{ backgroundColor: themeColor }}
                     onClick={() => addToCart(product)}
                     disabled={product.stock_quantity <= 0}
                   >
@@ -280,7 +290,7 @@ export default function Storefront() {
 
       {/* Cart Dialog */}
       <Dialog open={showCart} onOpenChange={setShowCart}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle>Shopping Cart</DialogTitle>
             <DialogDescription>{cart.length === 0 ? "Your cart is empty" : `${cartCount} items`}</DialogDescription>
@@ -294,7 +304,7 @@ export default function Storefront() {
             <div className="space-y-4">
               {cart.map((item) => (
                 <div key={item.product.id} className="flex items-center gap-3 pb-3 border-b border-border">
-                  <div className="w-14 h-14 rounded bg-muted shrink-0 overflow-hidden">
+                  <div className="w-14 h-14 rounded-lg bg-muted shrink-0 overflow-hidden">
                     {item.product.image_url ? (
                       <img src={item.product.image_url} alt="" className="w-full h-full object-cover" />
                     ) : (
@@ -305,7 +315,7 @@ export default function Storefront() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold truncate">{item.product.name}</p>
-                    <p className="text-xs text-primary font-medium">{formatCurrency(item.product.price)}</p>
+                    <p className="text-xs font-medium" style={{ color: themeColor }}>{formatCurrency(item.product.price)}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => updateCartQty(item.product.id, -1)}>
                         <Minus className="h-3 w-3" />
@@ -326,9 +336,10 @@ export default function Storefront() {
               ))}
               <div className="flex justify-between font-bold text-sm pt-2">
                 <span>Total</span>
-                <span className="text-primary">{formatCurrency(cartTotal)}</span>
+                <span style={{ color: themeColor }}>{formatCurrency(cartTotal)}</span>
               </div>
-              <Button className="w-full bg-primary text-primary-foreground" onClick={() => { setShowCart(false); setShowCheckout(true); }}>
+              <Button className="w-full text-white" style={{ backgroundColor: themeColor }}
+                onClick={() => { setShowCart(false); setShowCheckout(true); }}>
                 Proceed to Checkout
               </Button>
             </div>
@@ -338,7 +349,7 @@ export default function Storefront() {
 
       {/* Checkout Dialog */}
       <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle>Checkout</DialogTitle>
             <DialogDescription>Complete your order details below.</DialogDescription>
@@ -346,32 +357,32 @@ export default function Storefront() {
           <div className="space-y-4 mt-2">
             <div className="space-y-2">
               <Label className="text-xs font-semibold">Full Name *</Label>
-              <Input value={checkoutForm.name} onChange={(e) => setCheckoutForm((f) => ({ ...f, name: e.target.value }))} />
+              <Input value={checkoutForm.name} onChange={(e) => setCheckoutForm((f) => ({ ...f, name: e.target.value }))} className="rounded-lg" />
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-semibold">Email *</Label>
-              <Input type="email" value={checkoutForm.email} onChange={(e) => setCheckoutForm((f) => ({ ...f, email: e.target.value }))} />
+              <Input type="email" value={checkoutForm.email} onChange={(e) => setCheckoutForm((f) => ({ ...f, email: e.target.value }))} className="rounded-lg" />
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-semibold">Phone *</Label>
-              <Input value={checkoutForm.phone} onChange={(e) => setCheckoutForm((f) => ({ ...f, phone: e.target.value }))} />
+              <Input value={checkoutForm.phone} onChange={(e) => setCheckoutForm((f) => ({ ...f, phone: e.target.value }))} className="rounded-lg" />
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-semibold">Delivery Address</Label>
-              <Input value={checkoutForm.address} onChange={(e) => setCheckoutForm((f) => ({ ...f, address: e.target.value }))} />
+              <Input value={checkoutForm.address} onChange={(e) => setCheckoutForm((f) => ({ ...f, address: e.target.value }))} className="rounded-lg" />
             </div>
             <div className="border-t border-border pt-3">
               <div className="flex justify-between font-bold text-sm mb-1">
                 <span>Total</span>
-                <span className="text-primary">{formatCurrency(cartTotal)}</span>
+                <span style={{ color: themeColor }}>{formatCurrency(cartTotal)}</span>
               </div>
               <p className="text-[10px] text-muted-foreground">You'll be redirected to Paystack to complete payment.</p>
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1" onClick={() => { setShowCheckout(false); setShowCart(true); }}>
+              <Button variant="outline" className="flex-1 rounded-lg" onClick={() => { setShowCheckout(false); setShowCart(true); }}>
                 <ArrowLeft className="h-3 w-3 mr-1" /> Back
               </Button>
-              <Button className="flex-1 bg-primary text-primary-foreground" onClick={handleCheckout} disabled={submitting}>
+              <Button className="flex-1 rounded-lg text-white" style={{ backgroundColor: themeColor }} onClick={handleCheckout} disabled={submitting}>
                 {submitting ? "Processing..." : "Pay Now"}
               </Button>
             </div>
