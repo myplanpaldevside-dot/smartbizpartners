@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,14 +27,16 @@ export default function Auth() {
   }, [user, navigate]);
 
   const handleGoogleSignIn = async () => {
-    const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/smartbooks`,
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/smartbooks`,
+      },
     });
     if (error) {
       toast({ title: "Error", description: String(error), variant: "destructive" });
-    } else {
-      navigate("/smartbooks");
     }
+    // No navigate here — the OAuth redirect takes over; onAuthStateChange handles the rest
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
