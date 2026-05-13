@@ -45,7 +45,11 @@ export default function SmartBooksLayout() {
     if (error) {
       toast({ title: "Failed to save", description: error.message, variant: "destructive" });
     } else {
-      await refreshProfile();
+      try {
+        await refreshProfile();
+      } catch {
+        // profile will reload on next render
+      }
       toast({ title: "Welcome to SmartBooks!" });
     }
   };

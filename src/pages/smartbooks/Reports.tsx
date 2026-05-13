@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { BarChart3, Receipt, Users, Wallet } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, Pie, PieChart, XAxis } from "recharts";
@@ -37,6 +38,7 @@ const monthLabel = (date: Date) =>
 
 export default function Reports() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
   const [expenses, setExpenses] = useState<ExpenseRow[]>([]);
@@ -56,6 +58,10 @@ export default function Reports() {
         supabase.from("expenses").select("amount,category,date").eq("user_id", user.id),
         supabase.from("customers").select("created_at").eq("user_id", user.id),
       ]);
+
+      if (invoiceRes.error) toast({ title: "Failed to load invoice data", description: invoiceRes.error.message, variant: "destructive" });
+      if (expenseRes.error) toast({ title: "Failed to load expense data", description: expenseRes.error.message, variant: "destructive" });
+      if (customerRes.error) toast({ title: "Failed to load customer data", description: customerRes.error.message, variant: "destructive" });
 
       setInvoices((invoiceRes.data as InvoiceRow[] | null) || []);
       setExpenses((expenseRes.data as ExpenseRow[] | null) || []);

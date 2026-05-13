@@ -140,7 +140,7 @@ export default function Storefront() {
 
     const typedOrder = order as unknown as { id: string };
 
-    await supabase.from("store_order_items").insert(
+    const { error: itemsError } = await supabase.from("store_order_items").insert(
       cart.map((c) => ({
         order_id: typedOrder.id,
         product_id: c.product.id,
@@ -150,6 +150,11 @@ export default function Storefront() {
         amount: c.product.price * c.quantity,
       }))
     );
+    if (itemsError) {
+      toast({ title: "Failed to save order items", description: itemsError.message, variant: "destructive" });
+      setSubmitting(false);
+      return;
+    }
 
     try {
       const { data: payData, error: payError } = await supabase.functions.invoke("store-checkout", {

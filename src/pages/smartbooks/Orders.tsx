@@ -34,19 +34,23 @@ export default function Orders() {
   useEffect(() => { if (user) fetchOrders(); }, [user]);
 
   const fetchOrders = async () => {
-    const { data } = await supabase.from("store_orders").select("*").eq("store_user_id", user!.id).order("created_at", { ascending: false });
-    if (data) setOrders(data as unknown as Order[]);
+    const { data, error } = await supabase.from("store_orders").select("*").eq("store_user_id", user!.id).order("created_at", { ascending: false });
+    if (error) toast({ title: "Failed to load orders", description: error.message, variant: "destructive" });
+    else if (data) setOrders(data as unknown as Order[]);
     setLoading(false);
   };
 
   const viewOrder = async (order: Order) => {
     setSelectedOrder(order);
-    const { data } = await supabase.from("store_order_items").select("*").eq("order_id", order.id);
-    if (data) setOrderItems(data as unknown as OrderItem[]);
+    setOrderItems([]);
+    const { data, error } = await supabase.from("store_order_items").select("*").eq("order_id", order.id);
+    if (error) toast({ title: "Failed to load order items", description: error.message, variant: "destructive" });
+    else if (data) setOrderItems(data as unknown as OrderItem[]);
   };
 
   const updateOrderStatus = async (orderId: string, status: string) => {
-    await supabase.from("store_orders").update({ status, updated_at: new Date().toISOString() }).eq("id", orderId);
+    const { error } = await supabase.from("store_orders").update({ status, updated_at: new Date().toISOString() }).eq("id", orderId);
+    if (error) { toast({ title: "Failed to update status", description: error.message, variant: "destructive" }); return; }
     toast({ title: `Order marked as ${status}` });
     await fetchOrders();
     if (selectedOrder?.id === orderId) setSelectedOrder((o) => o ? { ...o, status } : null);
