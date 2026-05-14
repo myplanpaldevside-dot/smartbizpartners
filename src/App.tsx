@@ -22,6 +22,7 @@ const Inventory = lazy(() => import("./pages/smartbooks/Inventory"));
 const Quotes = lazy(() => import("./pages/smartbooks/Quotes"));
 
 const Auth = lazy(() => import("./pages/smartbooks/Auth"));
+const AuthCallback = lazy(() => import("./pages/smartbooks/AuthCallback"));
 const Pricing = lazy(() => import("./pages/smartbooks/Pricing"));
 const AdminDashboard = lazy(() => import("./pages/smartbooks/AdminDashboard"));
 const ResetPassword = lazy(() => import("./pages/smartbooks/ResetPassword"));
@@ -87,6 +88,7 @@ const App = () => (
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/smartbooks/auth" element={<Auth />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/smartbooks/pricing" element={<Pricing />} />
               <Route
                 path="/smartbooks"
