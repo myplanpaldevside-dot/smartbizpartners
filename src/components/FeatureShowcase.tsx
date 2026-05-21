@@ -4,86 +4,124 @@ import { Link } from "react-router-dom";
 
 const features = [
   {
-    title: "Create invoices, share receipts & track payments easily",
-    desc: "Generate professional invoices in seconds, send receipts via WhatsApp, and never lose track of who owes you what.",
+    number: "01",
+    title: "Invoicing & Receipts",
+    tagline: "Get paid faster",
+    desc: "Create a professional invoice in under 60 seconds, send it via WhatsApp or email, and receive instant alerts when payment lands. No more tracking who owes you in your head.",
+    callout: "₦1M+ processed weekly",
     icon: FileText,
     link: "/smartbooks/invoices",
-    badge: "Live",
+    iconColor: "bg-orange-500/10 text-orange-500 border-orange-500/20",
   },
   {
-    title: "Stay ahead with real-time expense & profit analytics",
-    desc: "Log expenses, track revenue streams, and see your real profit margins at a glance. Know exactly where your money goes.",
+    number: "02",
+    title: "Expense & Profit Tracking",
+    tagline: "Know your real margins",
+    desc: "Log every naira in and out, tag by category, and instantly see true profit. Most business owners are shocked the first time they see their real numbers — in a good way.",
+    callout: "Average ₦180k/mo recovered",
     icon: Calculator,
     link: "/smartbooks/expenses",
-    badge: "Live",
+    iconColor: "bg-blue-500/10 text-blue-500 border-blue-500/20",
   },
   {
-    title: "Save customer details & keep them coming back",
-    desc: "Record customer details with purchase history, shipping addresses, and contact info. Never miss a follow-up again.",
+    number: "03",
+    title: "Customer Management",
+    tagline: "Build lasting relationships",
+    desc: "Every customer's history, contact details, and purchase patterns in one place. Send targeted follow-ups, spot repeat buyers early, and never let a hot lead go cold.",
+    callout: "2× repeat customer rate",
     icon: Users,
     link: "/smartbooks/crm",
-    badge: "Live",
+    iconColor: "bg-purple-500/10 text-purple-500 border-purple-500/20",
   },
   {
-    title: "Have full visibility on your business operations",
-    desc: "One dashboard to view sales, inventory, expenses & analytics. Stop running your business blindly.",
+    number: "04",
+    title: "Business Dashboard",
+    tagline: "Your numbers at a glance",
+    desc: "One clear view of sales, inventory levels, expenses, and growth trends. Stop running your business on gut feeling — make decisions backed by real data.",
+    callout: "10-second daily review",
     icon: BarChart3,
     link: "/smartbooks",
-    badge: "Live",
+    iconColor: "bg-primary/10 text-primary border-primary/20",
   },
 ];
 
 const FeatureShowcase = () => (
-  <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-6 md:px-12 bg-background">
+  <section className="py-20 sm:py-32 px-4 sm:px-6 md:px-12 bg-background">
     <div className="max-w-6xl mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        className="text-center mb-16"
+        transition={{ duration: 0.7 }}
+        className="mb-16 sm:mb-20"
       >
-        <p className="text-xs font-semibold tracking-[0.3em] text-primary uppercase mb-3">What You Get</p>
-        <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4">
-          Everything your business needs
-        </h2>
-        <p className="text-muted-foreground max-w-lg mx-auto">
-          Tools designed for real businesses, not Silicon Valley startups.
+        <p className="text-xs font-semibold tracking-[0.3em] text-primary uppercase mb-4">
+          What's Inside SmartBiz
         </p>
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-foreground leading-[1.05] max-w-xl">
+            Four tools.
+            <br />
+            One platform.
+            <br />
+            <span className="text-primary">Total control.</span>
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-xs leading-relaxed md:pb-2">
+            Each module works on its own or as part of a fully connected system — your choice, your pace.
+          </p>
+        </div>
       </motion.div>
 
-      <div className="grid sm:grid-cols-2 gap-6">
+      <div className="space-y-3">
         {features.map((feature, i) => {
           const Icon = feature.icon;
           return (
             <motion.div
               key={feature.title}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ delay: i * 0.09, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             >
               <Link
                 to={feature.link}
-                className="group block p-8 sm:p-10 border border-border bg-card rounded-xl hover:border-primary/40 hover:shadow-elevated transition-all duration-500 h-full"
+                className="group flex flex-col sm:flex-row sm:items-center gap-5 p-6 sm:p-8 border border-border bg-card rounded-2xl hover:border-primary/30 hover:shadow-elevated transition-all duration-400"
               >
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <span className="text-[9px] font-bold tracking-[0.2em] uppercase bg-secondary/15 text-secondary px-2.5 py-0.5 rounded-full">
-                    {feature.badge}
-                  </span>
+                {/* Large step number — decorative */}
+                <span className="font-display text-5xl font-bold text-border group-hover:text-primary/15 transition-colors duration-500 min-w-[3.5rem] leading-none hidden sm:block select-none">
+                  {feature.number}
+                </span>
+
+                {/* Icon */}
+                <div
+                  className={`w-12 h-12 rounded-xl border flex items-center justify-center shrink-0 transition-all duration-300 ${feature.iconColor}`}
+                >
+                  <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="font-display text-xl sm:text-2xl font-bold text-foreground leading-tight mb-3 group-hover:text-primary transition-colors">
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-                  {feature.desc}
-                </p>
-                <div className="inline-flex items-center gap-2 text-sm font-semibold text-primary group-hover:gap-3 transition-all">
-                  Try it now
-                  <ArrowRight className="h-4 w-4" />
+
+                {/* Text content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-baseline gap-2 mb-1.5">
+                    <h3 className="font-display font-bold text-lg sm:text-xl text-foreground group-hover:text-primary transition-colors duration-300">
+                      {feature.title}
+                    </h3>
+                    <span className="text-xs text-muted-foreground">
+                      · {feature.tagline}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {feature.desc}
+                  </p>
+                </div>
+
+                {/* Right side */}
+                <div className="flex items-center gap-5 shrink-0">
+                  <div className="hidden lg:block text-right">
+                    <p className="text-xs font-semibold text-primary whitespace-nowrap">
+                      {feature.callout}
+                    </p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
                 </div>
               </Link>
             </motion.div>

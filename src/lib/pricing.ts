@@ -1,4 +1,4 @@
-export type PricingTierKey = "starter" | "growth" | "premium";
+export type PricingTierKey = "smartbooks";
 
 export interface PricingTier {
   key: PricingTierKey;
@@ -15,52 +15,28 @@ export interface PricingTier {
 
 export const pricingTiers: PricingTier[] = [
   {
-    key: "starter",
-    label: "Starter Plan",
-    badge: "🟢 Easy entry",
-    planName: "Starter Plan",
-    monthlyPrice: 25000,
-    priceLabel: "₦25k",
-    summary: "Basic branding or a simple website for SMEs getting started.",
-    cta: "Start with Starter",
-    features: [
-      "Basic branding or simple website",
-      "1–2 services only",
-      "Essential business setup",
-      "Simple onboarding support",
-    ],
-  },
-  {
-    key: "growth",
-    label: "Growth Plan",
-    badge: "🟡 Main seller",
-    planName: "Growth Plan",
-    monthlyPrice: 60000,
-    priceLabel: "₦60k",
-    summary: "Branding + website or marketing setup for businesses ready to scale.",
+    key: "smartbooks",
+    label: "SmartBooks",
+    badge: "Full Access",
+    planName: "SmartBooks",
+    monthlyPrice: 20000,
+    priceLabel: "₦20,000",
+    summary: "Everything you need to run, track, and grow your business — one flat price, no limits.",
     highlight: true,
-    cta: "Choose Growth",
+    cta: "Start Free Trial",
     features: [
-      "Branding + website or marketing setup",
-      "Stronger online presence",
-      "Better conversion-focused setup",
-      "Best balance of value and scale",
-    ],
-  },
-  {
-    key: "premium",
-    label: "Premium Plan",
-    badge: "🔵 Full package",
-    planName: "Premium Plan",
-    monthlyPrice: 100000,
-    priceLabel: "₦100k+",
-    summary: "Full package with branding, website, content, and priority support.",
-    cta: "Go Premium",
-    features: [
-      "Branding + website + content + support",
-      "Priority handling and deeper support",
-      "Full business toolkit access",
-      "Built for serious businesses",
+      "Unlimited Invoices & Receipts",
+      "Expense & Profit Tracking",
+      "Customer CRM",
+      "Inventory Management",
+      "Business Analytics Dashboard",
+      "Multi-Currency Support",
+      "Payment Reminders",
+      "Business Storefront",
+      "Quotes & Proposals",
+      "Data Export & Reports",
+      "Mobile-Friendly Dashboard",
+      "Priority Support",
     ],
   },
 ];

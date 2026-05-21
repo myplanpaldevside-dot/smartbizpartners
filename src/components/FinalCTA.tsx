@@ -61,15 +61,15 @@ const FinalCTA = () => {
           viewport={{ once: true }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
         >
-          <p className="text-xs font-semibold tracking-[0.3em] text-primary uppercase mb-8">Let's Work Together</p>
+          <p className="text-xs font-semibold tracking-[0.3em] text-primary uppercase mb-8">Ready to take control?</p>
           <h2 className="font-display text-5xl md:text-[8vw] font-bold text-foreground leading-[0.85] mb-4">
-            Smart businesses
+            Your business
           </h2>
           <h2 className="font-display text-5xl md:text-[8vw] font-bold leading-[0.85] mb-4 text-stroke">
-            don't grow by
+            deserves better
           </h2>
           <h2 className="font-display text-5xl md:text-[8vw] font-bold text-foreground leading-[0.85] mb-8">
-            accident<span className="text-primary">.</span>
+            tools<span className="text-primary">.</span>
           </h2>
 
           <motion.p
@@ -79,7 +79,7 @@ const FinalCTA = () => {
             transition={{ delay: 0.3, duration: 0.7 }}
             className="font-display text-2xl md:text-4xl font-bold text-primary mb-14"
           >
-            They grow with structure.
+            Start free. Grow fast. No excuses.
           </motion.p>
 
           <motion.div

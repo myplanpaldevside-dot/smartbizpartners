@@ -4,24 +4,24 @@ import { ArrowUpRight } from "lucide-react";
 const columns = [
   {
     letter: "A",
-    title: "Premium Execution Services",
-    desc: "Professional digital solutions at SME-friendly prices — from websites to growth funnels.",
-    items: ["Website Development", "Branding & Content Creation", "Growth Funnels", "Retainer Services"],
-    badge: "Active",
+    title: "SmartBooks Platform",
+    desc: "Your all-in-one business command center — invoicing, expenses, CRM, inventory, and analytics in one clean dashboard.",
+    items: ["Invoice & Receipt Builder", "Expense Tracker", "Customer CRM", "Business Analytics"],
+    badge: "Live Now",
   },
   {
     letter: "B",
-    title: "Business Education",
-    desc: "Hands-on learning designed for African entrepreneurs who want real, actionable growth.",
-    items: ["Bootcamps", "Courses", "Templates", "Masterclasses"],
+    title: "Growth Services",
+    desc: "Professional digital solutions priced for SMEs — not agency budgets. Websites, branding, and growth funnels that convert.",
+    items: ["Website Development", "Branding & Identity", "Growth Funnels", "Retainer Packages"],
     badge: "Active",
   },
   {
     letter: "C",
-    title: "SmartBiz Platform",
-    desc: "The subscription engine for sustained SME growth — dashboards, tools, and community.",
-    items: ["SME Dashboard", "Subscription Tools", "Growth Tracking", "Community Support"],
-    badge: "Coming Soon",
+    title: "Business Education",
+    desc: "Practical, no-fluff learning for African entrepreneurs. Bootcamps, templates, and masterclasses that drive real results.",
+    items: ["Bootcamps", "Online Courses", "Business Templates", "Masterclasses"],
+    badge: "Active",
   },
 ];
 
@@ -36,17 +36,25 @@ const SolutionSection = () => (
         className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-20"
       >
         <div>
-          <p className="text-xs font-semibold tracking-[0.3em] text-emerald uppercase mb-4">Our Services</p>
+          <p className="text-xs font-semibold tracking-[0.3em] text-emerald uppercase mb-4">What We Offer</p>
           <h2 className="font-display text-5xl md:text-8xl font-bold leading-[0.9]">
-            A Complete<br />Growth <span style={{ WebkitTextStroke: "2px hsl(160 84% 39%)", color: "transparent" }}>Ecosystem</span>
+            Everything your<br />
+            business needs to{" "}
+            <span style={{ WebkitTextStroke: "2px hsl(160 84% 39%)", color: "transparent" }}>
+              thrive.
+            </span>
           </h2>
         </div>
         <div className="flex flex-col items-start gap-4">
           <p className="text-sm text-primary-foreground/50 max-w-sm leading-relaxed">
-            If you're looking for clarity in growth, let's build it together.
+            Tools, services, and education — working together so you never have to choose.
           </p>
-          <a href="#contact" className="flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-emerald hover:text-primary-foreground transition-colors group">
-            GET STARTED <ArrowUpRight className="h-3 w-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          <a
+            href="#contact"
+            className="flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-emerald hover:text-primary-foreground transition-colors group"
+          >
+            GET STARTED{" "}
+            <ArrowUpRight className="h-3 w-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </a>
         </div>
       </motion.div>
@@ -62,16 +70,16 @@ const SolutionSection = () => (
             className="border-t border-primary-foreground/10 py-12 md:py-16 grid md:grid-cols-12 gap-8 items-start group hover:bg-primary-foreground/5 transition-colors duration-500 px-4 -mx-4"
           >
             <div className="md:col-span-1">
-              <span className="font-display text-5xl font-bold text-emerald group-hover:text-primary-foreground transition-colors duration-500">{col.letter}/</span>
+              <span className="font-display text-5xl font-bold text-emerald group-hover:text-primary-foreground transition-colors duration-500">
+                {col.letter}/
+              </span>
             </div>
             <div className="md:col-span-5">
               <div className="flex items-center gap-3 mb-4">
                 <h3 className="font-display font-bold text-2xl md:text-3xl">{col.title}</h3>
-                {col.badge === "Coming Soon" && (
-                  <span className="text-[10px] font-semibold tracking-wider uppercase bg-emerald/20 text-emerald px-3 py-1">
-                    Soon
-                  </span>
-                )}
+                <span className="text-[10px] font-semibold tracking-wider uppercase bg-emerald/20 text-emerald px-3 py-1">
+                  {col.badge}
+                </span>
               </div>
               <p className="text-sm text-primary-foreground/50 leading-relaxed">{col.desc}</p>
             </div>

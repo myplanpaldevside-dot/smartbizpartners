@@ -1,9 +1,21 @@
 import { motion } from "framer-motion";
 
 const steps = [
-  { num: "01", title: "Discovery", desc: "We start by listening. Understanding your goals, audience, and challenges — finding clarity before we begin building." },
-  { num: "02", title: "Build", desc: "Ideas take form. From websites to brand identity, we design, prototype, and develop with precision and care." },
-  { num: "03", title: "Scale", desc: "Delivery is only the beginning. We provide growth tools, analytics, and support to ensure your business thrives." },
+  {
+    num: "01",
+    title: "Sign Up Free",
+    desc: "Create your SmartBiz account in under 2 minutes — no credit card, no commitments. Your business dashboard is ready immediately.",
+  },
+  {
+    num: "02",
+    title: "Set Up Your Business",
+    desc: "Add your business name, logo, and products. Create your first invoice or log your first expense. Takes under 5 minutes.",
+  },
+  {
+    num: "03",
+    title: "Run and Grow",
+    desc: "Track every sale, expense, and customer from one dashboard. Let the analytics show you exactly where to focus for growth.",
+  },
 ];
 
 const HowItWorksSection = () => (
@@ -17,21 +29,24 @@ const HowItWorksSection = () => (
         className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-20"
       >
         <div>
-          <p className="text-xs font-semibold tracking-[0.3em] text-muted-foreground uppercase mb-4">The Process</p>
+          <p className="text-xs font-semibold tracking-[0.3em] text-muted-foreground uppercase mb-4">
+            Getting Started
+          </p>
           <h2 className="font-display text-5xl md:text-8xl font-bold text-foreground leading-[0.9]">
-            How We <span className="text-stroke-emerald">Work</span>
+            Up and running
+            <br />
+            in{" "}
+            <span className="text-stroke-emerald">minutes.</span>
           </h2>
         </div>
         <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
-          A proven methodology refined through dozens of projects with ambitious African brands.
+          No lengthy onboarding, no training sessions. SmartBiz is built to be picked up and used immediately.
         </p>
       </motion.div>
 
-      {/* Interactive numbered process */}
       <div className="relative">
-        {/* Vertical line connector */}
         <div className="absolute left-8 md:left-12 top-0 bottom-0 w-[1px] bg-border hidden md:block" />
-        
+
         {steps.map((s, i) => (
           <motion.div
             key={s.num}
@@ -41,20 +56,16 @@ const HowItWorksSection = () => (
             transition={{ delay: i * 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="relative grid md:grid-cols-12 gap-6 md:gap-12 py-12 md:py-16 border-b border-border group cursor-default"
           >
-            {/* Number */}
             <div className="md:col-span-2 flex items-start">
               <span className="font-display text-7xl md:text-9xl font-bold text-emerald/10 group-hover:text-emerald/30 transition-all duration-700 leading-none">
                 {s.num}
               </span>
             </div>
-            
-            {/* Content */}
             <div className="md:col-span-4 flex items-center">
               <h3 className="font-display font-bold text-3xl md:text-4xl text-foreground group-hover:text-emerald transition-colors duration-500">
                 {s.title}
               </h3>
             </div>
-            
             <div className="md:col-span-6 flex items-center">
               <p className="text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-500">
                 {s.desc}

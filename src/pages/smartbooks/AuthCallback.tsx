@@ -6,6 +6,15 @@ export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // If Supabase/Google returned an error in the URL, bail out immediately
+    const params = new URLSearchParams(window.location.search);
+    const urlError = params.get("error") || params.get("error_description");
+    if (urlError) {
+      console.error("OAuth callback error:", urlError);
+      navigate("/smartbooks/auth?error=" + encodeURIComponent(urlError), { replace: true });
+      return;
+    }
+
     // Supabase detects the ?code= param and exchanges it for a session automatically.
     // onAuthStateChange fires with SIGNED_IN once that's done.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -21,7 +30,15 @@ export default function AuthCallback() {
       if (session) navigate("/smartbooks", { replace: true });
     });
 
-    return () => subscription.unsubscribe();
+    // Safety net: if nothing fires after 8 seconds, redirect to auth
+    const timeout = setTimeout(() => {
+      navigate("/smartbooks/auth", { replace: true });
+    }, 8000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, [navigate]);
 
   return (
