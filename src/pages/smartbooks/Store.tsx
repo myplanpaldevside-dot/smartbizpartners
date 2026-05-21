@@ -55,7 +55,7 @@ export default function Store() {
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
-  const withTimeout = async <T,>(operation: PromiseLike<T>, timeoutMs = 10000): Promise<T> => {
+  const withTimeout = async <T,>(operation: PromiseLike<T>, timeoutMs = 30000): Promise<T> => {
     return await Promise.race([
       Promise.resolve(operation),
       new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Request timed out. Please try again.")), timeoutMs)),
