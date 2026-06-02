@@ -11,9 +11,9 @@ serve(async (req) => {
   }
 
   try {
-    const { email, amount, order_id, order_number, store_name, store_slug } = await req.json();
+    const { email, order_id, order_number, store_name, store_slug } = await req.json();
 
-    if (!email || !amount || !order_id) {
+    if (!email || !order_id) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -28,6 +28,37 @@ serve(async (req) => {
       );
     }
 
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    // SECURITY: Never trust the client-supplied amount. Fetch the real order
+    // total from the database using the service role and charge exactly that.
+    const orderRes = await fetch(
+      `${supabaseUrl}/rest/v1/store_orders?id=eq.${order_id}&select=total,order_number,payment_status`,
+      {
+        headers: {
+          Authorization: `Bearer ${supabaseKey}`,
+          apikey: supabaseKey,
+        },
+      }
+    );
+    const orders = await orderRes.json();
+    if (!Array.isArray(orders) || orders.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Order not found" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const order = orders[0];
+    const trustedAmount = Number(order.total);
+    if (!Number.isFinite(trustedAmount) || trustedAmount <= 0) {
+      return new Response(
+        JSON.stringify({ error: "Invalid order total" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const response = await fetch("https://api.paystack.co/transaction/initialize", {
       method: "POST",
       headers: {
@@ -36,13 +67,13 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         email,
-        amount: Math.round(amount * 100), // Convert to kobo
+        amount: Math.round(trustedAmount * 100), // Convert verified total to kobo
         currency: "NGN",
-        reference: `STORE-${order_number}-${Date.now()}`,
+        reference: `STORE-${order.order_number || order_number}-${Date.now()}`,
         callback_url: `${req.headers.get("origin") || "https://smartbiz.team"}/store/order-success?order_id=${order_id}&slug=${store_slug || ""}`,
         metadata: {
           order_id,
-          order_number,
+          order_number: order.order_number || order_number,
           store_name,
           type: "store_order",
         },
@@ -59,9 +90,6 @@ serve(async (req) => {
     }
 
     // Update order with payment reference
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
     await fetch(`${supabaseUrl}/rest/v1/store_orders?id=eq.${order_id}`, {
       method: "PATCH",
       headers: {
