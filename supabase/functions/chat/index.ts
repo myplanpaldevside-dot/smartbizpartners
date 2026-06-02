@@ -47,6 +47,26 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+    // Input validation to limit abuse of this public marketing widget.
+    if (!Array.isArray(messages) || messages.length === 0 || messages.length > 20) {
+      return new Response(
+        JSON.stringify({ error: "Invalid request" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const sanitized = messages.map((m) => {
+      const role = m?.role === "assistant" ? "assistant" : "user";
+      const content = typeof m?.content === "string" ? m.content.slice(0, 2000) : "";
+      return { role, content };
+    });
+    if (sanitized.some((m) => m.content.trim().length === 0)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid request" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
       {
