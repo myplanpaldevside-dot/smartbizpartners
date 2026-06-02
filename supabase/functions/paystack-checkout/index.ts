@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,11 +18,66 @@ serve(async (req) => {
       throw new Error("Paystack API key not configured");
     }
 
-    const { email, amount, plan_name } = await req.json();
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    if (!email || !amount) {
+    // SECURITY: Require a valid authenticated user.
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return new Response(
-        JSON.stringify({ error: "Email and amount are required" }),
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const token = authHeader.replace("Bearer ", "");
+    const authClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: claims, error: authError } = await authClient.auth.getClaims(token);
+    if (authError || !claims?.claims) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const userEmail = claims.claims.email as string | undefined;
+    const { plan_name } = await req.json();
+
+    if (!plan_name) {
+      return new Response(
+        JSON.stringify({ error: "plan_name is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    if (!userEmail) {
+      return new Response(
+        JSON.stringify({ error: "No email associated with this account" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // SECURITY: Never trust a client-supplied amount. Look up the real plan
+    // price from the database and charge exactly that.
+    const adminClient = createClient(supabaseUrl, serviceKey);
+    const { data: plan, error: planError } = await adminClient
+      .from("subscription_plans")
+      .select("price, currency, name")
+      .eq("name", plan_name)
+      .maybeSingle();
+
+    if (planError || !plan) {
+      return new Response(
+        JSON.stringify({ error: "Selected plan is not available" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const trustedAmountKobo = Math.round(Number(plan.price) * 100);
+    if (!Number.isFinite(trustedAmountKobo) || trustedAmountKobo <= 0) {
+      return new Response(
+        JSON.stringify({ error: "Invalid plan price" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -30,13 +86,14 @@ serve(async (req) => {
     const callbackUrl = origin ? `${origin}/smartbooks` : undefined;
 
     const payload: Record<string, unknown> = {
-      email,
-      amount,
-      currency: "NGN",
+      // Always charge the authenticated user's own email
+      email: userEmail,
+      amount: trustedAmountKobo,
+      currency: plan.currency || "NGN",
       metadata: {
-        plan_name,
+        plan_name: plan.name,
         custom_fields: [
-          { display_name: "Plan", variable_name: "plan", value: plan_name },
+          { display_name: "Plan", variable_name: "plan", value: plan.name },
         ],
       },
     };
