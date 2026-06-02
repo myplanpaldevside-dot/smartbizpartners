@@ -18,27 +18,31 @@ serve(async (req) => {
     if (!PAYSTACK_KEY) throw new Error("Paystack key not configured");
 
     const body = await req.text();
-    
-    // Verify Paystack signature
+
+    // SECURITY: Signature verification is MANDATORY. Reject any request that
+    // does not carry a valid HMAC-SHA512 signature so attackers cannot forge events.
     const signature = req.headers.get("x-paystack-signature");
-    if (signature) {
-      const encoder = new TextEncoder();
-      const key = await crypto.subtle.importKey(
-        "raw",
-        encoder.encode(PAYSTACK_KEY),
-        { name: "HMAC", hash: "SHA-512" },
-        false,
-        ["sign"]
-      );
-      const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(body));
-      const hash = Array.from(new Uint8Array(sig))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-      
-      if (hash !== signature) {
-        console.error("Invalid Paystack signature");
-        return new Response("Invalid signature", { status: 401 });
-      }
+    if (!signature) {
+      console.error("Missing Paystack signature");
+      return new Response("Missing signature", { status: 401, headers: corsHeaders });
+    }
+
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      "raw",
+      encoder.encode(PAYSTACK_KEY),
+      { name: "HMAC", hash: "SHA-512" },
+      false,
+      ["sign"]
+    );
+    const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(body));
+    const hash = Array.from(new Uint8Array(sig))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    if (hash !== signature) {
+      console.error("Invalid Paystack signature");
+      return new Response("Invalid signature", { status: 401, headers: corsHeaders });
     }
 
     const event = JSON.parse(body);
