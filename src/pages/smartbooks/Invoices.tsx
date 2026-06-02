@@ -105,7 +105,6 @@ export default function Invoices() {
     setCustomerName(c.name);
     setCustomerEmail(c.email || "");
     setCustomerPhone(c.phone || "");
-    setCustomerAddress(c.address || "");
     setShowCustomerPicker(false);
     setCustomerPickerSearch("");
   };
