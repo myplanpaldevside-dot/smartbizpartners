@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartBiz Partners — PRD & FRD</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; line-height: 1.7; color: #1a1a1a; background: #fff; padding: 0; }
+  .container { max-width: 860px; margin: 0 auto; padding: 48px 40px; }
+  h1 { font-size: 26px; font-weight: 800; color: #111; margin: 32px 0 8px; padding-bottom: 10px; border-bottom: 3px solid #18181b; }
+  h2 { font-size: 20px; font-weight: 700; color: #18181b; margin: 28px 0 8px; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
+  h3 { font-size: 16px; font-weight: 700; color: #374151; margin: 22px 0 6px; }
+  h4 { font-size: 14px; font-weight: 600; color: #4b5563; margin: 16px 0 4px; }
+  p { margin: 8px 0; }
+  ul, ol { margin: 8px 0 8px 24px; }
+  li { margin: 4px 0; }
+  code { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 4px; padding: 1px 5px; font-family: 'SF Mono', Menlo, Monaco, 'Courier New', monospace; font-size: 11.5px; color: #374151; }
+  pre { background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 16px; margin: 12px 0; overflow-x: auto; }
+  pre code { background: none; border: none; padding: 0; font-size: 11px; color: #1f2937; }
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 24px 0; }
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+  a { color: #2563eb; text-decoration: underline; }
+  .cover { text-align: center; padding: 60px 0 40px; border-bottom: 2px solid #18181b; margin-bottom: 40px; }
+  .cover h1 { border: none; font-size: 30px; margin: 0 0 12px; }
+  .cover .meta { color: #6b7280; font-size: 13px; }
+  @media print {
+    body { font-size: 12px; }
+    .container { padding: 20px 24px; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 17px; }
+    h3 { font-size: 14px; }
+    pre { font-size: 10px; }
+    a { color: #1a1a1a; text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>SmartBiz Partners — Product & Functional Requirements Document</h1>
+<p><strong>Version:</strong> 1.0  <br><strong>Date:</strong> May 2026  <br><strong>Product:</strong> SmartBiz Partners  <br><strong>Live URL:</strong> https://smartbiz.team</p>
+<hr>
+<h2>TABLE OF CONTENTS</h2>
+<ol>
+<li><a href="#prd">Product Requirements Document (PRD)</a></li>
+<p>- Product Overview<br>   - Problem Statement<br>   - Target Users<br>   - Goals & Success Metrics<br>   - User Stories<br>   - Non-Functional Requirements</p>
+</ol>
+<ol>
+<li><a href="#frd">Functional Requirements Document (FRD)</a></li>
+<p>- System Architecture<br>   - Authentication & User Management<br>   - Dashboard<br>   - Invoices<br>   - Quotes<br>   - Expenses<br>   - CRM (Customers)<br>   - Inventory<br>   - Online Store<br>   - Orders<br>   - Reports & Analytics<br>   - AI Assistant<br>   - Admin Panel<br>   - Data Models<br>   - Integrations<br>   - Security Requirements</p>
+</ol>
+<hr>
+<h1>PART 1 — PRODUCT REQUIREMENTS DOCUMENT (PRD)</h1>
+<hr>
+<h2>1. Product Overview</h2>
+<p>SmartBiz Partners is an all-in-one business management web application built specifically for Nigerian small and medium-sized enterprises (SMEs). It combines invoicing, expense tracking, CRM, inventory management, and an online storefront into a single, clean, mobile-friendly platform — removing the need for multiple disconnected tools.</p>
+<p><strong>Live at:</strong> https://smartbiz.team  <br><strong>Tech Stack:</strong> React 18, TypeScript, Vite, Supabase (PostgreSQL + Auth + Storage), Paystack, Tailwind CSS, shadcn/ui, Framer Motion</p>
+<hr>
+<h2>2. Problem Statement</h2>
+<p>Nigerian SMEs operate in a fragmented tool landscape:</p>
+<ul>
+<li>They send invoices via WhatsApp screenshots or Excel</li>
+<li>They track expenses in paper notebooks or personal spreadsheets</li>
+<li>They manage customer contacts in phone books or scattered notes</li>
+<li>They have no visibility into stock levels until items run out</li>
+<li>They have no affordable way to sell online without building a separate website</li>
+</ul>
+<p>The result is lost revenue, disorganised operations, and no real data to make business decisions.</p>
+<p><strong>SmartBiz Partners solves this by providing a single, affordable platform designed for how Nigerian businesses actually operate.</strong></p>
+<hr>
+<h2>3. Target Users</h2>
+<h3>Primary Users — Small Business Owners</h3>
+<ul>
+<li>Fashion designers, tailors, boutique owners</li>
+<li>Food vendors, caterers, bakeries</li>
+<li>Electronics & phone accessory retailers</li>
+<li>Beauty, hair, and cosmetics sellers</li>
+<li>Freelancers and service providers (photographers, web designers, consultants)</li>
+<li>Traders at markets and online</li>
+</ul>
+<h3>Secondary Users — Business Managers / Staff</h3>
+<ul>
+<li>Employees who manage stock, process orders, or issue invoices on behalf of the business owner</li>
+</ul>
+<h3>Geographic Focus</h3>
+<ul>
+<li>Nigeria (primary) — Naira (NGN) currency, Paystack payments, local context</li>
+</ul>
+<hr>
+<h2>4. Goals & Success Metrics</h2>
+<h3>Business Goals</h3>
+<p>| Goal | Metric |<br>|------|--------|<br>| Acquire SME users | Monthly active users (MAU) |<br>| Monetise through subscriptions | Paid subscriber count, MRR |<br>| Prove value before paywall | 14-day free trial → paid conversion rate |<br>| Build store payment GMV | Total store order volume (NGN) |</p>
+<h3>Product Goals</h3>
+<p>| Goal | Metric |<br>|------|--------|<br>| Reduce time to first invoice | < 3 minutes from sign-up to first invoice sent |<br>| Drive store adoption | % of users who activate online store |<br>| Retain users long-term | Monthly retention rate |<br>| Keep app fast on mobile | Page load < 2s on 4G connection |</p>
+<hr>
+<h2>5. User Stories</h2>
+<h3>Authentication</h3>
+<ul>
+<li>As a new user, I can sign up with email + password and get a 14-day free trial</li>
+<li>As a returning user, I can sign in with email + password</li>
+<li>As a user, I can sign in with Google for one-click access</li>
+<li>As a Google user, I am prompted to enter my business name on first login</li>
+<li>As a user, I can reset my password via email</li>
+<li>As a signed-in user visiting the homepage, I am automatically redirected to my dashboard</li>
+</ul>
+<h3>Dashboard</h3>
+<ul>
+<li>As a user, I can see my total revenue, pending invoices, expenses, and net profit at a glance</li>
+<li>As a user, I can see a to-do list of urgent items (unpaid invoices, low stock)</li>
+<li>As a user, I can upload my business logo</li>
+<li>As a user, I can update my business name, email, and phone in settings</li>
+<li>As a user, I can copy and share my store link directly from the dashboard</li>
+</ul>
+<h3>Invoices</h3>
+<ul>
+<li>As a user, I can create a professional invoice with line items, tax, and discount</li>
+<li>As a user, I can auto-fill customer details from my CRM when creating an invoice</li>
+<li>As a user, I can mark invoices as draft, sent, paid, or overdue</li>
+<li>As a user, I can download/print a PDF of any invoice</li>
+<li>As a user, invoices are automatically numbered sequentially (e.g. INV-001)</li>
+</ul>
+<h3>Quotes</h3>
+<ul>
+<li>As a user, I can create a quote (proposal) for a client</li>
+<li>As a user, I can convert a quote to an invoice in one click</li>
+<li>As a user, quotes are numbered with a QT- prefix (e.g. QT-001) and kept separate from invoices</li>
+</ul>
+<h3>Expenses</h3>
+<ul>
+<li>As a user, I can log business expenses with description, amount, category, and date</li>
+<li>As a user, I can categorise expenses (Rent, Utilities, Transport, Salary, Marketing, etc.)</li>
+<li>As a user, I can see total expenses and this month's spend at the top of the page</li>
+<li>As a user, I can delete expense entries with a confirmation dialog</li>
+</ul>
+<h3>CRM (Customers)</h3>
+<ul>
+<li>As a user, I can add customers with name, email, phone, company, and notes</li>
+<li>As a user, when creating an invoice or quote, I can pick a customer to auto-fill their details</li>
+<li>As a user, I can see total customers and how many were added this month</li>
+<li>As a user, I can search customers by name, email, or company</li>
+<li>As a user, I can delete a customer with a confirmation dialog</li>
+</ul>
+<h3>Inventory</h3>
+<ul>
+<li>As a user, I can add products with name, SKU, category, quantity, unit price, and low-stock threshold</li>
+<li>As a user, I can see which products are running low on stock (highlighted in red)</li>
+<li>As a user, I can see the total stock value across all products</li>
+<li>As a user, I can publish any inventory item directly to my online store</li>
+<li>As a user, I can delete products with a confirmation dialog</li>
+</ul>
+<h3>Online Store</h3>
+<ul>
+<li>As a user, I can create a public-facing store with a custom URL slug (e.g. /store/my-store)</li>
+<li>As a user, I can customise my store's appearance: theme color, logo, and banner image</li>
+<li>As a user, I can add products with images, prices, compare-at prices, categories, and stock quantities</li>
+<li>As a user, I can toggle individual products as visible or hidden</li>
+<li>As a user, I can publish or unpublish my store at any time</li>
+<li>As a user, I can copy my store link to share with customers</li>
+</ul>
+<h3>Store (Customer View — Public Storefront)</h3>
+<ul>
+<li>As a customer, I can browse products in a published store without logging in</li>
+<li>As a customer, I can add items to cart and adjust quantities</li>
+<li>As a customer, I can enter my name, email, phone, and delivery address to check out</li>
+<li>As a customer, I am redirected to Paystack to complete payment</li>
+<li>As a customer, I am shown a success page after successful payment</li>
+</ul>
+<h3>Orders</h3>
+<ul>
+<li>As a user, I can see all orders placed in my store</li>
+<li>As a user, I can click an order to see the customer's details and the items they ordered</li>
+<li>As a user, I can update an order's status (pending → confirmed → shipped → delivered → cancelled)</li>
+<li>As a user, I can see the payment status of each order (unpaid / paid)</li>
+</ul>
+<h3>Reports</h3>
+<ul>
+<li>As a user, I can see charts of my revenue trend over the last 6 months</li>
+<li>As a user, I can see a breakdown of expenses by category (pie chart)</li>
+<li>As a user, I can see customer growth over the last 6 months</li>
+<li>As a user, I can see summary cards for paid revenue, pending invoices, total expenses, and total customers</li>
+</ul>
+<h3>AI Assistant</h3>
+<ul>
+<li>As a user, I can chat with an AI business advisor for help with financial decisions, pricing, and business questions</li>
+<li>As a user, the AI has context about my business (name, industry)</li>
+</ul>
+<h3>Admin Panel (Admin users only)</h3>
+<ul>
+<li>As a platform admin, I can view all registered users and their subscription statuses</li>
+<li>As a platform admin, I can see platform-wide usage statistics</li>
+</ul>
+<hr>
+<h2>6. Non-Functional Requirements</h2>
+<h3>Performance</h3>
+<ul>
+<li>Initial page load: < 2 seconds on 4G mobile</li>
+<li>Dashboard data load: < 3 seconds</li>
+<li>All SmartBooks pages use lazy loading (code splitting) to minimise bundle size</li>
+</ul>
+<h3>Availability</h3>
+<ul>
+<li>Target uptime: 99.9% (relying on Supabase and Lovable infrastructure)</li>
+</ul>
+<h3>Mobile Responsiveness</h3>
+<ul>
+<li>The entire app — dashboard, forms, dialogs, storefront — must be fully usable on mobile screens (minimum 375px width)</li>
+</ul>
+<h3>Security</h3>
+<ul>
+<li>All user data isolated by <code>user_id</code> with Row Level Security (RLS) on every Supabase table</li>
+<li>No user can access another user's data via the API</li>
+<li>Auth handled by Supabase Auth (JWTs, secure sessions)</li>
+<li>Paystack payments handled server-side via Edge Functions (secret keys never exposed client-side)</li>
+</ul>
+<h3>Accessibility</h3>
+<ul>
+<li>Keyboard navigable forms and dialogs</li>
+<li>Sufficient colour contrast on all text</li>
+</ul>
+<h3>Localisation</h3>
+<ul>
+<li>Currency: Nigerian Naira (NGN) formatted with <code>Intl.NumberFormat("en-NG")</code></li>
+<li>Date formats: local Nigerian date format</li>
+<li>Phone placeholder: +234 prefix</li>
+</ul>
+<hr>
+<h1>PART 2 — FUNCTIONAL REQUIREMENTS DOCUMENT (FRD)</h1>
+<hr>
+<h2>1. System Architecture</h2>
+<pre><code>┌────────────────────────────────────────────┐
+│              User Browser                  │
+│   React 18 + TypeScript + Vite SPA         │
+│   Deployed via Lovable → smartbiz.team     │
+└────────────────┬───────────────────────────┘
+                 │ HTTPS
+┌────────────────▼───────────────────────────┐
+│              Supabase                      │
+│  ┌──────────┐ ┌──────────┐ ┌────────────┐ │
+│  │ Auth     │ │ Postgres │ │  Storage   │ │
+│  │ (JWT)    │ │ + RLS    │ │  (logos,   │ │
+│  └──────────┘ └──────────┘ │  products) │ │
+│                             └────────────┘ │
+│  ┌─────────────────────────────────────┐   │
+│  │ Edge Functions (Deno)               │   │
+│  │  - store-checkout (Paystack init)   │   │
+│  │  - paystack-webhook (payment verify)│   │
+│  │  - chat (AI assistant)              │   │
+│  │  - auth-email-hook (custom emails)  │   │
+│  │  - paystack-checkout (subscriptions)│   │
+│  └─────────────────────────────────────┘   │
+└────────────────────────────────────────────┘
+                 │
+┌────────────────▼───────────────────────────┐
+│              Paystack API                  │
+│  (payment initiation + webhook callbacks)  │
+└────────────────────────────────────────────┘</code></pre>
+<hr>
+<h2>2. Authentication & User Management</h2>
+<h3>Sign-Up (Email/Password)</h3>
+<ol>
+<li>User enters: business name (required), phone (optional), email, password (min 6 chars)</li>
+<li><code>supabase.auth.signUp()</code> called with <code>user_metadata: { business_name, phone }</code></li>
+<li>Supabase <code>handle_new_user</code> trigger fires → inserts row into <code>profiles</code> table</li>
+<li>14-day trial period begins (<code>trial_ends_at = now() + 14 days</code>)</li>
+<li>Auth context detects user → navigates to <code>/smartbooks</code></li>
+</ol>
+<h3>Sign-In (Email/Password)</h3>
+<ol>
+<li>User enters email + password</li>
+<li><code>supabase.auth.signInWithPassword()</code> called</li>
+<li>On success, <code>onAuthStateChange</code> fires → updates auth context</li>
+<li><code>useEffect</code> in Auth page detects <code>user</code> → navigates to <code>/smartbooks</code></li>
+<li><code>ProtectedRoute</code> verifies user before rendering SmartBooks</li>
+</ol>
+<h3>Sign-In (Google OAuth)</h3>
+<ol>
+<li>User clicks "Continue with Google"</li>
+<li><code>lovable.auth.signInWithOAuth("google", { redirect_uri: "/smartbooks" })</code> called</li>
+<li>Google OAuth flow completes → redirects to <code>/smartbooks</code></li>
+<li>If profile has no <code>business_name</code> (empty string from trigger default), a non-dismissable dialog prompts the user to enter their business name before accessing the dashboard</li>
+</ol>
+<h3>Password Reset</h3>
+<ol>
+<li>User enters email on auth page → clicks "Forgot your password?"</li>
+<li><code>supabase.auth.resetPasswordForEmail()</code> sends reset link to email</li>
+<li>Link redirects to <code>/reset-password</code> page</li>
+<li>User sets new password</li>
+</ol>
+<h3>Session Persistence</h3>
+<ul>
+<li>Sessions stored in <code>localStorage</code> via Supabase client config</li>
+<li>Auto-refresh tokens enabled</li>
+<li>Safety timeout: loading state never hangs beyond 3 seconds</li>
+</ul>
+<h3>Route Protection</h3>
+<ul>
+<li><code>/smartbooks/*</code> wrapped in <code>ProtectedRoute</code></li>
+<li>If <code>loading = true</code> → show spinner</li>
+<li>If <code>user = null</code> → redirect to <code>/smartbooks/auth</code></li>
+<li>If <code>user</code> set → render page</li>
+</ul>
+<hr>
+<h2>3. Dashboard</h2>
+<h3>Data Fetched</h3>
+<p>Parallel queries on mount (filtered by <code>user_id</code>):</p>
+<ul>
+<li><code>invoices</code> — count, revenue (paid), pending (unpaid/draft/overdue) — <strong>excludes QT- prefixed quotes</strong></li>
+<li><code>expenses</code> — total spend</li>
+<li><code>customers</code> — total count, new this month</li>
+<li><code>inventory</code> — low stock count (items at or below threshold)</li>
+<li><code>store_orders</code> — total orders, paid order count</li>
+<li><code>store_settings</code> — store slug (for share link)</li>
+</ul>
+<h3>Sections Rendered</h3>
+<ol>
+<li><strong>Greeting banner</strong> — business name, store share link (if store is live)</li>
+<li><strong>Revenue card</strong> — total revenue, pending, expenses, net profit (with show/hide toggle)</li>
+<li><strong>To-Do list</strong> — dynamic alerts: unpaid invoices, low stock, missing logo, store not set up</li>
+<li><strong>Business overview</strong> — 4 stat cards: orders, products sold, new customers, total clients</li>
+<li><strong>Financial summary</strong> — total sales, settled, owed, expenses</li>
+<li><strong>Quick actions</strong> — 8 navigation shortcuts to all SmartBooks sections</li>
+<li><strong>Settings dialog</strong> — business name, email, phone, logo upload</li>
+</ol>
+<h3>Logo Upload</h3>
+<ul>
+<li>Uploaded to Supabase Storage bucket: <code>logos</code></li>
+<li>Path: <code>{user_id}/logo-{timestamp}.{ext}</code></li>
+<li>Max size: 5MB</li>
+<li>Formats: image/*</li>
+<li>URL saved to <code>profiles.logo_url</code></li>
+</ul>
+<hr>
+<h2>4. Invoices</h2>
+<h3>Invoice Creation</h3>
+<ul>
+<li>Fields: customer (CRM picker), invoice number (auto-generated), issue date, due date, line items (description, quantity, unit price), discount (%), tax (%), notes, status</li>
+<li>Auto-fill: selecting a customer from CRM auto-fills name, email, phone, address</li>
+<li>Auto-numbering: sequential INV-001, INV-002, etc.</li>
+<li>Status options: draft, sent, paid, overdue</li>
+</ul>
+<h3>Invoice List</h3>
+<ul>
+<li>Sorted by creation date (newest first)</li>
+<li>Filterable by status (all / paid / unpaid / overdue)</li>
+<li>Searchable by customer name or invoice number</li>
+<li>Summary stats: total revenue, pending, paid count</li>
+</ul>
+<h3>PDF/Print</h3>
+<ul>
+<li>Invoice rendered as a printable HTML layout</li>
+<li>User can print via browser or save as PDF</li>
+</ul>
+<h3>Quote Distinction</h3>
+<ul>
+<li>Quotes share the <code>invoices</code> table but use a <code>QT-</code> prefix on <code>invoice_number</code></li>
+<li>All invoice queries filter out <code>QT-%</code> records to avoid count/revenue inflation</li>
+</ul>
+<hr>
+<h2>5. Quotes</h2>
+<h3>Quote Creation</h3>
+<ul>
+<li>Same fields as invoices</li>
+<li>Auto-numbered with QT- prefix (QT-001, QT-002, etc.)</li>
+<li>Status: draft, sent, accepted, rejected</li>
+</ul>
+<h3>Convert to Invoice</h3>
+<ul>
+<li>One-click conversion: creates a new invoice record with all quote data</li>
+<li>Preserves customer details, line items, amounts</li>
+<li>Quote status updated to "accepted"</li>
+</ul>
+<hr>
+<h2>6. Expenses</h2>
+<h3>Expense Entry</h3>
+<ul>
+<li>Fields: description (required), amount (required), category (dropdown), date</li>
+<li>Categories: Rent, Utilities, Transport, Supplies, Marketing, Salary, Equipment, Food, Internet, Other</li>
+</ul>
+<h3>Summary Stats</h3>
+<ul>
+<li>Total expenses (all time)</li>
+<li>This month's expenses (filtered by current month AND year)</li>
+<li>Total entry count</li>
+</ul>
+<h3>List View</h3>
+<ul>
+<li>Sorted by date (newest first)</li>
+<li>Searchable by description or category</li>
+<li>Delete with confirmation dialog</li>
+</ul>
+<hr>
+<h2>7. CRM (Customers)</h2>
+<h3>Customer Record</h3>
+<ul>
+<li>Fields: name (required), email, phone, company, notes</li>
+</ul>
+<h3>Usage</h3>
+<ul>
+<li>Customer list is accessible from Invoice and Quote creation forms</li>
+<li>Selecting a customer auto-fills: name, email, phone, address into the invoice/quote</li>
+</ul>
+<h3>Summary Stats</h3>
+<ul>
+<li>Total customers</li>
+<li>Added this month (filtered by current month AND year)</li>
+</ul>
+<h3>Search</h3>
+<ul>
+<li>Real-time filter by name, email, or company</li>
+</ul>
+<hr>
+<h2>8. Inventory</h2>
+<h3>Product Record</h3>
+<ul>
+<li>Fields: name (required), SKU, category, quantity, unit price, low-stock threshold (default 5)</li>
+</ul>
+<h3>Low Stock Alerts</h3>
+<ul>
+<li>Products at or below their threshold shown with a warning icon (AlertTriangle)</li>
+<li>Dashboard to-do list surfaces the count of low-stock items</li>
+</ul>
+<h3>Total Value</h3>
+<ul>
+<li>Calculated as: <code>SUM(quantity × unit_price)</code> across all products</li>
+</ul>
+<h3>List to Store</h3>
+<ul>
+<li>Any inventory item can be published to the online store via a "List in Store" dialog</li>
+<li>Sets store product price and description</li>
+<li>Creates a new <code>store_products</code> record (does not modify inventory record)</li>
+</ul>
+<hr>
+<h2>9. Online Store</h2>
+<h3>Store Settings</h3>
+<ul>
+<li><strong>Store Info:</strong> store name, URL slug (auto-generated, unique), description, published toggle</li>
+<li><strong>Appearance:</strong></li>
+<p>- Theme color: 9 preset swatches (Zinc, Blue, Indigo, Emerald, Orange, Red, Purple, Pink, Amber)<br>  - Store logo: uploadable image, shown in storefront header and status banner<br>  - Banner image: uploadable hero image shown below storefront header (recommended 1200×400px)</p>
+<li><strong>URL:</strong> <code>{origin}/store/{slug}</code> — publicly accessible without login</li>
+</ul>
+<h3>Store Products</h3>
+<ul>
+<li>Fields: name, description, price, compare-at price (for sale display), category, stock quantity, image, active/hidden toggle</li>
+<li>Images uploaded to Supabase Storage bucket: <code>store-images</code></li>
+<li>Products can be edited, hidden/shown, or deleted from the dashboard</li>
+</ul>
+<h3>Store Appearance Applied</h3>
+<ul>
+<li>Theme color: applied to "Add to Cart" buttons, product prices, cart badge, checkout total, Pay Now button</li>
+<li>Logo: shown in storefront header (circular or rounded square)</li>
+<li>Banner: full-width hero image below the header (height: 160px mobile, 224px desktop)</li>
+</ul>
+<h3>Storefront (Public — No Login Required)</h3>
+<ul>
+<li>Accessible to any customer via the store URL</li>
+<li>Shows: store header (logo, name, description), banner, product grid</li>
+<li>Products filtered to: <code>is_active = true</code></li>
+<li>Store settings filtered to: <code>is_published = true</code></li>
+</ul>
+<h3>Checkout Flow</h3>
+<ol>
+<li>Customer adds products to cart</li>
+<li>Cart dialog shows items, quantities, total</li>
+<li>Customer proceeds to checkout</li>
+<li>Fills in: name (required), email (required), phone (required), delivery address (optional)</li>
+<li>Order record created in <code>store_orders</code></li>
+<li>Order items inserted into <code>store_order_items</code></li>
+<li><code>store-checkout</code> Edge Function called → initialises Paystack transaction</li>
+<li>Customer redirected to Paystack payment page</li>
+<li>On success: redirected to <code>/store/order-success?order_id=...&slug=...</code></li>
+<li>Paystack webhook verifies payment → updates <code>store_orders.payment_status = "paid"</code></li>
+</ol>
+<h3>Order Success Page</h3>
+<ul>
+<li>Shows: success icon, order reference (first 8 chars of order ID), "Back to Store" button (if slug in URL)</li>
+</ul>
+<hr>
+<h2>10. Orders</h2>
+<h3>Order List</h3>
+<ul>
+<li>Shows: order number, customer name, date, payment status badge, order status badge, total amount</li>
+<li>Searchable by order number or customer name</li>
+<li>Sorted by creation date (newest first)</li>
+</ul>
+<h3>Order Detail Dialog</h3>
+<ul>
+<li>Customer info: name, email, phone, delivery address</li>
+<li>Order items: product name, unit price × quantity, line total</li>
+<li>Order total</li>
+<li>Payment reference (Paystack reference)</li>
+<li>Status update buttons: pending, confirmed, shipped, delivered, cancelled</li>
+</ul>
+<h3>Status Update</h3>
+<ul>
+<li>Updates <code>store_orders.status</code></li>
+<li>Error shown to user if update fails (does not show success toast on failure)</li>
+</ul>
+<hr>
+<h2>11. Reports & Analytics</h2>
+<h3>Summary Cards</h3>
+<p>| Card | Value |<br>|------|-------|<br>| Paid Revenue | Sum of all paid invoice totals |<br>| Pending Value | Sum of all non-paid invoice totals |<br>| Expenses | Sum of all expense amounts |<br>| Customers | Total CRM contact count |</p>
+<h3>Revenue Trend Chart</h3>
+<ul>
+<li>Bar chart: last 6 months</li>
+<li>Y-axis: NGN revenue from paid invoices</li>
+<li>X-axis: month labels</li>
+<li>Data source: <code>invoices</code> where <code>status = "paid"</code>, grouped by <code>issue_date</code> month/year</li>
+</ul>
+<h3>Expense Breakdown Chart</h3>
+<ul>
+<li>Pie/donut chart: top 5 expense categories by spend</li>
+<li>Legend with category name and NGN amount</li>
+<li>Remaining categories grouped into "Other"</li>
+</ul>
+<h3>Customer Growth Chart</h3>
+<ul>
+<li>Line chart: last 6 months</li>
+<li>Y-axis: new customers added per month</li>
+<li>X-axis: month labels</li>
+</ul>
+<h3>Data Filtering</h3>
+<ul>
+<li>Invoice data excludes QT- prefixed records (quotes)</li>
+<li>All data scoped to <code>user_id</code></li>
+</ul>
+<hr>
+<h2>12. AI Assistant</h2>
+<ul>
+<li>Accessible as a floating chat widget on the landing page</li>
+<li>Powered by Supabase Edge Function: <code>chat</code></li>
+<li>Uses Anthropic / OpenAI API (configured via Supabase secret)</li>
+<li>Business context injected into prompt: business name</li>
+<li>Handles: pricing advice, cash flow questions, business strategy, Nigerian market context</li>
+</ul>
+<hr>
+<h2>13. Admin Panel</h2>
+<h3>Access Control</h3>
+<ul>
+<li>Only users with <code>user_roles.role = "admin"</code> can access <code>/smartbooks/admin</code></li>
+<li><code>isAdmin</code> flag exposed via <code>useAuth()</code> hook</li>
+<li>Sidebar "Admin" section hidden for non-admin users</li>
+</ul>
+<h3>Features</h3>
+<ul>
+<li>View all registered users</li>
+<li>See subscription status per user</li>
+<li>Platform-wide usage overview</li>
+</ul>
+<hr>
+<h2>14. Data Models</h2>
+<h3><code>profiles</code></h3>
+<p>| Column | Type | Notes |<br>|--------|------|-------|<br>| id | uuid | FK to auth.users |<br>| email | text | nullable |<br>| business_name | text | default '' |<br>| phone | text | nullable |<br>| logo_url | text | nullable |<br>| subscription_status | text | nullable |<br>| trial_ends_at | timestamptz | nullable |<br>| updated_at | timestamptz | |</p>
+<h3><code>invoices</code></h3>
+<p>| Column | Type | Notes |<br>|--------|------|-------|<br>| id | uuid | PK |<br>| user_id | uuid | FK to auth.users |<br>| invoice_number | text | INV-xxx or QT-xxx |<br>| customer_name | text | |<br>| customer_email | text | nullable |<br>| customer_phone | text | nullable |<br>| customer_address | text | nullable |<br>| issue_date | date | |<br>| due_date | date | nullable |<br>| items | jsonb | line items array |<br>| subtotal | numeric | |<br>| discount | numeric | |<br>| tax | numeric | |<br>| total | numeric | |<br>| status | text | draft/sent/paid/overdue/accepted/rejected |<br>| notes | text | nullable |<br>| created_at | timestamptz | |</p>
+<h3><code>customers</code></h3>
+<p>| Column | Type | Notes |<br>|--------|------|-------|<br>| id | uuid | PK |<br>| user_id | uuid | FK |<br>| name | text | required |<br>| email | text | nullable |<br>| phone | text | nullable |<br>| company | text | nullable |<br>| notes | text | nullable |<br>| created_at | timestamptz | |</p>
+<h3><code>expenses</code></h3>
+<p>| Column | Type | Notes |<br>|--------|------|-------|<br>| id | uuid | PK |<br>| user_id | uuid | FK |<br>| description | text | required |<br>| amount | numeric | |<br>| category | text | |<br>| date | date | |<br>| created_at | timestamptz | |</p>
+<h3><code>inventory</code></h3>
+<p>| Column | Type | Notes |<br>|--------|------|-------|<br>| id | uuid | PK |<br>| user_id | uuid | FK |<br>| name | text | required |<br>| sku | text | nullable |<br>| quantity | integer | default 0 |<br>| unit_price | numeric | default 0 |<br>| category | text | nullable |<br>| low_stock_threshold | integer | default 5 |<br>| created_at | timestamptz | |</p>
+<h3><code>store_settings</code></h3>
+<p>| Column | Type | Notes |<br>|--------|------|-------|<br>| id | uuid | PK |<br>| user_id | uuid | FK (unique) |<br>| store_name | text | |<br>| store_slug | text | unique |<br>| description | text | |<br>| logo_url | text | nullable |<br>| banner_url | text | nullable |<br>| theme_color | text | default '#18181b' |<br>| currency | text | default 'NGN' |<br>| is_published | boolean | default false |<br>| created_at | timestamptz | |<br>| updated_at | timestamptz | |</p>
+<h3><code>store_products</code></h3>
+<p>| Column | Type | Notes |<br>|--------|------|-------|<br>| id | uuid | PK |<br>| user_id | uuid | FK |<br>| name | text | |<br>| description | text | |<br>| price | numeric | |<br>| compare_at_price | numeric | nullable |<br>| image_url | text | nullable |<br>| category | text | nullable |<br>| stock_quantity | integer | default 0 |<br>| is_active | boolean | default true |<br>| created_at | timestamptz | |<br>| updated_at | timestamptz | |</p>
+<h3><code>store_orders</code></h3>
+<p>| Column | Type | Notes |<br>|--------|------|-------|<br>| id | uuid | PK |<br>| store_user_id | uuid | FK to store owner |<br>| order_number | text | ORD-{timestamp36} |<br>| customer_name | text | |<br>| customer_email | text | |<br>| customer_phone | text | nullable |<br>| customer_address | text | nullable |<br>| subtotal | numeric | |<br>| total | numeric | |<br>| status | text | pending/confirmed/shipped/delivered/cancelled |<br>| payment_status | text | unpaid/paid/refunded |<br>| payment_reference | text | nullable (Paystack ref) |<br>| notes | text | nullable |<br>| created_at | timestamptz | |<br>| updated_at | timestamptz | |</p>
+<h3><code>store_order_items</code></h3>
+<p>| Column | Type | Notes |<br>|--------|------|-------|<br>| id | uuid | PK |<br>| order_id | uuid | FK → store_orders (cascade delete) |<br>| product_id | uuid | FK → store_products |<br>| product_name | text | snapshot at order time |<br>| quantity | integer | |<br>| unit_price | numeric | |<br>| amount | numeric | quantity × unit_price |<br>| created_at | timestamptz | |</p>
+<hr>
+<h2>15. Integrations</h2>
+<h3>Supabase</h3>
+<ul>
+<li><strong>Auth:</strong> JWT-based sessions, Google OAuth, email/password, magic links</li>
+<li><strong>Database:</strong> PostgreSQL with Row Level Security on all tables</li>
+<li><strong>Storage:</strong> Two public buckets: <code>logos</code> (business logos), <code>store-images</code> (product/banner images)</li>
+<li><strong>Edge Functions (Deno runtime):</strong></li>
+<p>- <code>store-checkout</code> — initiates Paystack payment for store orders (JWT verification disabled for anonymous customers)<br>  - <code>paystack-checkout</code> — subscription billing<br>  - <code>paystack-webhook</code> — verifies Paystack events, updates payment status<br>  - <code>chat</code> — AI assistant proxy<br>  - <code>auth-email-hook</code> — custom auth email templates<br>  - <code>process-email-queue</code> — email delivery</p>
+</ul>
+<h3>Paystack</h3>
+<ul>
+<li>Payment provider for Nigerian NGN transactions</li>
+<li>Store checkout: amount passed in kobo (NGN × 100)</li>
+<li>Callback URL: <code>{origin}/store/order-success?order_id={id}&slug={slug}</code></li>
+<li>Secret key stored as Supabase secret: <code>paystack_API_KEY</code></li>
+</ul>
+<hr>
+<h2>16. Security Requirements</h2>
+<h3>Row Level Security (RLS)</h3>
+<p>All tables enforce user isolation:</p>
+<p>| Table | authenticated can | anon can |<br>|-------|-------------------|----------|<br>| profiles | SELECT/UPDATE own row | — |<br>| invoices | ALL on own rows | — |<br>| customers | ALL on own rows | — |<br>| expenses | ALL on own rows | — |<br>| inventory | ALL on own rows | — |<br>| store_settings | ALL on own rows | SELECT published stores |<br>| store_products | ALL on own rows | SELECT active products |<br>| store_orders | SELECT/UPDATE own store orders | INSERT (place orders) |<br>| store_order_items | SELECT own order items | INSERT |</p>
+<h3>Secret Management</h3>
+<ul>
+<li>Paystack API key: Supabase Edge Function secret (never in client code)</li>
+<li>Supabase anon key: safe to expose (RLS enforces access control)</li>
+<li>Service role key: never used client-side</li>
+</ul>
+<h3>Auth Security</h3>
+<ul>
+<li>Passwords: handled by Supabase Auth (bcrypt hashed)</li>
+<li>Sessions: stored in localStorage, auto-refreshed</li>
+<li>OAuth state: managed by Supabase + Lovable SDK</li>
+<li>Password reset: secure email link with expiry</li>
+</ul>
+<h3>Input Validation</h3>
+<ul>
+<li>All user inputs trimmed before saving</li>
+<li>Numeric fields validated before DB insert</li>
+<li>File uploads: type and size checked client-side before upload (max 5MB, image/* only)</li>
+<li>Store slugs: sanitised to lowercase alphanumeric + hyphens only</li>
+</ul>
+<hr>
+<h2>17. Deployment</h2>
+<ul>
+<li><strong>Hosting:</strong> Lovable (https://smartbiz.team)</li>
+<li><strong>CI/CD:</strong> Push to <code>main</code> branch on GitHub → Lovable auto-redeploys</li>
+<li><strong>Environment variables:</strong> stored in <code>.env</code> (committed), read as <code>import.meta.env.VITE_*</code></li>
+<li><strong>Supabase project:</strong> <code>kjlpppxgyydzdsmxdowv</code></li>
+</ul>
+<hr>
+<p><em>Document prepared: May 2026 | SmartBiz Partners</em></p>
+
+</div>
+</body>
+</html>

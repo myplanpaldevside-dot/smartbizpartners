@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs cat)",
+      "Bash(git commit -m ' *)",
+      "Bash(git -C /Users/mac/Downloads/smartbizpartners-main status)",
+      "Bash(git -C /Users/mac/Downloads/smartbizpartners-main diff)",
+      "Bash(git -C /Users/mac/Downloads/smartbizpartners-main log --oneline -5)",
+      "Bash(git -C /Users/mac/Downloads/smartbizpartners-main add src/integrations/supabase/types.ts src/pages/smartbooks/Store.tsx)",
+      "Bash(git -C /Users/mac/Downloads/smartbizpartners-main commit -m ' *)",
+      "Bash(git -C /Users/mac/Downloads/smartbizpartners-main push origin main)"
+    ]
+  }
+}
