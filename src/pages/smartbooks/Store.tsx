@@ -160,16 +160,19 @@ export default function Store() {
   };
 
   const uploadStoreImage = async (file: File, folder: string): Promise<string | null> => {
-    if (!user) return null;
+    if (!user) { toast({ title: "You must be signed in to upload", variant: "destructive" }); return null; }
     if (!file.type.startsWith("image/")) { toast({ title: "Select an image file", variant: "destructive" }); return null; }
-    if (file.size > 5 * 1024 * 1024) { toast({ title: "Max 5MB", variant: "destructive" }); return null; }
+    if (file.size > 5 * 1024 * 1024) { toast({ title: "Image must be under 5MB", variant: "destructive" }); return null; }
     const ext = file.name.split(".").pop() || "jpg";
     const path = `${user.id}/${folder}-${Date.now()}.${ext}`;
-    const { error } = await withTimeout(
+    const { data, error } = await withTimeout(
       supabase.storage.from("store-images").upload(path, file, { cacheControl: "3600", contentType: file.type, upsert: true }),
     );
-    if (error) throw error;
-    const { data: urlData } = supabase.storage.from("store-images").getPublicUrl(path);
+    if (error) {
+      console.error("Store image upload error:", error);
+      throw new Error(error.message || "Upload failed — check that the store-images bucket exists in Supabase.");
+    }
+    const { data: urlData } = supabase.storage.from("store-images").getPublicUrl(data.path);
     return `${urlData.publicUrl}?t=${Date.now()}`;
   };
 
