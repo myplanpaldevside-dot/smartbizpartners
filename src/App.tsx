@@ -26,11 +26,7 @@ const AuthCallback = lazy(() => import("./pages/smartbooks/AuthCallback"));
 const Pricing = lazy(() => import("./pages/smartbooks/Pricing"));
 const AdminDashboard = lazy(() => import("./pages/smartbooks/AdminDashboard"));
 const ResetPassword = lazy(() => import("./pages/smartbooks/ResetPassword"));
-const Store = lazy(() => import("./pages/smartbooks/Store"));
-const Orders = lazy(() => import("./pages/smartbooks/Orders"));
 const Reports = lazy(() => import("./pages/smartbooks/Reports"));
-const Storefront = lazy(() => import("./pages/Storefront"));
-const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: Error | null }> {
   constructor(props: { children: ReactNode }) {
@@ -82,8 +78,6 @@ const App = () => (
           <Suspense fallback={<SmartBooksLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/store/:slug" element={<Storefront />} />
-              <Route path="/store/order-success" element={<OrderSuccess />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
@@ -105,8 +99,6 @@ const App = () => (
                 <Route path="inventory" element={<Inventory />} />
                 <Route path="quotes" element={<Quotes />} />
                 
-                <Route path="store" element={<Store />} />
-                <Route path="orders" element={<Orders />} />
                 <Route path="reports" element={<Reports />} />
                 <Route path="admin" element={<AdminDashboard />} />
               </Route>

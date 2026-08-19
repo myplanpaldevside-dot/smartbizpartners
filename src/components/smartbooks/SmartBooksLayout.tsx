@@ -27,8 +27,6 @@ export default function SmartBooksLayout() {
       "/smartbooks/crm": "Customers",
       "/smartbooks/inventory": "Inventory",
       "/smartbooks/quotes": "Quotes",
-      "/smartbooks/store": "Store",
-      "/smartbooks/orders": "Orders",
       "/smartbooks/reports": "Reports",
       "/smartbooks/admin": "Admin",
     }[location.pathname] || "SmartBooks";
