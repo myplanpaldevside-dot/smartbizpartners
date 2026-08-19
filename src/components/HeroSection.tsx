@@ -164,7 +164,7 @@ const HeroSection = () => {
                       key={i}
                       initial={{ scaleY: 0 }}
                       animate={{ scaleY: 1 }}
-                      transition={{ delay: 0.9 + i * 0.05, duration: 0.4, origin: "bottom" }}
+                      transition={{ delay: 0.9 + i * 0.05, duration: 0.4 }}
                       style={{
                         height: `${h}%`,
                         background:
