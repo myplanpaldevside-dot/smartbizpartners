@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Safety timeout - never stay loading for more than 3 seconds
     const timeout = setTimeout(() => {
-      if (mounted && loading) {
+      if (mounted) {
         setLoading(false);
       }
     }, 3000);
@@ -120,12 +120,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Then listen for changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      (event, session) => {
         if (!mounted) return;
         const currentUser = session?.user ?? null;
         setUser(currentUser);
         if (currentUser) {
-          await fetchProfile(currentUser);
+          if (event !== "TOKEN_REFRESHED") {
+            // Defer Supabase calls out of the auth callback to avoid deadlocks
+            setTimeout(() => {
+              if (mounted) void fetchProfile(currentUser);
+            }, 0);
+          }
         } else {
           setProfile(null);
           setIsAdmin(false);
@@ -142,10 +147,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [fetchProfile]);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    // Clear local state first so the UI never hangs on a failed network call
     setUser(null);
     setProfile(null);
     setIsAdmin(false);
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Sign out error", error);
+    }
+    try {
+      // Belt & braces: drop any stale Supabase tokens left in storage
+      Object.keys(localStorage)
+        .filter((key) => key.startsWith("sb-") && key.endsWith("-auth-token"))
+        .forEach((key) => localStorage.removeItem(key));
+    } catch {
+      // storage unavailable — ignore
+    }
+    window.location.replace("/smartbooks/auth");
   }, []);
 
   return (
