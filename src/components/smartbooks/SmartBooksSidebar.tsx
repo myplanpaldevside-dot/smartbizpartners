@@ -109,12 +109,19 @@ export function SmartBooksSidebar() {
         )}
       </SidebarContent>
 
-      <SidebarFooter className="p-3">
-        {!collapsed && (
-          <p className="text-[10px] text-muted-foreground/40 text-center">
-            {businessName}
-          </p>
+      <SidebarFooter className="p-3 space-y-2">
+        {!collapsed && user?.email && (
+          <p className="truncate px-1 text-[11px] text-muted-foreground">{user.email}</p>
         )}
+        <button
+          type="button"
+          onClick={() => { void signOut(); }}
+          aria-label="Sign out"
+          className="flex w-full items-center rounded-lg px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+        >
+          <LogOut className="mr-2 h-4 w-4 shrink-0" />
+          {!collapsed && <span>Sign out</span>}
+        </button>
       </SidebarFooter>
     </Sidebar>
   );
