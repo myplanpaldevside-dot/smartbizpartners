@@ -7,8 +7,6 @@ import {
   LayoutDashboard,
   ArrowLeft,
   Shield,
-  ShoppingBag,
-  ShoppingCart,
   ChartNoAxesCombined,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
@@ -35,8 +33,6 @@ const tools = [
   { title: "Customers", url: "/smartbooks/crm", icon: Users },
   { title: "Inventory", url: "/smartbooks/inventory", icon: Package },
   { title: "Quotes", url: "/smartbooks/quotes", icon: FileCheck },
-  { title: "Store", url: "/smartbooks/store", icon: ShoppingBag },
-  { title: "Orders", url: "/smartbooks/orders", icon: ShoppingCart },
   { title: "Reports", url: "/smartbooks/reports", icon: ChartNoAxesCombined },
 ];
 

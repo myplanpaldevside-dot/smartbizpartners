@@ -8,10 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   FileText, Calculator, Users, Package, FileCheck, ArrowRight,
-  LogOut, Settings, Camera, ShoppingBag, Wallet, BarChart3, Clock,
-  ShoppingCart, Upload, ChartNoAxesCombined, TrendingUp, TrendingDown,
-  AlertCircle, CheckCircle2, Eye, EyeOff, Copy, ExternalLink,
-  CircleDollarSign, PackageCheck, UserPlus, Globe, MoreHorizontal,
+  LogOut, Settings, Camera, Wallet, BarChart3, Clock,
+  Upload, ChartNoAxesCombined, TrendingUp, TrendingDown,
+  AlertCircle, CheckCircle2, Eye, EyeOff, ExternalLink,
+  CircleDollarSign, PackageCheck, UserPlus, MoreHorizontal,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
@@ -48,12 +48,9 @@ export default function SmartBooksDashboard() {
     pending: 0,
     customers: 0,
     expenses: 0,
-    orders: 0,
-    productsSold: 0,
     lowStockCount: 0,
     unpaidInvoices: 0,
     newCustomersThisMonth: 0,
-    storeSlug: "",
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,20 +59,17 @@ export default function SmartBooksDashboard() {
   const fetchStats = async () => {
     if (!user) return;
     try {
-      const [invoiceRes, expenseRes, customerRes, inventoryRes, orderRes, storeRes] = await Promise.all([
+      const [invoiceRes, expenseRes, customerRes, inventoryRes] = await Promise.all([
         supabase.from("invoices").select("total,status,customer_name").eq("user_id", user.id).not("invoice_number", "like", "QT-%"),
         supabase.from("expenses").select("amount").eq("user_id", user.id),
         supabase.from("customers").select("created_at").eq("user_id", user.id),
         supabase.from("inventory").select("quantity,low_stock_threshold").eq("user_id", user.id),
-        supabase.from("store_orders").select("total,status,payment_status").eq("store_user_id", user.id),
-        supabase.from("store_settings").select("store_slug").eq("user_id", user.id).maybeSingle(),
       ]);
 
       const invoices = invoiceRes.data || [];
       const expenseData = expenseRes.data || [];
       const customerData = customerRes.data || [];
       const inventoryData = inventoryRes.data || [];
-      const orderData = orderRes.data || [];
 
       const now = new Date();
       const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -86,12 +80,9 @@ export default function SmartBooksDashboard() {
         pending: invoices.filter((i: any) => ["sent", "draft", "overdue"].includes(i.status)).reduce((s: number, i: any) => s + Number(i.total), 0),
         customers: customerData.length,
         expenses: expenseData.reduce((s: number, e: any) => s + Number(e.amount), 0),
-        orders: orderData.length,
-        productsSold: orderData.filter((o: any) => o.payment_status === "paid").length,
         lowStockCount: inventoryData.filter((i: any) => i.quantity <= i.low_stock_threshold).length,
         unpaidInvoices: invoices.filter((i: any) => i.status !== "paid").length,
         newCustomersThisMonth: customerData.filter((c: any) => c.created_at >= thisMonthStart).length,
-        storeSlug: storeRes.data?.store_slug || "",
       });
     } catch (err: any) {
       toast({ title: "Failed to load dashboard data", description: err?.message, variant: "destructive" });
@@ -115,7 +106,6 @@ export default function SmartBooksDashboard() {
     if (stats.unpaidInvoices > 0) items.push({ icon: AlertCircle, text: `${stats.unpaidInvoices} unpaid invoice${stats.unpaidInvoices > 1 ? "s" : ""} need attention`, link: "/smartbooks/invoices", type: "warning" });
     if (stats.lowStockCount > 0) items.push({ icon: Package, text: `${stats.lowStockCount} product${stats.lowStockCount > 1 ? "s" : ""} running low on stock`, link: "/smartbooks/inventory", type: "warning" });
     if (!profile?.logo_url) items.push({ icon: Camera, text: "Upload your business logo", link: "#", type: "info" });
-    if (!stats.storeSlug) items.push({ icon: ShoppingBag, text: "Set up your online store", link: "/smartbooks/store", type: "info" });
     return items;
   }, [stats, profile]);
 
@@ -168,16 +158,9 @@ export default function SmartBooksDashboard() {
     setShowSettings(true);
   };
 
-  const copyStoreLink = () => {
-    if (stats.storeSlug) {
-      navigator.clipboard.writeText(`${window.location.origin}/store/${stats.storeSlug}`);
-      toast({ title: "Store link copied!" });
-    }
-  };
-
   const overviewStats = [
-    { label: "Orders", value: String(stats.orders), icon: ShoppingCart, color: "text-blue-600 bg-blue-100" },
-    { label: "Products Sold", value: String(stats.productsSold), icon: PackageCheck, color: "text-emerald-600 bg-emerald-100" },
+    { label: "Invoices", value: String(stats.invoiceCount), icon: FileText, color: "text-blue-600 bg-blue-100" },
+    { label: "Low Stock", value: String(stats.lowStockCount), icon: PackageCheck, color: "text-emerald-600 bg-emerald-100" },
     { label: "New Customers", value: String(stats.newCustomersThisMonth), icon: UserPlus, color: "text-orange-600 bg-orange-100" },
     { label: "Total Clients", value: String(stats.customers), icon: Users, color: "text-purple-600 bg-purple-100" },
   ];
@@ -188,8 +171,6 @@ export default function SmartBooksDashboard() {
     { title: "Customers", desc: "Manage CRM", icon: Users, url: "/smartbooks/crm", color: "text-emerald-600 bg-emerald-50" },
     { title: "Inventory", desc: "Stock levels", icon: Package, url: "/smartbooks/inventory", color: "text-purple-600 bg-purple-50" },
     { title: "Quotes", desc: "Proposals", icon: FileCheck, url: "/smartbooks/quotes", color: "text-cyan-600 bg-cyan-50" },
-    { title: "Store", desc: "Online shop", icon: ShoppingBag, url: "/smartbooks/store", color: "text-pink-600 bg-pink-50" },
-    { title: "Orders", desc: "Track orders", icon: ShoppingCart, url: "/smartbooks/orders", color: "text-amber-600 bg-amber-50" },
     { title: "Reports", desc: "Analytics", icon: ChartNoAxesCombined, url: "/smartbooks/reports", color: "text-violet-600 bg-violet-50" },
   ];
 
@@ -211,11 +192,6 @@ export default function SmartBooksDashboard() {
           <input ref={fileInputRef} type="file" accept="image/*" className="sr-only" onChange={handleLogoUpload} />
           <div>
             <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Hello, {businessName.split(" ")[0]}</h1>
-            {stats.storeSlug && (
-              <button onClick={copyStoreLink} className="flex items-center gap-1 text-xs text-primary hover:underline mt-0.5">
-                <Globe className="h-3 w-3" /> Share your store link <Copy className="h-3 w-3" />
-              </button>
-            )}
           </div>
         </div>
         <div className="flex items-center gap-1.5">
