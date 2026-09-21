@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   Shield,
   ChartNoAxesCombined,
+  LogOut,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -40,7 +41,7 @@ export function SmartBooksSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const { isAdmin, profile } = useAuth();
+  const { isAdmin, profile, user, signOut } = useAuth();
   const businessName = profile?.business_name || "SmartBooks";
 
   return (
